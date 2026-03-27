@@ -23,8 +23,9 @@
       const data = await res.json();
       const resultsEl = document.getElementById('results');
       const count = data.results.length;
-      resultsEl.innerHTML = `<p>Found ${count} problem${count !== 1 ? 's' : ''}.</p>` +
-        (count > 0 ? '<ul>' + data.results.map(r => `<li>${r}</li>`).join('') + '</ul>' : '');
+      let html = `<p>Found ${count} problem${count !== 1 ? 's' : ''}.</p>`;
+      data.results.forEach(r => { html += `<p>${r}</p>`; });
+      resultsEl.innerHTML = html;
     });
   </script>
 </body>
