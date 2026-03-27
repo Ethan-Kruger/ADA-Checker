@@ -1,0 +1,12 @@
+html {
+  background-color: #0d0d0d;
+}
+
+body {
+  background-color: #0d2b6e;
+}
+
+button[type="button"] {
+  background-color: #4f4fbf;
+  color: #ffffff;
+}
