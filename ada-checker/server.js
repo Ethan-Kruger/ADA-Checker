@@ -2,7 +2,6 @@ const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
-const axios = require('axios');
 const runChecks = require('./src/checker');
 
 const app = express();
@@ -13,14 +12,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/api/check', async (req, res) => {
-  const { url } = req.body;
-  if (!url) {
-    return res.status(400).json({ error: 'url is required' });
+app.post('/api/check', (req, res) => {
+  const { html } = req.body;
+  if (!html) {
+    return res.status(400).json({ error: 'html is required' });
   }
-  const response = await axios.get(url);
-  const results = runChecks(response.data);
-  res.json({ url, results });
+  const results = runChecks(html);
+  res.json({ results });
 });
 
 app.listen(PORT, () => {
