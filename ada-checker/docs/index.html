@@ -23,9 +23,15 @@
       const data = await res.json();
       const resultsEl = document.getElementById('results');
       const count = data.results.length;
-      let html = `<p>Found ${count} problem${count !== 1 ? 's' : ''}.</p>`;
-      data.results.forEach(r => { html += `<p>${r}</p>`; });
-      resultsEl.innerHTML = html;
+      let output = `<p>Found ${count} problem${count !== 1 ? 's' : ''}.</p>`;
+      data.results.forEach(r => {
+        output += `<div class="violation severity-${r.severity}">
+          <p><strong>${r.severity.toUpperCase()}:</strong> ${r.message}</p>
+          <p>Element: <span class="element">${r.element.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></p>
+          <p>Remediation: ${r.remediation}</p>
+        </div>`;
+      });
+      resultsEl.innerHTML = output;
     });
   </script>
 </body>
