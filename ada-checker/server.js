@@ -10,7 +10,7 @@ const PORT = 3000;
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'docs')));
 
 app.post('/api/check', (req, res) => {
   const { html } = req.body;
