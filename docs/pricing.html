@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing – ADA Accessibility Checker</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Sticky navigation bar -->
+  <nav class="site-nav" aria-label="Site navigation">
+    <a href="index.html" class="nav-logo" aria-label="ADA Checker — home">
+      <img src="images/logo.svg" alt="" aria-hidden="true" width="32" height="32">
+      <span class="nav-brand">ADA Checker</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Checker</a>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <div class="pricing-hero">
+      <h1>Simple, Transparent Pricing</h1>
+      <p>Start for free. Upgrade when you need more.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- Free tier -->
+      <article class="pricing-card" aria-labelledby="tier-free">
+        <div class="card-header">
+          <h2 id="tier-free">Free</h2>
+          <div class="price-display">
+            <span class="price-amount">$0</span>
+            <span class="price-period">/month</span>
+          </div>
+        </div>
+        <ul class="feature-list" aria-label="Free tier features">
+          <li>Check up to 10 pages per day</li>
+          <li>Basic 13 accessibility checks</li>
+          <li>HTML paste only</li>
+          <li>Email support</li>
+        </ul>
+        <button type="button" class="pricing-btn btn-outline"
+                onclick="alert('Free tier — no signup needed! Head to the Checker to get started.')">
+          Get Started
+        </button>
+      </article>
+
+      <!-- Pro tier (featured) -->
+      <article class="pricing-card featured" aria-labelledby="tier-pro">
+        <div class="popular-badge" aria-label="Most popular plan">Most Popular</div>
+        <div class="card-header">
+          <h2 id="tier-pro">Pro</h2>
+          <div class="price-display">
+            <span class="price-amount">$19</span>
+            <span class="price-period">/month</span>
+          </div>
+        </div>
+        <ul class="feature-list" aria-label="Pro tier features">
+          <li>Unlimited page checks</li>
+          <li>All 13 accessibility checks</li>
+          <li>URL checking enabled</li>
+          <li>Batch checking (multiple pages)</li>
+          <li>Priority email support</li>
+          <li>Downloadable PDF reports</li>
+        </ul>
+        <button type="button" class="pricing-btn btn-primary"
+                onclick="alert('Free trial coming soon!')">
+          Start Free Trial
+        </button>
+      </article>
+
+      <!-- Enterprise tier -->
+      <article class="pricing-card" aria-labelledby="tier-enterprise">
+        <div class="card-header">
+          <h2 id="tier-enterprise">Enterprise</h2>
+          <div class="price-display">
+            <span class="price-amount price-custom">Custom</span>
+            <span class="price-period">pricing</span>
+          </div>
+        </div>
+        <ul class="feature-list" aria-label="Enterprise tier features">
+          <li>Everything in Pro</li>
+          <li>API access</li>
+          <li>Team collaboration</li>
+          <li>Custom rules</li>
+          <li>Dedicated account manager</li>
+          <li>SLA guarantee</li>
+        </ul>
+        <button type="button" class="pricing-btn btn-outline"
+                onclick="alert('Contact form coming soon!')">
+          Contact Sales
+        </button>
+      </article>
+
+    </div>
+
+    <!-- FAQ / reassurance strip -->
+    <div class="pricing-note">
+      <p>All plans include WCAG 2.1 compliance checks. No credit card required for Free tier.</p>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="#" onclick="alert('About page coming soon!'); return false;">About</a>
+      <a href="#" onclick="alert('Privacy page coming soon!'); return false;">Privacy</a>
+      <a href="#" onclick="alert('Terms page coming soon!'); return false;">Terms</a>
+      <a href="#" onclick="alert('Contact page coming soon!'); return false;">Contact</a>
+    </nav>
+    <p class="footer-copy">&copy; 2026 ADA Checker. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
