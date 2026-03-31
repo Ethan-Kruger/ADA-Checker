@@ -3,36 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADA Checker</title>
+  <title>ADA Accessibility Checker</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <h1>ADA Checker</h1>
-  <label for="html-input">Paste HTML to check:</label><br>
-  <textarea id="html-input" rows="10" cols="60" placeholder="<img src='photo.png'>"></textarea><br>
-  <button type="button" id="check-btn">Check Accessibility</button>
-  <div id="results"></div>
-  <script>
-    document.getElementById('check-btn').addEventListener('click', async () => {
-      const html = document.getElementById('html-input').value;
-      const res = await fetch('/api/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html })
-      });
-      const data = await res.json();
-      const resultsEl = document.getElementById('results');
-      const count = data.results.length;
-      let output = `<p>Found ${count} problem${count !== 1 ? 's' : ''}.</p>`;
-      data.results.forEach(r => {
-        output += `<div class="violation severity-${r.severity}">
-          <p><strong>${r.severity.toUpperCase()}:</strong> ${r.message}</p>
-          <p>Element: <span class="element">${r.element.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></p>
-          <p>Remediation: ${r.remediation}</p>
-        </div>`;
-      });
-      resultsEl.innerHTML = output;
-    });
-  </script>
+
+  <!-- WCAG 2.4.1 — Skip navigation link (Rule 10) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header>
+    <h1>ADA Accessibility Checker</h1>
+    <p>Check any HTML for WCAG 2.1 violations — runs entirely in your browser, no server needed.</p>
+  </header>
+
+  <main id="main-content">
+
+    <!-- Live region announces results to screen readers without moving focus -->
+    <div role="status" aria-live="polite" id="live-region" class="sr-only"></div>
+
+    <section aria-labelledby="input-heading">
+      <h2 id="input-heading">HTML to Check</h2>
+
+      <!-- Tab UI (ARIA tablist pattern) -->
+      <div class="tab-container">
+        <div role="tablist" aria-label="Input method">
+          <button role="tab" id="tab-paste"
+                  aria-selected="true" aria-controls="panel-paste" tabindex="0">
+            Paste HTML
+          </button>
+          <button role="tab" id="tab-url"
+                  aria-selected="false" aria-controls="panel-url" tabindex="-1">
+            Enter URL
+          </button>
+        </div>
+
+        <div role="tabpanel" id="panel-paste" aria-labelledby="tab-paste">
+          <label for="html-input">Paste HTML code:</label>
+          <textarea id="html-input" rows="12"
+                    placeholder="&lt;img src=&quot;photo.png&quot;&gt;"
+                    spellcheck="false"
+                    aria-describedby="html-hint"></textarea>
+          <p id="html-hint" class="field-note">
+            Example violations to test:
+            <code>&lt;img src="test.png"&gt;</code> &middot;
+            <code>&lt;input type="text" placeholder="Email"&gt;</code> &middot;
+            <code>&lt;a href="/p"&gt;click here&lt;/a&gt;</code> &middot;
+            <code>&lt;h1&gt;Title&lt;/h1&gt;&lt;h3&gt;Sub&lt;/h3&gt;</code>
+          </p>
+        </div>
+
+        <div role="tabpanel" id="panel-url" aria-labelledby="tab-url" hidden>
+          <label for="url-input">Page URL:</label>
+          <input type="url" id="url-input"
+                 placeholder="https://example.com"
+                 aria-describedby="url-note">
+          <p id="url-note" class="field-note">
+            Note: URL fetching may be blocked by CORS restrictions.
+            If the request fails, paste the page's HTML source into the
+            <strong>Paste HTML</strong> tab instead.
+          </p>
+        </div>
+      </div>
+
+      <button type="button" id="check-btn">Check Accessibility</button>
+    </section>
+
+    <!-- Results (hidden until first check) -->
+    <section id="results" aria-labelledby="results-heading" hidden>
+      <h2 id="results-heading" tabindex="-1">Results</h2>
+
+      <!-- Score gauge -->
+      <div class="score-container">
+        <div class="score-gauge" id="score-gauge"
+             role="img" aria-label="Accessibility score: 0 out of 100">
+          <div class="score-inner">
+            <span id="score-number" aria-hidden="true">0</span>
+            <span class="score-label" aria-hidden="true">/ 100</span>
+          </div>
+        </div>
+        <div class="score-legend" aria-hidden="true">
+          <span class="legend-item legend-good">80–100 Good</span>
+          <span class="legend-item legend-warn">50–79 Fair</span>
+          <span class="legend-item legend-fail">0–49 Poor</span>
+        </div>
+      </div>
+
+      <!-- Violation counts -->
+      <div class="severity-counts" aria-label="Violations by severity">
+        <div class="count-item severity-critical">
+          <span class="count-number" id="count-critical">0</span>
+          <span class="count-label">Critical</span>
+        </div>
+        <div class="count-item severity-serious">
+          <span class="count-number" id="count-serious">0</span>
+          <span class="count-label">Serious</span>
+        </div>
+        <div class="count-item severity-moderate">
+          <span class="count-number" id="count-moderate">0</span>
+          <span class="count-label">Moderate</span>
+        </div>
+        <div class="count-item severity-minor">
+          <span class="count-number" id="count-minor">0</span>
+          <span class="count-label">Minor</span>
+        </div>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="filter-bar" role="group" aria-label="Filter violations by severity">
+        <button type="button" class="filter-btn active"
+                data-filter="all" aria-pressed="true">Show All</button>
+        <button type="button" class="filter-btn"
+                data-filter="critical" aria-pressed="false">Critical</button>
+        <button type="button" class="filter-btn"
+                data-filter="serious" aria-pressed="false">Serious</button>
+        <button type="button" class="filter-btn"
+                data-filter="moderate" aria-pressed="false">Moderate</button>
+        <button type="button" class="filter-btn"
+                data-filter="minor" aria-pressed="false">Minor</button>
+      </div>
+
+      <!-- Violation list (populated by app.js) -->
+      <div id="violation-list" aria-label="Violation details"></div>
+      <p id="no-violations" hidden>
+        No violations found — great job! Consider also running a full manual review.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Checks against <a href="https://www.w3.org/WAI/WCAG21/quickref/"
+        target="_blank" rel="noopener noreferrer">WCAG 2.1</a> guidelines.
+      No data leaves your browser.
+    </p>
+  </footer>
+
+  <script src="js/checker.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
