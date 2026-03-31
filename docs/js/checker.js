@@ -1,16 +1,16 @@
-// ADA/WCAG 2.1 Accessibility Checker
-// Runs entirely in the browser using DOMParser — no server required.
+// ADA / WCAG 2.1 Accessibility Checker
+// Browser-only — uses DOMParser, no dependencies.
 //
-// Test snippets that demonstrate violations:
-//   <img src="test.png">                           → critical: missing alt
-//   <input type="text" placeholder="Email">        → serious: placeholder-only label
-//   <a href="/page">click here</a>                 → serious: vague link text
-//   <h1>Title</h1><h3>Subtitle</h3>               → moderate: skipped heading level
+// Quick-test snippets (paste into the checker):
+//   <img src="test.png">                        → critical  (1)
+//   <input type="text" placeholder="Email">     → serious   (2)
+//   <a href="/p">click here</a>                 → serious   (3)
+//   <h1>Title</h1><h3>Sub</h3>                  → moderate  (5)
 
 (function () {
   'use strict';
 
-  // ── Constants ──────────────────────────────────────────────────────────────
+  // ─── Constants ──────────────────────────────────────────────────────────────
 
   var VALID_ROLES = new Set([
     'alert','alertdialog','application','article','banner','button','cell',
@@ -25,375 +25,437 @@
     'treegrid','treeitem'
   ]);
 
-  var VAGUE_LINK_WORDS = new Set([
-    'click here','here','read more','more','learn more','details',
-    'this','link','download','continue','go'
+  var VAGUE_LINK_TEXT = new Set([
+    'click here','here','read more','more','learn more','link','details',
+    'this','download','continue','go'
   ]);
 
-  var GENERIC_ALT_WORDS = new Set([
+  var GENERIC_ALT = new Set([
     'image','photo','picture','img','icon','logo','banner','graphic','thumbnail'
   ]);
 
-  var FOCUSABLE_SEL =
+  var FOCUSABLE =
     'a[href], button:not([disabled]), input:not([disabled]), ' +
     'select:not([disabled]), textarea:not([disabled]), ' +
     '[tabindex]:not([tabindex="-1"])';
 
-  var SEVERITY_WEIGHT   = { critical: 0, serious: 1, moderate: 2, minor: 3 };
-  var SEVERITY_PENALTY  = { critical: 20, serious: 10, moderate: 5, minor: 2 };
+  // Score penalties per severity level
+  var PENALTY = { critical: 20, serious: 10, moderate: 5, minor: 2 };
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ─── Helpers ────────────────────────────────────────────────────────────────
 
-  // Returns just the opening tag of an element, truncated to 120 chars.
-  function snippet(el) {
+  // Returns the opening tag of an element, truncated to 120 characters.
+  function openTag(el) {
     var html = el.outerHTML || '';
     var end  = html.indexOf('>');
     var tag  = end === -1 ? html : html.slice(0, end + 1);
     return tag.length > 120 ? tag.slice(0, 117) + '...' : tag;
   }
 
-  // Computes the accessible name for an element.
+  // Derives the accessible name from an element (aria-label → aria-labelledby → title → text).
   function accessibleName(el, doc) {
-    var label = el.getAttribute('aria-label');
-    if (label && label.trim()) return label.trim();
+    var label = (el.getAttribute('aria-label') || '').trim();
+    if (label) return label;
 
-    var lby = el.getAttribute('aria-labelledby');
+    var lby = (el.getAttribute('aria-labelledby') || '').trim();
     if (lby) {
-      var text = lby.split(/\s+/).map(function (id) {
+      var name = lby.split(/\s+/).map(function (id) {
         var ref = doc.getElementById(id);
         return ref ? ref.textContent.trim() : '';
       }).filter(Boolean).join(' ');
-      if (text) return text;
+      if (name) return name;
     }
 
-    var title = el.getAttribute('title');
-    if (title && title.trim()) return title.trim();
+    var title = (el.getAttribute('title') || '').trim();
+    if (title) return title;
 
     return el.textContent.trim();
   }
 
-  // ── Rule 1: Image Alt Text (WCAG 1.1.1) ───────────────────────────────────
+  // ─── Check 1: Image Alt Text (WCAG 1.1.1) ───────────────────────────────────
 
-  function checkImages(doc) {
+  function checkImageAlt(doc) {
     var issues = [];
+
     doc.querySelectorAll('img').forEach(function (el) {
       if (!el.hasAttribute('alt')) {
         issues.push({
+          ruleId:      'img-alt-missing',
           severity:    'critical',
-          message:     'Image is missing an alt attribute',
-          element:     snippet(el),
-          remediation: 'Add a descriptive alt attribute, e.g. alt="A dog playing in the park". For purely decorative images use alt="".',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html'
+          element:     openTag(el),
+          message:     'Image missing alt text',
+          remediation: 'Add descriptive alt text that explains what the image shows. For decorative images, use alt="".',
+          wcag:        '1.1.1 Non-text Content (Level A)'
         });
-      } else {
-        var alt = (el.getAttribute('alt') || '').trim();
-        var low = alt.toLowerCase();
-        var isGeneric  = GENERIC_ALT_WORDS.has(low);
-        var isFilename = /\.(png|jpe?g|gif|webp|svg|bmp|ico|tiff?)$/i.test(low);
-        if (alt && (isGeneric || isFilename)) {
-          issues.push({
-            severity:    'moderate',
-            message:     'Alt text appears to be a filename or generic word: "' + alt + '"',
-            element:     snippet(el),
-            remediation: 'Replace the alt text with a meaningful description of what the image conveys.',
-            wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html'
-          });
-        }
+        return;
+      }
+
+      var alt = (el.getAttribute('alt') || '').trim();
+      var low = alt.toLowerCase();
+      var isFilename = /\.(png|jpe?g|gif|webp|svg|bmp|ico|tiff?)$/i.test(low);
+      var isGeneric  = GENERIC_ALT.has(low);
+
+      if (alt && (isFilename || isGeneric)) {
+        issues.push({
+          ruleId:      'img-alt-generic',
+          severity:    'moderate',
+          element:     openTag(el),
+          message:     'Alt text appears to be filename or generic: "' + alt + '"',
+          remediation: 'Add descriptive alt text that explains what the image shows.',
+          wcag:        '1.1.1 Non-text Content (Level A)'
+        });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 2: Form Labels (WCAG 1.3.1, 3.3.2) ───────────────────────────────
+  // ─── Check 2: Form Labels (WCAG 3.3.2) ──────────────────────────────────────
 
   function checkFormLabels(doc) {
     var issues = [];
-    var sel = [
-      'input:not([type="hidden"]):not([type="submit"]):not([type="reset"])',
-      ':not([type="button"]):not([type="image"])',
-      ', textarea, select'
-    ].join('');
-    doc.querySelectorAll(sel).forEach(function (el) {
-      var id = el.getAttribute('id');
-      var hasLabel = id
-        ? !!doc.querySelector('label[for="' + CSS.escape(id) + '"]')
-        : false;
-      var hasAriaLabel    = !!(el.getAttribute('aria-label') || '').trim();
-      var hasAriaLabelledBy = !!(el.getAttribute('aria-labelledby') || '').trim();
-      var hasTitle        = !!(el.getAttribute('title') || '').trim();
-      var hasPlaceholder  = !!(el.getAttribute('placeholder') || '').trim();
+    var selector =
+      'input:not([type="hidden"]):not([type="submit"]):not([type="reset"])' +
+      ':not([type="button"]):not([type="image"]), textarea, select';
 
-      if (hasLabel || hasAriaLabel || hasAriaLabelledBy || hasTitle) return;
+    doc.querySelectorAll(selector).forEach(function (el) {
+      var id = el.getAttribute('id');
+
+      var hasLabel      = id ? !!doc.querySelector('label[for="' + CSS.escape(id) + '"]') : false;
+      var hasAriaLabel  = !!(el.getAttribute('aria-label') || '').trim();
+      var hasLabelledBy = !!(el.getAttribute('aria-labelledby') || '').trim();
+      var hasTitle      = !!(el.getAttribute('title') || '').trim();
+      var hasPlaceholder = !!(el.getAttribute('placeholder') || '').trim();
+
+      // Properly labelled — skip.
+      if (hasLabel || hasAriaLabel || hasLabelledBy || hasTitle) return;
 
       if (hasPlaceholder) {
         issues.push({
+          ruleId:      'form-label-placeholder-only',
           severity:    'serious',
-          message:     'Form field relies solely on placeholder text as a label',
-          element:     snippet(el),
-          remediation: 'Add a <label for="id"> element or aria-label attribute. Placeholders disappear when typing and are not a substitute for labels.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/labels-or-instructions.html'
+          element:     openTag(el),
+          message:     'Input only has placeholder, needs proper label',
+          remediation: 'Add a <label> element or aria-label attribute. Placeholders disappear on focus and are not a substitute for labels.',
+          wcag:        '3.3.2 Labels or Instructions (Level A)'
         });
       } else {
         issues.push({
+          ruleId:      'form-label-missing',
           severity:    'critical',
-          message:     'Form field has no accessible label',
-          element:     snippet(el),
-          remediation: 'Associate a <label for="inputId"> element, or add an aria-label or aria-labelledby attribute.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/labels-or-instructions.html'
+          element:     openTag(el),
+          message:     'Form input missing label',
+          remediation: 'Add a <label> element or aria-label attribute.',
+          wcag:        '3.3.2 Labels or Instructions (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 3: Link Text (WCAG 2.4.4) ────────────────────────────────────────
+  // ─── Check 3: Link Text (WCAG 2.4.4) ────────────────────────────────────────
 
-  function checkLinks(doc) {
+  function checkLinkText(doc) {
     var issues = [];
+
     doc.querySelectorAll('a[href]').forEach(function (el) {
       var name = accessibleName(el, doc);
+
       if (!name) {
         issues.push({
+          ruleId:      'link-empty',
           severity:    'critical',
-          message:     'Link has no accessible name',
-          element:     snippet(el),
-          remediation: 'Add descriptive text inside the <a> element, or use aria-label to describe where the link goes.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-in-context.html'
+          element:     openTag(el),
+          message:     'Link has no text',
+          remediation: 'Use descriptive link text that makes sense out of context.',
+          wcag:        '2.4.4 Link Purpose (Level A)'
         });
-      } else if (VAGUE_LINK_WORDS.has(name.toLowerCase())) {
+      } else if (VAGUE_LINK_TEXT.has(name.toLowerCase())) {
         issues.push({
+          ruleId:      'link-vague',
           severity:    'serious',
-          message:     'Link text is non-descriptive: "' + name + '"',
-          element:     snippet(el),
-          remediation: 'Use descriptive link text that explains the destination, e.g. "Read our accessibility guide" instead of "Read more".',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-in-context.html'
+          element:     openTag(el),
+          message:     'Link text is vague: "' + name + '"',
+          remediation: 'Use descriptive link text that makes sense out of context.',
+          wcag:        '2.4.4 Link Purpose (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 4: Page Title (WCAG 2.4.2) ───────────────────────────────────────
+  // ─── Check 4: Page Title (WCAG 2.4.2) ───────────────────────────────────────
 
   function checkPageTitle(doc) {
     var title = doc.querySelector('title');
     if (!title || !title.textContent.trim()) {
       return [{
+        ruleId:      'page-title-missing',
         severity:    'moderate',
-        message:     'Page is missing a descriptive <title>',
         element:     '<title>',
-        remediation: 'Add a <title> inside <head> that describes the page, e.g. <title>Contact Us – My Site</title>.',
-        wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/page-titled.html'
+        message:     'Page missing title element',
+        remediation: 'Add a <title> element in the <head> with a descriptive page title.',
+        wcag:        '2.4.2 Page Titled (Level A)'
       }];
     }
     return [];
   }
 
-  // ── Rule 5: Heading Hierarchy (WCAG 1.3.1, 2.4.6) ─────────────────────────
+  // ─── Check 5: Heading Hierarchy (WCAG 1.3.1) ────────────────────────────────
 
   function checkHeadings(doc) {
-    var issues = [];
+    var issues  = [];
     var headings = Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6'));
 
+    // Must have an h1.
     if (!doc.querySelector('h1')) {
       issues.push({
+        ruleId:      'heading-no-h1',
         severity:    'moderate',
-        message:     'Page has no h1 heading',
         element:     '<body>',
-        remediation: 'Add a single <h1> that describes the main topic of the page.',
-        wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+        message:     'Page missing main heading (h1)',
+        remediation: 'Use heading levels in order (h1, h2, h3) without skipping.',
+        wcag:        '1.3.1 Info and Relationships (Level A)'
       });
     }
 
-    var prevLevel = 0;
+    var prev = 0;
     headings.forEach(function (el) {
+      // Empty heading.
       if (!el.textContent.trim()) {
         issues.push({
+          ruleId:      'heading-empty',
           severity:    'moderate',
-          message:     'Heading element is empty',
-          element:     snippet(el),
-          remediation: 'Add descriptive text to the heading or remove the empty element.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+          element:     openTag(el),
+          message:     'Empty heading element',
+          remediation: 'Use heading levels in order (h1, h2, h3) without skipping.',
+          wcag:        '1.3.1 Info and Relationships (Level A)'
         });
       }
+
+      // Skipped level (e.g. h1 → h3).
       var level = parseInt(el.tagName[1], 10);
-      if (prevLevel > 0 && level > prevLevel + 1) {
+      if (prev > 0 && level > prev + 1) {
         issues.push({
+          ruleId:      'heading-skip',
           severity:    'moderate',
-          message:     'Heading level skipped from h' + prevLevel + ' to h' + level,
-          element:     snippet(el),
-          remediation: 'Do not skip heading levels. Add an h' + (prevLevel + 1) + ' between h' + prevLevel + ' and h' + level + '.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+          element:     openTag(el),
+          message:     'Heading hierarchy skips level (h' + prev + ' → h' + level + ')',
+          remediation: 'Use heading levels in order (h1, h2, h3) without skipping.',
+          wcag:        '1.3.1 Info and Relationships (Level A)'
         });
       }
-      prevLevel = level;
+      prev = level;
     });
+
     return issues;
   }
 
-  // ── Rule 6: Language Attribute (WCAG 3.1.1) ───────────────────────────────
+  // ─── Check 6: Language Attribute (WCAG 3.1.1) ───────────────────────────────
 
   function checkLanguage(doc) {
     var html = doc.querySelector('html');
     if (!html || !(html.getAttribute('lang') || '').trim()) {
       return [{
+        ruleId:      'html-lang-missing',
         severity:    'moderate',
-        message:     'HTML element is missing a lang attribute',
         element:     '<html>',
-        remediation: 'Add a lang attribute to the <html> element, e.g. <html lang="en">.',
-        wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/language-of-page.html'
+        message:     'HTML element missing lang attribute',
+        remediation: "Add lang='en' (or appropriate language code) to the <html> tag.",
+        wcag:        '3.1.1 Language of Page (Level A)'
       }];
     }
     return [];
   }
 
-  // ── Rule 7: ARIA Roles (WCAG 4.1.2) ───────────────────────────────────────
+  // ─── Check 7: ARIA Roles (WCAG 4.1.2) ───────────────────────────────────────
 
   function checkARIA(doc) {
     var issues = [];
 
+    // Invalid role values.
     doc.querySelectorAll('[role]').forEach(function (el) {
       var role = (el.getAttribute('role') || '').trim().toLowerCase();
       if (role && !VALID_ROLES.has(role)) {
         issues.push({
+          ruleId:      'aria-role-invalid',
           severity:    'serious',
+          element:     openTag(el),
           message:     'Invalid ARIA role: "' + role + '"',
-          element:     snippet(el),
-          remediation: 'Use a valid WAI-ARIA 1.1 role. See https://www.w3.org/TR/wai-aria-1.1/#role_definitions for the complete list.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html'
+          remediation: 'Use valid ARIA roles and ensure references point to existing elements.',
+          wcag:        '4.1.2 Name, Role, Value (Level A)'
         });
       }
     });
 
+    // aria-labelledby pointing at a non-existent ID.
+    doc.querySelectorAll('[aria-labelledby]').forEach(function (el) {
+      var ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+      ids.forEach(function (id) {
+        if (!doc.getElementById(id)) {
+          issues.push({
+            ruleId:      'aria-labelledby-missing',
+            severity:    'serious',
+            element:     openTag(el),
+            message:     'aria-labelledby references missing element: #' + id,
+            remediation: 'Use valid ARIA roles and ensure references point to existing elements.',
+            wcag:        '4.1.2 Name, Role, Value (Level A)'
+          });
+        }
+      });
+    });
+
+    // aria-hidden="true" on focusable elements.
     doc.querySelectorAll('[aria-hidden="true"]').forEach(function (el) {
-      if (el.matches(FOCUSABLE_SEL) || el.querySelector(FOCUSABLE_SEL)) {
+      if (el.matches(FOCUSABLE) || el.querySelector(FOCUSABLE)) {
         issues.push({
+          ruleId:      'aria-hidden-focusable',
           severity:    'critical',
-          message:     'aria-hidden="true" applied to an element that contains focusable content',
-          element:     snippet(el),
-          remediation: 'Remove aria-hidden="true" from elements containing interactive content, or remove the focusable elements from within the hidden container.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html'
+          element:     openTag(el),
+          message:     'Focusable element hidden from screen readers',
+          remediation: 'Use valid ARIA roles and ensure references point to existing elements.',
+          wcag:        '4.1.2 Name, Role, Value (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 8: Table Structure (WCAG 1.3.1) ──────────────────────────────────
+  // ─── Check 8: Table Structure (WCAG 1.3.1) ──────────────────────────────────
 
   function checkTables(doc) {
     var issues = [];
+
     doc.querySelectorAll('table').forEach(function (table) {
       if (!table.querySelector('th')) {
         issues.push({
+          ruleId:      'table-no-headers',
           severity:    'serious',
-          message:     'Table has no header cells (<th>)',
-          element:     snippet(table),
-          remediation: 'Add <th> elements in the first row or column to identify headers for each column or row.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+          element:     openTag(table),
+          message:     'Table missing header cells',
+          remediation: 'Add <th> elements for headers, scope attributes, and <caption> for context.',
+          wcag:        '1.3.1 Info and Relationships (Level A)'
         });
       } else {
         table.querySelectorAll('th').forEach(function (th) {
           if (!th.hasAttribute('scope')) {
             issues.push({
+              ruleId:      'table-th-no-scope',
               severity:    'moderate',
-              message:     'Table header cell is missing a scope attribute',
-              element:     snippet(th),
-              remediation: 'Add scope="col" or scope="row" to each <th> to clarify whether it headers a column or a row.',
-              wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+              element:     openTag(th),
+              message:     'Table header missing scope attribute',
+              remediation: 'Add <th> elements for headers, scope attributes, and <caption> for context.',
+              wcag:        '1.3.1 Info and Relationships (Level A)'
             });
           }
         });
       }
+
       if (!table.querySelector('caption')) {
         issues.push({
+          ruleId:      'table-no-caption',
           severity:    'minor',
-          message:     'Table is missing a <caption> element',
-          element:     snippet(table),
-          remediation: 'Add a <caption> as the first child of <table> to provide a visible title for the table.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+          element:     openTag(table),
+          message:     'Table missing caption',
+          remediation: 'Add <th> elements for headers, scope attributes, and <caption> for context.',
+          wcag:        '1.3.1 Info and Relationships (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 9: Button Names (WCAG 4.1.2) ─────────────────────────────────────
+  // ─── Check 9: Button Names (WCAG 4.1.2) ─────────────────────────────────────
 
   function checkButtons(doc) {
     var issues = [];
+
     doc.querySelectorAll('button, [role="button"]').forEach(function (el) {
       if (!accessibleName(el, doc)) {
         issues.push({
+          ruleId:      'button-no-name',
           severity:    'critical',
+          element:     openTag(el),
           message:     'Button has no accessible name',
-          element:     snippet(el),
-          remediation: 'Add descriptive text inside the <button> element, or use aria-label to provide an accessible name.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html'
+          remediation: 'Add text content or aria-label to button.',
+          wcag:        '4.1.2 Name, Role, Value (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 10: Skip Links (WCAG 2.4.1) ──────────────────────────────────────
+  // ─── Check 10: Skip Links (WCAG 2.4.1) ──────────────────────────────────────
 
   function checkSkipLinks(doc) {
-    var allLinks = Array.from(doc.querySelectorAll('a'));
-    var first5   = allLinks.slice(0, 5);
-    var hasSkip  = first5.some(function (el) {
-      return (el.getAttribute('href') || '').startsWith('#') &&
-             /skip/i.test(el.textContent);
+    // Look for a skip link within the first 5 anchor elements.
+    var first5 = Array.from(doc.querySelectorAll('a')).slice(0, 5);
+    var hasSkip = first5.some(function (el) {
+      var href = (el.getAttribute('href') || '');
+      return href.startsWith('#') && /skip/i.test(el.textContent);
     });
+
     if (!hasSkip) {
       return [{
+        ruleId:      'skip-link-missing',
         severity:    'minor',
-        message:     'No skip navigation link found',
         element:     '<body>',
-        remediation: 'Add <a href="#main-content">Skip to main content</a> as the very first element inside <body>, and add id="main-content" to the main landmark.',
-        wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/bypass-blocks.html'
+        message:     'No skip navigation link found',
+        remediation: 'Add a skip link at the top of the page linking to main content.',
+        wcag:        '2.4.1 Bypass Blocks (Level A)'
       }];
     }
     return [];
   }
 
-  // ── Rule 11: Iframe Titles (WCAG 4.1.2) ───────────────────────────────────
+  // ─── Check 11: IFrame Titles (WCAG 4.1.2) ───────────────────────────────────
 
   function checkIframes(doc) {
     var issues = [];
+
     doc.querySelectorAll('iframe').forEach(function (el) {
       if (!(el.getAttribute('title') || '').trim()) {
         issues.push({
+          ruleId:      'iframe-no-title',
           severity:    'serious',
-          message:     'iframe is missing a title attribute',
-          element:     snippet(el),
-          remediation: 'Add a title attribute that describes the iframe\'s content, e.g. title="YouTube video: Product overview".',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html'
+          element:     openTag(el),
+          message:     'Iframe missing title attribute',
+          remediation: 'Add title attribute describing the iframe content.',
+          wcag:        '4.1.2 Name, Role, Value (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 12: Input Type Image Alt (WCAG 1.1.1) ────────────────────────────
+  // ─── Check 12: Input Image Alt (WCAG 1.1.1) ─────────────────────────────────
 
   function checkInputImages(doc) {
     var issues = [];
+
     doc.querySelectorAll('input[type="image"]').forEach(function (el) {
       if (!(el.getAttribute('alt') || '').trim()) {
         issues.push({
+          ruleId:      'input-image-no-alt',
           severity:    'critical',
-          message:     'Input type="image" is missing an alt attribute',
-          element:     snippet(el),
-          remediation: 'Add an alt attribute describing the button\'s action, e.g. alt="Submit search".',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html'
+          element:     openTag(el),
+          message:     'Image input missing alt text',
+          remediation: 'Add alt attribute to image inputs.',
+          wcag:        '1.1.1 Non-text Content (Level A)'
         });
       }
     });
+
     return issues;
   }
 
-  // ── Rule 13: Duplicate IDs (WCAG 4.1.1) ───────────────────────────────────
+  // ─── Check 13: Duplicate IDs (WCAG 4.1.1) ───────────────────────────────────
 
   function checkDuplicateIds(doc) {
     var counts = {};
@@ -401,28 +463,37 @@
       var id = el.getAttribute('id');
       if (id) counts[id] = (counts[id] || 0) + 1;
     });
+
     return Object.keys(counts)
       .filter(function (id) { return counts[id] > 1; })
       .map(function (id) {
         return {
+          ruleId:      'duplicate-id',
           severity:    'serious',
-          message:     'Duplicate id attribute: "' + id + '" appears ' + counts[id] + ' times',
           element:     '[id="' + id + '"]',
-          remediation: 'Each id must be unique on the page. Rename duplicate ids to be distinct values.',
-          wcagUrl:     'https://www.w3.org/WAI/WCAG21/Understanding/parsing.html'
+          message:     'Duplicate ID found: ' + id,
+          remediation: 'Ensure all IDs are unique on the page.',
+          wcag:        '4.1.1 Parsing (Level A)'
         };
       });
   }
 
-  // ── Main export ────────────────────────────────────────────────────────────
+  // ─── Main: checkAccessibility(html) ─────────────────────────────────────────
 
-  window.runChecks = function runChecks(html) {
+  /**
+   * Runs all 13 WCAG 2.1 checks against an HTML string.
+   *
+   * @param  {string} html - Raw HTML markup to analyse.
+   * @returns {{ score: number, violations: object[], summary: object }}
+   */
+  function checkAccessibility(html) {
     var doc = new DOMParser().parseFromString(html, 'text/html');
 
+    // Collect all violations from every check.
     var violations = [].concat(
-      checkImages(doc),
+      checkImageAlt(doc),
       checkFormLabels(doc),
-      checkLinks(doc),
+      checkLinkText(doc),
       checkPageTitle(doc),
       checkHeadings(doc),
       checkLanguage(doc),
@@ -435,15 +506,37 @@
       checkDuplicateIds(doc)
     );
 
+    // Sort: critical → serious → moderate → minor.
+    var order = { critical: 0, serious: 1, moderate: 2, minor: 3 };
     violations.sort(function (a, b) {
-      return SEVERITY_WEIGHT[a.severity] - SEVERITY_WEIGHT[b.severity];
+      return order[a.severity] - order[b.severity];
     });
 
-    var score = violations.reduce(function (s, v) {
-      return s - (SEVERITY_PENALTY[v.severity] || 0);
-    }, 100);
+    // Build summary counts.
+    var summary = { total: violations.length, critical: 0, serious: 0, moderate: 0, minor: 0 };
+    violations.forEach(function (v) {
+      if (summary[v.severity] !== undefined) summary[v.severity]++;
+    });
 
-    return { score: Math.max(0, score), violations: violations };
+    // Calculate score: 100 minus penalties, floored at 0.
+    var score = Math.max(0,
+      100
+      - summary.critical * PENALTY.critical
+      - summary.serious  * PENALTY.serious
+      - summary.moderate * PENALTY.moderate
+      - summary.minor    * PENALTY.minor
+    );
+
+    return { score: score, violations: violations, summary: summary };
+  }
+
+  // Export on window so app.js and the browser console can call it.
+  window.checkAccessibility = checkAccessibility;
+
+  // Backward-compatible alias used by app.js.
+  window.runChecks = function (html) {
+    var result = checkAccessibility(html);
+    return { score: result.score, violations: result.violations };
   };
 
 }());

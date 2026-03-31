@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  // ── Escape user-supplied content for safe innerHTML insertion ──────────────
+  // ─── Escape user-supplied strings before inserting into innerHTML ────────────
   function escapeHTML(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -11,7 +11,7 @@
       .replace(/'/g, '&#39;');
   }
 
-  // ── Element refs ───────────────────────────────────────────────────────────
+  // ─── Element references ──────────────────────────────────────────────────────
   var checkBtn       = document.getElementById('check-btn');
   var htmlInput      = document.getElementById('html-input');
   var urlInput       = document.getElementById('url-input');
@@ -25,7 +25,7 @@
   var tabs           = Array.from(document.querySelectorAll('[role="tab"]'));
   var filterBtns     = Array.from(document.querySelectorAll('.filter-btn'));
 
-  // ── Tab switching (ARIA tablist pattern) ──────────────────────────────────
+  // ─── Tab switching (ARIA tablist pattern) ────────────────────────────────────
   function activateTab(tab) {
     tabs.forEach(function (t) {
       var active = t === tab;
@@ -48,7 +48,7 @@
     });
   });
 
-  // ── Score gauge (conic-gradient donut, CSS custom properties) ─────────────
+  // ─── Score gauge (CSS conic-gradient donut) ──────────────────────────────────
   function updateGauge(score) {
     var color = score >= 80 ? '#16a34a' : score >= 50 ? '#ca8a04' : '#dc2626';
     scoreGauge.style.setProperty('--score', score);
@@ -57,7 +57,7 @@
     scoreGauge.setAttribute('aria-label', 'Accessibility score: ' + score + ' out of 100');
   }
 
-  // ── Filter bar ─────────────────────────────────────────────────────────────
+  // ─── Filter buttons ───────────────────────────────────────────────────────────
   var activeFilter = 'all';
 
   function applyFilter(filter) {
@@ -77,7 +77,7 @@
     btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
   });
 
-  // ── Render violation cards (<details> accordion) ──────────────────────────
+  // ─── Render violation cards ───────────────────────────────────────────────────
   function renderViolations(violations) {
     violationList.innerHTML = '';
     noViolations.hidden = violations.length > 0;
@@ -87,56 +87,56 @@
       details.className = 'violation-card severity-' + v.severity;
       details.dataset.severity = v.severity;
 
+      // Summary row: severity badge + message
       var summary = document.createElement('summary');
       summary.innerHTML =
         '<span class="severity-badge">' + escapeHTML(v.severity) + '</span>' +
         '<span class="violation-message">' + escapeHTML(v.message) + '</span>';
       details.appendChild(summary);
 
+      // Expanded body: element snippet, how to fix, WCAG reference
       var body = document.createElement('div');
       body.className = 'violation-body';
       body.innerHTML =
         '<p><strong>Element:</strong><br><code>' + escapeHTML(v.element) + '</code></p>' +
         '<p><strong>How to fix:</strong> ' + escapeHTML(v.remediation) + '</p>' +
-        '<p><a href="' + escapeHTML(v.wcagUrl) + '" target="_blank" rel="noopener noreferrer">' +
-          'WCAG 2.1 Reference &rarr;</a></p>';
+        '<p><strong>WCAG:</strong> ' + escapeHTML(v.wcag) + '</p>';
       details.appendChild(body);
 
       violationList.appendChild(details);
     });
 
+    // Re-apply the active filter to the freshly rendered cards.
     applyFilter(activeFilter);
   }
 
-  // ── Display full results ───────────────────────────────────────────────────
-  function displayResults(score, violations) {
-    var counts = { critical: 0, serious: 0, moderate: 0, minor: 0 };
-    violations.forEach(function (v) {
-      if (counts[v.severity] !== undefined) counts[v.severity]++;
-    });
+  // ─── Display results ──────────────────────────────────────────────────────────
+  function displayResults(result) {
+    // Update severity count tiles using the summary object from checkAccessibility().
     ['critical', 'serious', 'moderate', 'minor'].forEach(function (s) {
-      document.getElementById('count-' + s).textContent = counts[s];
+      document.getElementById('count-' + s).textContent = result.summary[s];
     });
 
-    updateGauge(score);
-    renderViolations(violations);
+    updateGauge(result.score);
+    renderViolations(result.violations);
     resultsSection.hidden = false;
     resultsHeading.focus();
 
+    // Announce result to screen readers via the live region.
     liveRegion.textContent =
-      'Check complete. Found ' + violations.length +
-      ' violation' + (violations.length !== 1 ? 's' : '') +
-      '. Accessibility score: ' + score + ' out of 100.';
+      'Check complete. Found ' + result.summary.total +
+      ' violation' + (result.summary.total !== 1 ? 's' : '') +
+      '. Score: ' + result.score + ' out of 100.';
   }
 
-  // ── Input error helper ─────────────────────────────────────────────────────
+  // ─── Input error helper ───────────────────────────────────────────────────────
   function markInputError(input) {
     input.setAttribute('aria-invalid', 'true');
     input.focus();
     setTimeout(function () { input.removeAttribute('aria-invalid'); }, 3000);
   }
 
-  // ── Main check handler ─────────────────────────────────────────────────────
+  // ─── Button click handler ─────────────────────────────────────────────────────
   checkBtn.addEventListener('click', handleCheck);
 
   async function handleCheck() {
@@ -147,6 +147,7 @@
     var html = '';
 
     if (isUrlTab) {
+      // URL mode: attempt a fetch (may be blocked by CORS on GitHub Pages).
       var url = (urlInput.value || '').trim();
       if (!url) { markInputError(urlInput); return; }
 
@@ -169,21 +170,26 @@
         return;
       }
     } else {
+      // Paste HTML mode: read from the textarea.
       html = (htmlInput.value || '').trim();
       if (!html) { markInputError(htmlInput); return; }
     }
 
+    // Show loading state.
     checkBtn.disabled = true;
     checkBtn.textContent = 'Checking…';
     checkBtn.setAttribute('aria-busy', 'true');
 
-    // Yield to the browser so the loading label renders before the sync check runs.
+    // Yield to the browser so the button label updates before the synchronous
+    // checkAccessibility() call blocks the main thread.
     setTimeout(function () {
-      var result = window.runChecks(html);
+      var result = window.checkAccessibility(html);
+
       checkBtn.disabled = false;
       checkBtn.textContent = 'Check Accessibility';
       checkBtn.removeAttribute('aria-busy');
-      displayResults(result.score, result.violations);
+
+      displayResults(result);
     }, 50);
   }
 
