@@ -226,35 +226,24 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   margin: 1.5rem 0 2rem;
 }
 
-/* Score gauge: smooth animation of conic gradient */
 .score-gauge {
-  --score: 0;             /* 0–100 from JS */
-  --gauge-color: #16a34a; /* default; updated by JS */
-
-  width: 140px;
-  height: 140px;
+  width: 150px; height: 150px;
   border-radius: 50%;
-  display: inline-flex;
+  background: conic-gradient(
+    var(--gauge-color, #16a34a) calc(var(--score, 0) * 1%),
+    #071020                    calc(var(--score, 0) * 1%)
+  );
+  display: flex;
   align-items: center;
   justify-content: center;
-
-  /* convert score (0–100) to degrees (0–360) */
-  background:
-    conic-gradient(
-      var(--gauge-color) calc(var(--score) * 3.6deg),
-      #e5e7eb 0
-    );
-
-  /* make score changes animate instead of jump */
-  transition: background 1s ease-out;
 }
 
 .score-inner {
-   width: 70%;
-  height:70%;
-  border-radius: 50%
-  background: #ffffff;
+  width: 112px; height: 112px;
+  border-radius: 50%;
+  background: #0d2b6e;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
