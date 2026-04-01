@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — ADA Checker</title>
+  <!-- Apply saved theme/font/size before CSS renders to prevent flash -->
+  <script>
+    (function(){
+      var t=localStorage.getItem('ada-theme')||'dark';
+      var f=localStorage.getItem('ada-font')||'system';
+      var s=localStorage.getItem('ada-font-size')||'medium';
+      document.documentElement.setAttribute('data-theme',t);
+      document.documentElement.setAttribute('data-font',f);
+      document.documentElement.setAttribute('data-font-size',s);
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Sticky navigation bar -->
+  <nav class="site-nav" aria-label="Site navigation">
+    <a href="index.html" class="nav-logo" aria-label="ADA Checker — home">
+      <img src="images/logo.svg" alt="" aria-hidden="true" width="32" height="32">
+      <span class="nav-brand">ADA Checker</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="pricing.html" class="nav-link">Pricing</a>
+      </div>
+      <div class="hamburger-wrapper" id="hamburger-wrapper">
+        <button class="hamburger-btn" id="hamburger-btn"
+                aria-label="Open menu" aria-expanded="false" aria-haspopup="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu">
+          <a href="settings.html" class="hamburger-menu-item" role="menuitem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Settings
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="settings-main">
+    <div class="settings-layout">
+
+      <!-- ── SIDEBAR NAVIGATION ─────────────────────────────────────────── -->
+      <aside class="settings-sidebar" aria-label="Settings navigation">
+        <h1 class="settings-title">Settings</h1>
+        <nav aria-label="Settings sections">
+          <ul class="settings-nav" role="list">
+
+            <li>
+              <button class="settings-nav-item active" data-panel="pricing" aria-current="page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span>Pricing Plans</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="profile">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Profile</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="history">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Check History</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="appearance">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span>Appearance</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="wcag">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>WCAG Level</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="font-size">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                  <line x1="9" y1="20" x2="15" y2="20"></line>
+                  <line x1="12" y1="4" x2="12" y2="20"></line>
+                </svg>
+                <span>Font Size</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="font-type">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 7V4h16v3"></path>
+                  <path d="M9 20h6"></path>
+                  <path d="M12 4v16"></path>
+                </svg>
+                <span>Font Type</span>
+              </button>
+            </li>
+
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- ── SETTINGS CONTENT PANELS ────────────────────────────────────── -->
+      <div class="settings-content">
+
+        <!-- PRICING PLANS -->
+        <section class="settings-panel active" id="panel-pricing" aria-labelledby="panel-pricing-title">
+          <h2 class="panel-title" id="panel-pricing-title">Pricing Plans</h2>
+          <p class="panel-subtitle">Your current plan and available upgrades.</p>
+
+          <div class="panel-section">
+            <p class="panel-section-title">Current Plan</p>
+            <div class="mini-pricing-grid">
+              <div class="mini-pricing-card current-plan">
+                <div class="mini-plan-name">Free</div>
+                <div>
+                  <span class="mini-plan-price">$0</span>
+                  <span class="mini-plan-period">/mo</span>
+                </div>
+                <div class="current-plan-badge">Current</div>
+              </div>
+              <div class="mini-pricing-card">
+                <div class="mini-plan-name">Pro</div>
+                <div>
+                  <span class="mini-plan-price">$19</span>
+                  <span class="mini-plan-period">/mo</span>
+                </div>
+              </div>
+              <div class="mini-pricing-card">
+                <div class="mini-plan-name">Enterprise</div>
+                <div>
+                  <span class="mini-plan-price mini-plan-custom">Custom</span>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html" class="view-pricing-link">
+              View full pricing details
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="settings-panel" id="panel-profile" aria-labelledby="panel-profile-title">
+          <h2 class="panel-title" id="panel-profile-title">Profile</h2>
+          <p class="panel-subtitle">Your personal information, stored locally on your device.</p>
+
+          <div class="settings-card">
+            <div class="profile-avatar" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="form-group">
+              <label for="profile-name">Display Name</label>
+              <input type="text" id="profile-name" placeholder="Your name" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="profile-email">Email Address</label>
+              <input type="email" id="profile-email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <button type="button" class="settings-save-btn" id="save-profile-btn">Save Profile</button>
+            <p class="profile-note">Profile data is stored locally in your browser and is never sent to a server.</p>
+          </div>
+        </section>
+
+        <!-- CHECK HISTORY -->
+        <section class="settings-panel" id="panel-history" aria-labelledby="panel-history-title">
+          <h2 class="panel-title" id="panel-history-title">Check History</h2>
+          <p class="panel-subtitle">A record of your recent accessibility checks.</p>
+
+          <div class="settings-card history-card">
+            <div id="history-list" aria-live="polite">
+              <p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>
+            </div>
+          </div>
+          <button type="button" class="clear-history-btn" id="clear-history-btn">Clear All History</button>
+        </section>
+
+        <!-- APPEARANCE -->
+        <section class="settings-panel" id="panel-appearance" aria-labelledby="panel-appearance-title">
+          <h2 class="panel-title" id="panel-appearance-title">Appearance</h2>
+          <p class="panel-subtitle">Customize the look of ADA Checker across all pages.</p>
+
+          <div class="panel-section">
+            <p class="panel-section-title">Color Theme</p>
+            <div class="settings-card">
+              <div class="theme-options" role="group" aria-label="Choose color theme">
+
+                <button class="theme-option theme-dark" data-theme="dark" aria-pressed="true">
+                  <div class="theme-preview" aria-hidden="true">
+                    <div class="theme-preview-nav tp-dark-nav"></div>
+                    <div class="theme-preview-body tp-dark-body">
+                      <div class="theme-preview-block tp-dark-block"></div>
+                      <div class="theme-preview-block tp-dark-block"></div>
+                      <div class="theme-preview-block tp-dark-block"></div>
+                    </div>
+                  </div>
+                  Dark
+                </button>
+
+                <button class="theme-option theme-light" data-theme="light" aria-pressed="false">
+                  <div class="theme-preview" aria-hidden="true">
+                    <div class="theme-preview-nav tp-light-nav"></div>
+                    <div class="theme-preview-body tp-light-body">
+                      <div class="theme-preview-block tp-light-block"></div>
+                      <div class="theme-preview-block tp-light-block"></div>
+                      <div class="theme-preview-block tp-light-block"></div>
+                    </div>
+                  </div>
+                  Light
+                </button>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- WCAG LEVEL -->
+        <section class="settings-panel" id="panel-wcag" aria-labelledby="panel-wcag-title">
+          <h2 class="panel-title" id="panel-wcag-title">WCAG Level</h2>
+          <p class="panel-subtitle">Set the conformance level used when checking your HTML.</p>
+
+          <div class="settings-card">
+            <div class="wcag-options" role="group" aria-label="Choose WCAG conformance level">
+
+              <button class="wcag-option" data-wcag="A" aria-pressed="false">
+                <span class="wcag-level-badge">A</span>
+                <span class="wcag-level-name">Level A</span>
+                <span class="wcag-level-desc">Minimum accessibility requirements</span>
+              </button>
+
+              <button class="wcag-option" data-wcag="AA" aria-pressed="false">
+                <span class="wcag-level-badge">AA</span>
+                <span class="wcag-level-name">Level AA</span>
+                <span class="wcag-level-desc">Standard — legally required in most regions</span>
+              </button>
+
+              <button class="wcag-option" data-wcag="AAA" aria-pressed="false">
+                <span class="wcag-level-badge">AAA</span>
+                <span class="wcag-level-name">Level AAA</span>
+                <span class="wcag-level-desc">Strictest — highest standard</span>
+              </button>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- FONT SIZE -->
+        <section class="settings-panel" id="panel-font-size" aria-labelledby="panel-font-size-title">
+          <h2 class="panel-title" id="panel-font-size-title">Font Size</h2>
+          <p class="panel-subtitle">Adjust text size across all pages.</p>
+
+          <div class="settings-card">
+            <div class="font-size-options" role="group" aria-label="Choose font size">
+              <button class="font-size-option" data-size="small" aria-pressed="false">
+                <span class="font-size-sample fss-small">Aa</span>
+                <span class="font-size-label">Small</span>
+              </button>
+              <button class="font-size-option" data-size="medium" aria-pressed="false">
+                <span class="font-size-sample fss-medium">Aa</span>
+                <span class="font-size-label">Medium</span>
+              </button>
+              <button class="font-size-option" data-size="large" aria-pressed="false">
+                <span class="font-size-sample fss-large">Aa</span>
+                <span class="font-size-label">Large</span>
+              </button>
+              <button class="font-size-option" data-size="xlarge" aria-pressed="false">
+                <span class="font-size-sample fss-xlarge">Aa</span>
+                <span class="font-size-label">X-Large</span>
+              </button>
+            </div>
+            <p class="preview-label">Preview</p>
+            <p id="font-size-preview">The quick brown fox jumps over the lazy dog.</p>
+          </div>
+        </section>
+
+        <!-- FONT TYPE -->
+        <section class="settings-panel" id="panel-font-type" aria-labelledby="panel-font-type-title">
+          <h2 class="panel-title" id="panel-font-type-title">Font Type</h2>
+          <p class="panel-subtitle">Choose a font to improve readability, including options designed for dyslexia.</p>
+
+          <div class="settings-card">
+            <div class="font-type-options" role="group" aria-label="Choose font type">
+
+              <button class="font-type-option" data-font="system" aria-pressed="false">
+                <span class="font-type-name">System Default</span>
+                <span class="font-type-sample fts-system">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+              <button class="font-type-option" data-font="lexend" aria-pressed="false">
+                <span class="font-type-name">Lexend</span>
+                <span class="font-type-sample fts-lexend">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+              <button class="font-type-option" data-font="atkinson" aria-pressed="false">
+                <span class="font-type-name">Atkinson Hyperlegible</span>
+                <span class="font-type-sample fts-atkinson">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+              <button class="font-type-option" data-font="arial" aria-pressed="false">
+                <span class="font-type-name">Arial</span>
+                <span class="font-type-sample fts-arial">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+              <button class="font-type-option" data-font="verdana" aria-pressed="false">
+                <span class="font-type-name">Verdana</span>
+                <span class="font-type-sample fts-verdana">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+              <button class="font-type-option" data-font="comic-sans" aria-pressed="false">
+                <span class="font-type-name">Comic Sans</span>
+                <span class="font-type-sample fts-comic">The quick brown fox jumps over the lazy dog.</span>
+              </button>
+
+            </div>
+            <p class="font-type-tip">
+              Lexend and Atkinson Hyperlegible are designed for readability and are commonly recommended for users with dyslexia or low vision.
+            </p>
+          </div>
+        </section>
+
+      </div><!-- /settings-content -->
+    </div><!-- /settings-layout -->
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="#" onclick="alert('About page coming soon!'); return false;">About</a>
+      <a href="#" onclick="alert('Privacy page coming soon!'); return false;">Privacy</a>
+      <a href="#" onclick="alert('Terms page coming soon!'); return false;">Terms</a>
+      <a href="#" onclick="alert('Contact page coming soon!'); return false;">Contact</a>
+    </nav>
+    <p class="footer-copy">&copy; 2026 ADA Checker</p>
+  </footer>
+
+  <script src="js/settings.js"></script>
+  <script>
+    (function () {
+      var wrapper = document.getElementById('hamburger-wrapper');
+      var btn = document.getElementById('hamburger-btn');
+      if (!wrapper || !btn) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = wrapper.classList.contains('open');
+        wrapper.classList.toggle('open', !open);
+        btn.setAttribute('aria-expanded', String(!open));
+      });
+      document.addEventListener('click', function (e) {
+        if (!wrapper.contains(e.target)) {
+          wrapper.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && wrapper.classList.contains('open')) {
+          wrapper.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.focus();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
