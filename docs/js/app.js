@@ -48,12 +48,26 @@
     });
   });
 
+  // ─── Score counter animation ──────────────────────────────────────────────────
+  function animateScore(finalScore) {
+    let current = 0;
+    const increment = finalScore / 50;
+    const interval = setInterval(() => {
+      current += increment;
+      if (current >= finalScore) {
+        current = finalScore;
+        clearInterval(interval);
+      }
+      scoreNumber.textContent = Math.round(current);
+    }, 20);
+  }
+
   // ─── Score gauge (CSS conic-gradient donut) ──────────────────────────────────
   function updateGauge(score) {
     var color = score >= 80 ? '#16a34a' : score >= 50 ? '#ca8a04' : '#dc2626';
     scoreGauge.style.setProperty('--score', score);
     scoreGauge.style.setProperty('--gauge-color', color);
-    scoreNumber.textContent = score;
+    animateScore(score);
     scoreGauge.setAttribute('aria-label', 'Accessibility score: ' + score + ' out of 100');
   }
 
@@ -152,7 +166,7 @@
       if (!url) { markInputError(urlInput); return; }
 
       checkBtn.disabled = true;
-      checkBtn.textContent = 'Fetching…';
+      checkBtn.textContent = 'Fetching\u2026';
 
       try {
         var response = await fetch(url);
@@ -162,7 +176,7 @@
         checkBtn.textContent = 'Check Accessibility';
         resultsSection.hidden = false;
         violationList.innerHTML =
-          '<p class="fetch-error">Could not fetch the URL — the server likely blocks ' +
+          '<p class="fetch-error">Could not fetch the URL \u2014 the server likely blocks ' +
           'cross-origin requests (CORS). Copy and paste the page\'s HTML source into ' +
           'the <strong>Paste HTML</strong> tab instead.</p>';
         noViolations.hidden = true;
@@ -177,7 +191,7 @@
 
     // Show loading state.
     checkBtn.disabled = true;
-    checkBtn.textContent = 'Checking…';
+    checkBtn.textContent = 'Checking\u2026';
     checkBtn.setAttribute('aria-busy', 'true');
 
     // Yield to the browser so the button label updates before the synchronous
