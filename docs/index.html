@@ -26,7 +26,7 @@
           <rect y="12" width="20" height="2" rx="1"/>
         </svg>
       </button>
-      <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu" hidden>
+      <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu">
         <a href="pricing.html" class="hamburger-menu-item" role="menuitem">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -179,25 +179,22 @@
   <script src="js/app.js"></script>
   <script>
     (function () {
-      var wrapper  = document.getElementById('hamburger-wrapper');
       var btn      = document.getElementById('hamburger-btn');
       var dropdown = document.getElementById('hamburger-dropdown');
-      if (!wrapper || !btn || !dropdown) return;
+      if (!btn || !dropdown) return;
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        var opening = dropdown.hidden;
-        dropdown.hidden = !opening;
-        btn.setAttribute('aria-expanded', String(opening));
+        var isOpen = dropdown.classList.contains('is-open');
+        dropdown.classList.toggle('is-open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
       });
-      document.addEventListener('click', function (e) {
-        if (!wrapper.contains(e.target) && !dropdown.hidden) {
-          dropdown.hidden = true;
-          btn.setAttribute('aria-expanded', 'false');
-        }
+      document.addEventListener('click', function () {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
       });
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !dropdown.hidden) {
-          dropdown.hidden = true;
+        if (e.key === 'Escape' && dropdown.classList.contains('is-open')) {
+          dropdown.classList.remove('is-open');
           btn.setAttribute('aria-expanded', 'false');
           btn.focus();
         }
