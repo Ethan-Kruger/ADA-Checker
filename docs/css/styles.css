@@ -650,16 +650,7 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 }
 .hamburger-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
 
-.hamburger-line {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-}
-
 .hamburger-dropdown {
-  display: none;
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -671,7 +662,6 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   overflow: hidden;
   z-index: 500;
 }
-.hamburger-wrapper.open .hamburger-dropdown { display: block; }
 
 .hamburger-menu-item {
   display: flex;

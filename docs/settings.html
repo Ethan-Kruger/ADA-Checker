@@ -31,11 +31,13 @@
     <div class="hamburger-wrapper" id="hamburger-wrapper">
       <button class="hamburger-btn" id="hamburger-btn"
               aria-label="Open menu" aria-expanded="false" aria-haspopup="true">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true">
+          <rect width="20" height="2" rx="1"/>
+          <rect y="6" width="20" height="2" rx="1"/>
+          <rect y="12" width="20" height="2" rx="1"/>
+        </svg>
       </button>
-      <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu">
+      <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu" hidden>
         <a href="index.html" class="hamburger-menu-item" role="menuitem">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -392,24 +394,25 @@
   <script src="js/settings.js"></script>
   <script>
     (function () {
-      var wrapper = document.getElementById('hamburger-wrapper');
-      var btn = document.getElementById('hamburger-btn');
-      if (!wrapper || !btn) return;
+      var wrapper  = document.getElementById('hamburger-wrapper');
+      var btn      = document.getElementById('hamburger-btn');
+      var dropdown = document.getElementById('hamburger-dropdown');
+      if (!wrapper || !btn || !dropdown) return;
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        var open = wrapper.classList.contains('open');
-        wrapper.classList.toggle('open', !open);
-        btn.setAttribute('aria-expanded', String(!open));
+        var opening = dropdown.hidden;
+        dropdown.hidden = !opening;
+        btn.setAttribute('aria-expanded', String(opening));
       });
       document.addEventListener('click', function (e) {
-        if (!wrapper.contains(e.target)) {
-          wrapper.classList.remove('open');
+        if (!wrapper.contains(e.target) && !dropdown.hidden) {
+          dropdown.hidden = true;
           btn.setAttribute('aria-expanded', 'false');
         }
       });
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && wrapper.classList.contains('open')) {
-          wrapper.classList.remove('open');
+        if (e.key === 'Escape' && !dropdown.hidden) {
+          dropdown.hidden = true;
           btn.setAttribute('aria-expanded', 'false');
           btn.focus();
         }
