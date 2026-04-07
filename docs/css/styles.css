@@ -623,6 +623,76 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 .footer-copy { color: #475569; font-size: 0.8125rem; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   HAMBURGER MENU (shared across all pages)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hamburger-wrapper { position: relative; }
+
+.hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 46px;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: #e2e8f0;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.hamburger-btn:hover {
+  background: rgba(79,79,191,0.3);
+  border-color: #4f4fbf;
+  color: #fff;
+}
+.hamburger-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+.hamburger-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.hamburger-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 190px;
+  background: #060e1a;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  overflow: hidden;
+  z-index: 500;
+}
+.hamburger-wrapper.open .hamburger-dropdown { display: block; }
+
+.hamburger-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.7rem 1rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.15s, color 0.15s;
+}
+.hamburger-menu-item:hover {
+  background: rgba(79,79,191,0.2);
+  color: #fff;
+}
+.hamburger-menu-item:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: -2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 720px) {
