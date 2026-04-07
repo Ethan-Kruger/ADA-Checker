@@ -19,7 +19,22 @@
     </a>
     <div class="nav-links">
       <a href="pricing.html" class="nav-link">Pricing</a>
-      <a href= "settings.html" class="nav-link">Settings</a>
+      <a href="settings.html" class="nav-link">Settings</a>
+      <div class="hamburger-wrap">
+        <button class="hamburger-btn" id="hamburger-btn"
+                aria-label="Account menu" aria-expanded="false" aria-haspopup="true">
+          &#9776;
+        </button>
+        <div class="hamburger-dropdown" id="hamburger-dropdown" hidden>
+          <div class="dropdown-plan-info">
+            <span class="dropdown-plan-label">Current Plan</span>
+            <span class="dropdown-plan-name" id="nav-plan-name">Free</span>
+          </div>
+          <hr class="dropdown-divider">
+          <a href="settings.html" class="dropdown-link">&#9881;&#65039; Settings</a>
+          <a href="pricing.html" class="dropdown-link">&#8679; Upgrade Plan</a>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -155,5 +170,6 @@
 
   <script src="js/checker.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/nav.js"></script>
 </body>
 </html>
