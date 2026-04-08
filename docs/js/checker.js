@@ -45,6 +45,28 @@ function addHistoryEntry(result, options = {}) {
       serious: 0,
       moderate: 0,
       minor: 0
+      checkButton.addEventListener('click', () => {
+  const html = htmlInput.value;
+  const result = checkAccessibility(html);
+  const violations = (result && result.violations) || [];
+
+  if (scoreEl) {
+    if (typeof result.score === 'number') {
+      scoreEl.hidden = false;
+      scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
+    } else {
+      scoreEl.hidden = true;
+    }
+  }
+
+  // Save this run to history
+  addHistoryEntry(result, {
+    title: 'Manual HTML check',
+    url: null
+  });
+
+  renderResults(violations, resultsList);
+});
     }
   };
 
