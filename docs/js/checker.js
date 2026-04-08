@@ -87,10 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreEl.hidden = true;
       }
     }
-
+      addHistoryEntry(result,{title: 'Manual HTML check', url:null
+      });
     renderResults(violations, resultsList);
   });
-});
+
 
 function renderResults(violations, listEl) {
   listEl.innerHTML = '';
