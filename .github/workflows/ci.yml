@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ claude/create-ada-checker-folder-pryLX ]
   pull_request:
-    branches: [ main ]
+    branches: [ claude/create-ada-checker-folder-pryLX ]
     
 permissions:
   contents: read
