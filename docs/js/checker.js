@@ -8,6 +8,61 @@
 //   <h1>Title</h1><h3>Sub</h3>                  → moderate  (5)
 // Run when the page is ready
 // Wire up the settings page checker UI
+const HISTORY_KEY = 'ada-check-history';
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.warn('Failed to load history', e);
+    return [];
+  }
+}
+
+function saveHistory(entries) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+  } catch (e) {
+    console.warn('Failed to save history', e);
+  }
+}
+
+function addHistoryEntry(result, options = {}) {
+  const history = loadHistory();
+
+  const entry = {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    timestamp: Date.now(),
+    url: options.url || null,
+    title: options.title || 'Manual HTML check',
+    score: typeof result.score === 'number' ? Math.round(result.score) : null,
+    summary: result.summary || {
+      total: (result.violations || []).length,
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0
+    }
+  };
+
+  history.unshift(entry);            // newest first
+  // keep last 50 checks max
+  if (history.length > 50) history.length = 50;
+
+  saveHistory(history);
+
+  // Let settings.js know history changed (for live updates)
+  try {
+    window.dispatchEvent(new CustomEvent('ada-check-history-updated', {
+      detail: { entry, history }
+    }));
+  } catch (e) {
+    // ignore if CustomEvent not supported
+  }
+}
 document.addEventListener('DOMContentLoaded', () => {
   const htmlInput = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
