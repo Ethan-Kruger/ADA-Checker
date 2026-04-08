@@ -396,25 +396,44 @@
             </p>
           </div>
         </section>
-  <section class="settings-panel" id="panel-checker" aria-labelledby="panel-checker-title">
-    <h2 class="panel-title" id="panel-checker-title">ADA Checker (Paste HTML)</h2> 
-    <p class="panel-subtitle">Paste HTML and run the ADA checker directly from this page.</p> 
-    <div class="settings-card"> 
-      <div class="form-group"> 
-        <label for="html-input">Paste HTML to check</label> 
-        <textarea id="html-input" rows="10" style="width: 100%; max-width: 100%;" placeholder="Paste your HTML here..." >
-          
-        </textarea> 
-      </div>
-<button id="check-btn" type="button" class="settings-save-btn">
-  Run checks
-</button>
+ <section class="settings-panel" id="panel-checker" aria-labelledby="panel-checker-title">
+  <h2 class="panel-title" id="panel-checker-title">ADA Checker</h2>
+  <p class="panel-subtitle">
+    Paste HTML from your page and run an accessibility check against common ADA / WCAG rules.
+  </p>
 
-<section aria-labelledby="results-heading" style="margin-top: 1.5rem;">
-  <h3 id="results-heading">Results</h3>
-  <ul id="results-list"></ul>
+  <div class="settings-card checker-card">
+    <div class="checker-header">
+      <div>
+        <h3 class="checker-title">HTML input</h3>
+        <p class="checker-description">Your markup is processed entirely in your browser. Nothing is uploaded.</p>
+      </div>
+      <button
+        id="check-btn"
+        type="button"
+        class="settings-save-btn checker-run-btn"
+      >
+        Run accessibility check
+      </button>
+    </div>
+
+    <label for="html-input" class="checker-label">Paste HTML to check</label>
+    <textarea
+      id="html-input"
+      rows="12"
+      class="checker-textarea"
+      placeholder="Paste your full <html>…</html> or a snippet here"
+    ></textarea>
+
+    <div class="checker-results" aria-live="polite">
+      <div class="checker-results-header">
+        <h3 id="results-heading">Results</h3>
+        <span class="checker-score" id="checker-score" hidden></span>
+      </div>
+      <ul id="results-list" class="checker-results-list"></ul>
+    </div>
+  </div>
 </section>
-</div> </section>
 
       </div><!-- /settings-content -->
     </div><!-- /settings-layout -->
