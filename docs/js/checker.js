@@ -9,26 +9,30 @@
 // Run when the page is ready
 // Wire up the settings page checker UI
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('checker.js DOMContentLoaded');
-
   const htmlInput = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
   const resultsList = document.getElementById('results-list');
+  const scoreEl = document.getElementById('checker-score');
 
   if (!htmlInput || !checkButton || !resultsList) {
     console.warn('Checker elements not found', { htmlInput, checkButton, resultsList });
-    return; // safety
+    return;
   }
 
   checkButton.addEventListener('click', () => {
-    console.log('Check button clicked');
     const html = htmlInput.value;
+    const result = checkAccessibility(html); // your existing function
+    const violations = (result && result.violations) || [];
 
-    // Use your existing checker function
-    const result = checkAccessibility(html);
-    const violations = result && result.violations ? result.violations : [];
+    if (scoreEl) {
+      if (typeof result.score === 'number') {
+        scoreEl.hidden = false;
+        scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
+      } else {
+        scoreEl.hidden = true;
+      }
+    }
 
-    console.log('Score:', result.score, 'Violations:', violations);
     renderResults(violations, resultsList);
   });
 });
@@ -45,11 +49,28 @@ function renderResults(violations, listEl) {
 
   violations.forEach(v => {
     const li = document.createElement('li');
-    // adjust fields if your violation objects use different names
-    const severity = v.severity || 'info';
-    const message = v.message || 'Issue';
-    const element = v.element || '';
-    li.textContent = `${severity.toUpperCase()} – ${message}${element ? ' (' + element + ')' : ''}`;
+    li.className = 'checker-result-item checker-result--' + (v.severity || 'info');
+
+    const badge = document.createElement('span');
+    badge.className = 'checker-result-badge';
+    badge.textContent = (v.severity || 'info').toUpperCase();
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'checker-result-text';
+
+    const messageEl = document.createElement('div');
+    messageEl.textContent = v.message || 'Issue';
+    textWrap.appendChild(messageEl);
+
+    if (v.element) {
+      const elementEl = document.createElement('span');
+      elementEl.className = 'checker-result-element';
+      elementEl.textContent = v.element;
+      textWrap.appendChild(elementEl);
+    }
+
+    li.appendChild(badge);
+    li.appendChild(textWrap);
     listEl.appendChild(li);
   });
 }
