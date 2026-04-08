@@ -1,3 +1,23 @@
+document.addEventListener('DOMContentLoaded', () => {
+  // ... existing settings.js code ...
+
+  // Initial render of history when you open Settings
+  renderHistory();
+
+  // Update history when a new check is run
+  window.addEventListener('ada-check-history-updated', () => {
+    renderHistory();
+  });
+
+  const clearBtn = document.getElementById('clear-history-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (!confirm('Clear all saved accessibility checks?')) return;
+      saveHistory([]);
+      renderHistory();
+    });
+  }
+});
 (function () {
   'use strict';
 
@@ -10,6 +30,77 @@
     var r = sidebar.getBoundingClientRect();
     document.documentElement.style.setProperty('--sidebar-right', r.right + 'px');
   }
+  const HISTORY_KEY = 'ada-check-history';
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.warn('Failed to load history', e);
+    return [];
+  }
+}
+
+function saveHistory(entries) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+  } catch (e) {
+    console.warn('Failed to save history', e);
+  }
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (!container) return;
+
+  const history = loadHistory();
+
+  if (!history.length) {
+    container.innerHTML = '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
+    return;
+  }
+
+  const list = document.createElement('ul');
+  list.className = 'history-list';
+
+  history.forEach(entry => {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+
+    const date = new Date(entry.timestamp);
+    const dateStr = date.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    const title = document.createElement('div');
+    title.className = 'history-item-title';
+    title.textContent = entry.title || 'Manual HTML check';
+
+    const meta = document.createElement('div');
+    meta.className = 'history-item-meta';
+
+    const scorePart = (typeof entry.score === 'number')
+      ? `Score: ${entry.score}/100`
+      : 'Score: N/A';
+
+    const counts = entry.summary || {};
+    const detailsPart = `Issues: ${counts.total || 0} (C:${counts.critical || 0} S:${counts.serious || 0} M:${counts.moderate || 0} m:${counts.minor || 0})`;
+
+    meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
+
+    li.appendChild(title);
+    li.appendChild(meta);
+
+    list.appendChild(li);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(list);
+}
 
   syncSidebarRight();
   window.addEventListener('resize', syncSidebarRight);
