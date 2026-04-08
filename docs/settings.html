@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/settings.css">
 </head>
-<body>
+<body data-page="settings">
 
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -38,26 +38,40 @@
         </svg>
       </button>
       <div class="hamburger-dropdown" id="hamburger-dropdown" role="menu" aria-label="Site menu">
-        <a href="index.html" class="hamburger-menu-item" role="menuitem">
+        <a href="index.html" class="hamburger-menu-item" id="nav-checker-link" role="menuitem">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           Checker
         </a>
-        <a href="pricing.html" class="hamburger-menu-item" role="menuitem">
+        <a href="pricing.html" class="hamburger-menu-item" id="nav-pricing-link" role="menuitem">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="12" y1="1" x2="12" y2="23"></line>
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
           Pricing
         </a>
-        <a href="settings.html" class="hamburger-menu-item" role="menuitem">
+        <a href="settings.html" class="hamburger-menu-item" id="nav-settings-link" role="menuitem">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
           Settings
         </a>
+        <hr class="dropdown-divider">
+        <div class="brightness-control">
+          <label for="brightness-slider">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            Brightness
+          </label>
+          <input type="range" id="brightness-slider" min="50" max="150" value="100" aria-label="Adjust page brightness">
+        </div>
       </div>
     </div>
   </nav>
@@ -392,29 +406,6 @@
   </footer>
 
   <script src="js/settings.js"></script>
-  <script>
-    (function () {
-      var btn      = document.getElementById('hamburger-btn');
-      var dropdown = document.getElementById('hamburger-dropdown');
-      if (!btn || !dropdown) return;
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var isOpen = dropdown.classList.contains('is-open');
-        dropdown.classList.toggle('is-open', !isOpen);
-        btn.setAttribute('aria-expanded', String(!isOpen));
-      });
-      document.addEventListener('click', function () {
-        dropdown.classList.remove('is-open');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && dropdown.classList.contains('is-open')) {
-          dropdown.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.focus();
-        }
-      });
-    })();
-  </script>
+  <script src="js/nav.js"></script>
 </body>
 </html>
