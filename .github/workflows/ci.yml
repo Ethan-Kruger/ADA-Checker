@@ -32,4 +32,6 @@ jobs:
 
       - name: Lint CSS files in docs
         run: |
+        
           stylelint "docs/**/*.css" || exit 1
+          --fix
