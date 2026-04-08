@@ -2,39 +2,50 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
   pull_request:
-    branches: ["main"]
+    branches: [ main ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: ["3.10"]  # adjust if you need other versions
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          distribution: temurin
+          java-version: 17
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Install dev tools for testing & linting
-          pip install pytest flake8
+      # ===== Java build & tests (pick one: Maven or Gradle) =====
 
-      - name: Run tests
-        run: |
-          pytest
+      # If you use Maven, keep this and delete the Gradle step below
+      - name: Build with Maven
+        run: mvn -B verify
 
-      - name: Run linting
+      # If you use Gradle instead of Maven, use this and delete the Maven step
+      # - name: Build with Gradle
+      #   run: ./gradlew build
+
+      # ===== HTML/CSS/JS linting (optional examples) =====
+
+      # Example: HTMLHint (for HTML)
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install linters
         run: |
-          # fail on style errors
-          flake8 .
+          npm install -g htmlhint stylelint
+
+      - name: Lint HTML files
+        run: |
+          htmlhint "**/*.html" || exit 1
+
+      - name: Lint CSS files
+        run: |
+          stylelint "**/*.css" || exit 1
