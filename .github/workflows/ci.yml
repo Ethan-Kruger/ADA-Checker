@@ -14,9 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # If you ever add Java later, we can add Java steps here.
-
-      # Optional: HTML/CSS linting for files in docs/
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,7 +21,7 @@ jobs:
 
       - name: Install linters
         run: |
-          npm install -g htmlhint stylelint
+          npm install -g htmlhint stylelint stylelint-config-standard
 
       - name: Lint HTML files in docs
         run: |
