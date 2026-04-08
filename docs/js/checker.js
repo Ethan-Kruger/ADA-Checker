@@ -8,6 +8,8 @@
 //   <h1>Title</h1><h3>Sub</h3>                  → moderate  (5)
 // Run when the page is ready
 // Wire up the settings page checker UI
+// History + UI wiring for ADA checker
+
 const HISTORY_KEY = 'ada-check-history';
 
 function loadHistory() {
@@ -45,38 +47,15 @@ function addHistoryEntry(result, options = {}) {
       serious: 0,
       moderate: 0,
       minor: 0
-      checkButton.addEventListener('click', () => {
-  const html = htmlInput.value;
-  const result = checkAccessibility(html);
-  const violations = (result && result.violations) || [];
-
-  if (scoreEl) {
-    if (typeof result.score === 'number') {
-      scoreEl.hidden = false;
-      scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
-    } else {
-      scoreEl.hidden = true;
-    }
-  }
-
-  // Save this run to history
-  addHistoryEntry(result, {
-    title: 'Manual HTML check',
-    url: null
-  });
-
-  renderResults(violations, resultsList);
-});
     }
   };
 
-  history.unshift(entry);            // newest first
-  // keep last 50 checks max
-  if (history.length > 50) history.length = 50;
+  history.unshift(entry); // newest first
+  if (history.length > 50) history.length = 50; // keep last 50
 
   saveHistory(history);
 
-  // Let settings.js know history changed (for live updates)
+  // Notify settings.js so it can update the Check History panel
   try {
     window.dispatchEvent(new CustomEvent('ada-check-history-updated', {
       detail: { entry, history }
@@ -85,6 +64,9 @@ function addHistoryEntry(result, options = {}) {
     // ignore if CustomEvent not supported
   }
 }
+
+// Wire up the checker UI on the page
+
 document.addEventListener('DOMContentLoaded', () => {
   const htmlInput = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
@@ -98,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   checkButton.addEventListener('click', () => {
     const html = htmlInput.value;
-    const result = checkAccessibility(html); // your existing function
+    const result = checkAccessibility(html); // defined later in this file
     const violations = (result && result.violations) || [];
 
     if (scoreEl) {
@@ -109,11 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreEl.hidden = true;
       }
     }
-      addHistoryEntry(result,{title: 'Manual HTML check', url:null
-      });
+
+    // Save this run into history
+    addHistoryEntry(result, {
+      title: 'Manual HTML check',
+      url: null
+    });
+
     renderResults(violations, resultsList);
   });
-
+});
 
 function renderResults(violations, listEl) {
   listEl.innerHTML = '';
