@@ -7,26 +7,7 @@
 //   <a href="/p">click here</a>                 → serious   (3)
 //   <h1>Title</h1><h3>Sub</h3>                  → moderate  (5)
 // Run when the page is ready
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('checker.js DOMContentLoaded');
 
-  const htmlInput = document.getElementById('html-input');
-  const runButton = document.getElementById('run-checks-btn');
-  const resultsList = document.getElementById('results-list');
-
-  if (!htmlInput || !runButton || !resultsList) {
-    console.warn('Checker elements not found', { htmlInput, runButton, resultsList });
-    return; // safety
-  }
-
-  runButton.addEventListener('click', () => {
-    console.log('Run checks clicked');
-    const html = htmlInput.value;
-    const violations = runAdaChecksOnHtml(html);
-    console.log('Violations:', violations);
-    renderResults(violations, resultsList);
-  });
-});
 (function () {
   'use strict';
 
