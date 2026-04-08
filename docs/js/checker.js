@@ -7,7 +7,52 @@
 //   <a href="/p">click here</a>                 → serious   (3)
 //   <h1>Title</h1><h3>Sub</h3>                  → moderate  (5)
 // Run when the page is ready
+// Wire up the settings page checker UI
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('checker.js DOMContentLoaded');
 
+  const htmlInput = document.getElementById('html-input');
+  const checkButton = document.getElementById('check-btn');
+  const resultsList = document.getElementById('results-list');
+
+  if (!htmlInput || !checkButton || !resultsList) {
+    console.warn('Checker elements not found', { htmlInput, checkButton, resultsList });
+    return; // safety
+  }
+
+  checkButton.addEventListener('click', () => {
+    console.log('Check button clicked');
+    const html = htmlInput.value;
+
+    // Use your existing checker function
+    const result = checkAccessibility(html);
+    const violations = result && result.violations ? result.violations : [];
+
+    console.log('Score:', result.score, 'Violations:', violations);
+    renderResults(violations, resultsList);
+  });
+});
+
+function renderResults(violations, listEl) {
+  listEl.innerHTML = '';
+
+  if (!violations || !violations.length) {
+    const li = document.createElement('li');
+    li.textContent = 'No violations found (with the current checks).';
+    listEl.appendChild(li);
+    return;
+  }
+
+  violations.forEach(v => {
+    const li = document.createElement('li');
+    // adjust fields if your violation objects use different names
+    const severity = v.severity || 'info';
+    const message = v.message || 'Issue';
+    const element = v.element || '';
+    li.textContent = `${severity.toUpperCase()} – ${message}${element ? ' (' + element + ')' : ''}`;
+    listEl.appendChild(li);
+  });
+}
 (function () {
   'use strict';
 
