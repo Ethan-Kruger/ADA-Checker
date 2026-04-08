@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 // ===== Check history storage (shared with checker.js) =====
-const HISTORY_KEY = 'ada-check-history';
+const SETTINGS_HISTORY_KEY = 'ada-check-history';
 
 function loadHistory() {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
+    const raw = localStorage.getItem(SETTINGS_HISTORY_KEY);
     if (!raw) return [];
     const data = JSON.parse(raw);
     return Array.isArray(data) ? data : [];
@@ -36,7 +36,7 @@ function loadHistory() {
 
 function saveHistory(entries) {
   try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+    localStorage.setItem(SETTINGS_HISTORY_KEY, JSON.stringify(entries));
   } catch (e) {
     console.warn('Failed to save history', e);
   }
