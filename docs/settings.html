@@ -390,7 +390,16 @@
             </p>
           </div>
         </section>
+  <section class="settings-panel" id="panel-checker" aria-labelledby="panel-checker-title"> <h2 class="panel-title" id="panel-checker-title">ADA Checker (Paste HTML)</h2> <p class="panel-subtitle">Paste HTML and run the ADA checker directly from this page.</p> <div class="settings-card"> <div class="form-group"> <label for="html-input">Paste HTML to check</label> <textarea id="html-input" rows="10" style="width: 100%; max-width: 100%;" placeholder="Paste your HTML here..." ></textarea> </div>
+<button id="run-checks-btn" type="button" class="settings-save-btn">
+  Run checks
+</button>
 
+<section aria-labelledby="results-heading" style="margin-top: 1.5rem;">
+  <h3 id="results-heading">Results</h3>
+  <ul id="results-list"></ul>
+</section>
+</div> </section>
       </div><!-- /settings-content -->
     </div><!-- /settings-layout -->
   </main>
