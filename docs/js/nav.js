@@ -1,0 +1,61 @@
+(function () {
+  'use strict';
+
+  // ── Brightness: apply immediately to avoid flash on load ─────────────────
+  var BRIGHTNESS_KEY = 'ada-brightness';
+  var savedBrightness = parseInt(localStorage.getItem(BRIGHTNESS_KEY) || '100', 10);
+  if (savedBrightness !== 100) {
+    document.documentElement.style.filter = 'brightness(' + (savedBrightness / 100) + ')';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var wrapper  = document.getElementById('hamburger-wrapper');
+    var btn      = document.getElementById('hamburger-btn');
+    var dropdown = document.getElementById('hamburger-dropdown');
+    if (!btn || !dropdown) return;
+
+    // ── Toggle open/close ─────────────────────────────────────────────────────
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = dropdown.classList.contains('is-open');
+      dropdown.classList.toggle('is-open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.addEventListener('click', function (e) {
+      if (wrapper && !wrapper.contains(e.target)) {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && dropdown.classList.contains('is-open')) {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    });
+
+    // ── Hide the link for the current page ───────────────────────────────────
+    var page = document.body.dataset.page || '';
+    var linkIds = {
+      checker:  'nav-checker-link',
+      pricing:  'nav-pricing-link',
+      settings: 'nav-settings-link'
+    };
+    var currentLinkId = linkIds[page];
+    if (currentLinkId) {
+      var currentLink = document.getElementById(currentLinkId);
+      if (currentLink) currentLink.style.display = 'none';
+    }
+
+    // ── Brightness slider ─────────────────────────────────────────────────────
+    var slider = document.getElementById('brightness-slider');
+    if (!slider) return;
+    slider.value = savedBrightness;
+    slider.addEventListener('input', function () {
+      var val = parseInt(slider.value, 10);
+      document.documentElement.style.filter = val === 100 ? '' : 'brightness(' + (val / 100) + ')';
+      localStorage.setItem(BRIGHTNESS_KEY, String(val));
+    });
+  });
+}());
