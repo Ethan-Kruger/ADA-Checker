@@ -20,15 +20,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # ===== Java build & tests (pick one: Maven or Gradle) =====
+      # ===== Java build & tests Gradle =====
 
-      # If you use Maven, keep this and delete the Gradle step below
-      - name: Build with Maven
-        run: mvn -B verify
+      
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
 
-      # If you use Gradle instead of Maven, use this and delete the Maven step
-      # - name: Build with Gradle
-      #   run: ./gradlew build
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      
 
       # ===== HTML/CSS/JS linting (optional examples) =====
 
