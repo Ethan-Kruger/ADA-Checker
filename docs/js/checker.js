@@ -47,7 +47,8 @@ function addHistoryEntry(result, options = {}) {
       serious: 0,
       moderate: 0,
       minor: 0
-    }
+    },
+    html:options.html || null
   };
 
   history.unshift(entry); // newest first
@@ -96,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addHistoryEntry(result, {
       title: 'Manual HTML check',
       url: null
+      html:html
     });
 
     renderResults(violations, resultsList);
