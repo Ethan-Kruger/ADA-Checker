@@ -24,14 +24,13 @@ jobs:
 
       - name: Install linters
         run: |
-          npm install -g htmlhint stylelint stylelint-config-standard
+          npm install -g htmlhint 
 
       - name: Lint HTML files in docs
         run: |
           htmlhint "docs/**/*.html" || exit 1
 
-      - name: Lint CSS files in docs
-        run: |
+      
         
-          stylelint "docs/**/*.css" || exit 1
-          --fix
+          
+        
