@@ -70,7 +70,23 @@ function renderHistory() {
       alert('Checker UI is not available on this page.');
       return;
     }
-    if(type
+    htmlInput.value = entry.html;
+
+    if (typeof window.checkAccessibility !== 'function'){
+      alert('Checker script not loaded.');
+      return;
+    }
+    const result = window.checkAccessibility(entry.html);
+    const violations = (result && result.violations) || [];
+    if (scoreE1){
+      if (typeof result.score === 'number'){
+        scoreE1.hidden = false;
+        scoreE1.textContent = `Score: ${Math.round(result.score)}/100`;
+      }else{
+        scoreE1.hidden = true;
+      }
+    }
+    
 
   const list = document.createElement('ul');
   list.className = 'history-list';
