@@ -53,11 +53,11 @@ function renderHistory() {
   const list = document.createElement('ul');
   list.className = 'history-list';
 
-  history.forEach(result => {
+  history.forEach(h => {
     const li = document.createElement('li');
     li.className = 'history-item';
 
-    const date = new Date(result.timestamp || Date.now());
+    const date = new Date(h.timestamp || Date.now());
     const dateStr = date.toLocaleString(undefined, {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -65,16 +65,16 @@ function renderHistory() {
 
     const title = document.createElement('div');
     title.className = 'history-item-title';
-    title.textContent = result.title || 'Manual HTML check';
+    title.textContent = h.title || 'Manual HTML check';
 
     const meta = document.createElement('div');
     meta.className = 'history-item-meta';
 
-    const scorePart = (typeof result.score === 'number')
-      ? `Score: ${result.score}/100`
+    const scorePart = (typeof h.score === 'number')
+      ? `Score: ${h.score}/100`
       : 'Score: N/A';
 
-    const s = result.summary || {};
+    const s = h.summary || {};
     const detailsPart = `Issues: ${s.total || 0}`;
 
     meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
@@ -85,11 +85,11 @@ function renderHistory() {
     // Make clickable to re-run this check
     li.tabIndex = 0;
     li.setAttribute('role', 'button');
-    li.addEventListener('click', () => openHistoryEntry(result));
+    li.addEventListener('click', () => openHistoryEntry(h));
     li.addEventListener('keypress', ev => {
       if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
-        openHistoryEntry(result);
+        openHistoryEntry(h);
       }
     });
 
@@ -100,8 +100,8 @@ function renderHistory() {
   container.appendChild(list);
 }
 
-function openHistoryEntry(result) {
-  if (!result.html) {
+function openHistoryEntry(h) {
+  if (!h.html) {
     alert('This history item does not have stored HTML yet. Run a new check to save details.');
     return;
   }
@@ -121,14 +121,14 @@ function openHistoryEntry(result) {
     return;
   }
 
-  htmlInput.value = result.html;
+  htmlInput.value = h.html;
 
   if (typeof window.checkAccessibility !== 'function') {
     alert('Checker script not loaded.');
     return;
   }
  
-  const result = window.checkAccessibility(result.html);
+  const result = window.checkAccessibility(h.html);
   const violations = (result && result.violations) || [];
 
   if (scoreEl) {
