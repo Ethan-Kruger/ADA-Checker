@@ -450,4 +450,6 @@ function renderHistory() {
       if (profileEmail) localStorage.setItem('ada-profile-email', profileEmail.value);
       saveProfileBtn.textContent = 'Saved!';
       setTimeout(function () { saveProfileBtn.textContent = 'Save Profile'; }, 2000);
-    })();
+    });
+  }
+})();
