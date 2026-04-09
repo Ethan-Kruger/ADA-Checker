@@ -488,4 +488,4 @@ function renderHistory() {
     });
   }
 
-}());
+});
