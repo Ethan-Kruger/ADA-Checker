@@ -86,6 +86,17 @@ function renderHistory() {
         scoreE1.hidden = true;
       }
     }
+    if (typeof window.renderResults === 'function'){
+      window.renderResults(violations, resultsList);
+    }else{
+      resultsList.innerHTML = '';
+      violations.forEach(v => { const li = document.createElement('li');
+                               li.textContent = `${v.severity || 'info'} - ${v.message || 'Issue'}`;
+                               resultList.appendChild(li);
+                              });
+    }
+  }
+  
     
 
   const list = document.createElement('ul');
