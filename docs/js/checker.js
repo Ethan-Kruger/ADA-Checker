@@ -10,6 +10,8 @@
 // Wire up the settings page checker UI
 // History + UI wiring for ADA checker
 
+// History + UI wiring for ADA checker
+
 const HISTORY_KEY = 'ada-check-history';
 
 function loadHistory() {
@@ -38,33 +40,29 @@ function addHistoryEntry(result, options = {}) {
   const entry = {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     timestamp: Date.now(),
-    url: options.url || null,
     title: options.title || 'Manual HTML check',
+    html: options.html || null,
     score: typeof result.score === 'number' ? Math.round(result.score) : null,
-    summary:{
+    summary: {
       total: (result.violations || []).length,
       critical: 0,
       serious: 0,
       moderate: 0,
       minor: 0
-    },
+    }
   };
 
-  history.unshift(entry); // newest first
-  if (history.length > 50) history.length = 50; // keep last 50
+  history.unshift(entry);
+  if (history.length > 50) history.length = 50;
 
   saveHistory(history);
 
-  // Notify settings.js so it can update the Check History panel
   try {
     window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
-    }));
   } catch (e) {
     // ignore if CustomEvent not supported
   }
 }
-
-// Wire up the checker UI on the page
 
 document.addEventListener('DOMContentLoaded', () => {
   const htmlInput = document.getElementById('html-input');
@@ -91,10 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Save this run into history
     addHistoryEntry(result, {
       title: 'Manual HTML check',
-      html:html
+      html: html
     });
 
     renderResults(violations, resultsList);
@@ -139,8 +136,9 @@ function renderResults(violations, listEl) {
   });
 }
 
-// expose for settings.js
 window.renderResults = renderResults;
+
+// your existing (function () { 'use strict'; ... }()); should follow below
 (function () {
   'use strict';
 
