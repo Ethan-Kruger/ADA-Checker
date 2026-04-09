@@ -279,7 +279,10 @@
               '<div class="history-meta">' + escHTML(String(count)) +
                 ' violation' + (count !== 1 ? 's' : '') + '</div>' +
             '</div>' +
-            '<div class="history-meta">' + escHTML(entry.date) + '</div>' +
+            '<div class="history-summary-right">' +
+              '<div class="history-meta">' + escHTML(entry.date) + '</div>' +
+              '<svg class="history-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+            '</div>' +
           '</summary>' +
           '<div class="history-details-body">' + detailsHtml + '</div>' +
         '</details>';
