@@ -113,6 +113,7 @@ function renderResults(violations, listEl) {
     listEl.appendChild(li);
     return;
   }
+  window.renderResults = renderResults;
 
   violations.forEach(v => {
     const li = document.createElement('li');
