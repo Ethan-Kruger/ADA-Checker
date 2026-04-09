@@ -1,149 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // ... existing settings.js code ...
- renderHistory();
-
-  window.addEventListener('ada-check-history-updated', () => {
-    renderHistory();
-  });
-
-  const clearBtn = document.getElementById('clear-history-btn');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      if (!confirm('Clear all saved accessibility checks?')) return;
-      settingsSaveHistory([]);
-      renderHistory();
-    });
-  }
-});
- 
-// ===== Check history storage (shared with checker.js) =====
-const SETTINGS_HISTORY_KEY = 'ada-check-history';
-
-function settingsLoadHistory() {
-  try {
-    const raw = localStorage.getItem(SETTINGS_HISTORY_KEY);
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    console.warn('Failed to load history', e);
-    return [];
-  }
-}
-
-function settingsSaveHistory(entries) {
-  try {
-    localStorage.setItem(SETTINGS_HISTORY_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.warn('Failed to save history', e);
-  }
-}
-
-function renderHistory() {
-  const container = document.getElementById('history-list');
-  if (!container) return;
-
-  const history = settingsLoadHistory();
-
-  if (!history.length) {
-    container.innerHTML = '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
-    return;
-  }
-
-  const list = document.createElement('ul');
-  list.className = 'history-list';
-
-  history.forEach(h => {
-    const li = document.createElement('li');
-    li.className = 'history-item';
-
-    const date = new Date(h.timestamp || Date.now());
-    const dateStr = date.toLocaleString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    const title = document.createElement('div');
-    title.className = 'history-item-title';
-    title.textContent = h.title || 'Manual HTML check';
-
-    const meta = document.createElement('div');
-    meta.className = 'history-item-meta';
-
-    const scorePart = (typeof h.score === 'number')
-      ? `Score: ${h.score}/100`
-      : 'Score: N/A';
-
-    const s = h.summary || {};
-    const detailsPart = `Issues: ${s.total || 0}`;
-
-    meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
-
-    li.appendChild(title);
-    li.appendChild(meta);
-
-    // Make clickable to re-run this check
-    li.tabIndex = 0;
-    li.setAttribute('role', 'button');
-    li.addEventListener('click', () => openHistoryEntry(h));
-    li.addEventListener('keypress', ev => {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault();
-        openHistoryEntry(h);
-      }
-    });
-
-    list.appendChild(li);
-  });
-
-  container.innerHTML = '';
-  container.appendChild(list);
-}
-
-function openHistoryEntry(h) {
-  if (!h.html) {
-    alert('This history item does not have stored HTML yet. Run a new check to save details.');
-    return;
-  }
-
-  // Switch to ADA Checker panel on settings page
-  const checkerPanel = document.getElementById('panel-checker');
-  if (checkerPanel) {
-    checkerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  const htmlInput = document.getElementById('html-input');
-  const resultsList = document.getElementById('results-list');
-  const scoreEl = document.getElementById('checker-score');
-
-  if (!htmlInput || !resultsList) {
-    alert('Checker UI is not available on this page.');
-    return;
-  }
-
-  htmlInput.value = h.html;
-
-  if (typeof window.checkAccessibility !== 'function') {
-    alert('Checker script not loaded.');
-    return;
-  }
- 
-  const historyResult = window.checkAccessibility(h.html);
-  const violations = (historyResult && historyResult.violations) || [];
-
-  if (scoreEl) {
-    if (typeof historyResult.score === 'number') {
-      scoreEl.hidden = false;
-      scoreEl.textContent = `Score: ${Math.round(historyResult.score)} / 100`;
-    } else {
-      scoreEl.hidden = true;
-    }
-  }
-
-  if (typeof window.renderResults === 'function') {
-    window.renderResults(violations, resultsList);
-  }
-}
 (function () {
   'use strict';
 
@@ -156,7 +10,6 @@ function openHistoryEntry(h) {
     var r = sidebar.getBoundingClientRect();
     document.documentElement.style.setProperty('--sidebar-right', r.right + 'px');
   }
- 
 
   syncSidebarRight();
   window.addEventListener('resize', syncSidebarRight);
@@ -382,4 +235,65 @@ function openHistoryEntry(h) {
       setTimeout(function () { saveProfileBtn.textContent = 'Save Profile'; }, 2000);
     });
   }
-})();
+
+  // ─── History ──────────────────────────────────────────────────────────────
+  var historyList    = document.getElementById('history-list');
+  var clearHistoryBtn = document.getElementById('clear-history-btn');
+
+  function escHTML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderHistory() {
+    if (!historyList) return;
+    var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
+    if (history.length === 0) {
+      historyList.innerHTML =
+        '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
+      return;
+    }
+    var html = '';
+    history.slice().reverse().forEach(function (entry) {
+      var count = entry.violations;
+      var detailsHtml = '';
+      if (entry.details && entry.details.length > 0) {
+        detailsHtml = '<ul class="history-violation-list">';
+        entry.details.forEach(function (v) {
+          detailsHtml +=
+            '<li class="history-violation-item severity-' + escHTML(v.severity) + '">' +
+              '<span class="history-violation-badge">' + escHTML(v.severity) + '</span>' +
+              '<span class="history-violation-msg">' + escHTML(v.message) + '</span>' +
+            '</li>';
+        });
+        detailsHtml += '</ul>';
+      } else {
+        detailsHtml = '<p class="history-meta" style="padding:0.5rem 0">No violations recorded.</p>';
+      }
+      html +=
+        '<details class="history-entry">' +
+          '<summary class="history-summary">' +
+            '<div class="history-summary-left">' +
+              '<div class="history-score">' + escHTML(String(entry.score)) + '/100</div>' +
+              '<div class="history-meta">' + escHTML(String(count)) +
+                ' violation' + (count !== 1 ? 's' : '') + '</div>' +
+            '</div>' +
+            '<div class="history-meta">' + escHTML(entry.date) + '</div>' +
+          '</summary>' +
+          '<div class="history-details-body">' + detailsHtml + '</div>' +
+        '</details>';
+    });
+    historyList.innerHTML = html;
+  }
+
+  renderHistory();
+
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', function () {
+      localStorage.removeItem('ada-history');
+      renderHistory();
+    });
+  }
+
+}());
