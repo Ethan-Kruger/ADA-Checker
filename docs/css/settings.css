@@ -389,11 +389,29 @@
 .history-summary::-webkit-details-marker { display: none; }
 .history-summary::marker { display: none; }
 .history-summary:hover .history-score { color: #a5b4fc; }
+.history-summary:hover .history-chevron { color: #a5b4fc; }
 
 .history-summary-left {
   display: flex;
   align-items: baseline;
   gap: 0.625rem;
+}
+
+.history-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.history-chevron {
+  color: #475569;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.15s;
+}
+
+.history-entry[open] .history-chevron {
+  transform: rotate(180deg);
 }
 
 .history-score {
