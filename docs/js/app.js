@@ -124,6 +124,19 @@
     applyFilter(activeFilter);
   }
 
+  // ─── Save result to history ───────────────────────────────────────────────────
+  function saveToHistory(result) {
+    var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
+    history.push({
+      score: result.score,
+      violations: result.summary.total,
+      date: new Date().toLocaleString(),
+      details: result.violations
+    });
+    if (history.length > 20) history = history.slice(-20);
+    localStorage.setItem('ada-history', JSON.stringify(history));
+  }
+
   // ─── Display results ──────────────────────────────────────────────────────────
   function displayResults(result) {
     // Update severity count tiles using the summary object from checkAccessibility().
@@ -135,6 +148,8 @@
     renderViolations(result.violations);
     resultsSection.hidden = false;
     resultsHeading.focus();
+
+    saveToHistory(result);
 
     // Announce result to screen readers via the live region.
     liveRegion.textContent =
