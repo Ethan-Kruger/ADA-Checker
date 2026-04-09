@@ -52,6 +52,13 @@ function renderHistory() {
     container.innerHTML = '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
     return;
   }
+  function openHistoryEntry(id) {
+    const history = loadHistory();
+    consts entry = history.find(e => e.id === id);
+    if (!entry || !entry.html){
+      alert('This history item does not have stored HTML yet. Run a new check to save full details.');
+      return;
+    }
 
   const list = document.createElement('ul');
   list.className = 'history-list';
