@@ -1,28 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
   // ... existing settings.js code ...
+ renderHistory();
 
- // History: initial render
-  renderHistory();
-
-  // History: update when a new check is added (from checker.js)
   window.addEventListener('ada-check-history-updated', () => {
     renderHistory();
   });
 
-  // History: clear button
   const clearBtn = document.getElementById('clear-history-btn');
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       if (!confirm('Clear all saved accessibility checks?')) return;
-      saveHistory([]);
+      settingsSaveHistory([]);
       renderHistory();
     });
   }
-});
+ 
 // ===== Check history storage (shared with checker.js) =====
 const SETTINGS_HISTORY_KEY = 'ada-check-history';
 
-function loadHistory() {
+function settingsLoadHistory() {
   try {
     const raw = localStorage.getItem(SETTINGS_HISTORY_KEY);
     if (!raw) return [];
@@ -34,7 +30,7 @@ function loadHistory() {
   }
 }
 
-function saveHistory(entries) {
+function settingsSaveHistory(entries) {
   try {
     localStorage.setItem(SETTINGS_HISTORY_KEY, JSON.stringify(entries));
   } catch (e) {
@@ -46,67 +42,21 @@ function renderHistory() {
   const container = document.getElementById('history-list');
   if (!container) return;
 
-  const history = loadHistory();
+  const history = settingsLoadHistory();
 
   if (!history.length) {
     container.innerHTML = '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
     return;
   }
-  function openHistoryEntry(id) {
-    const history = loadHistory();
-    consts entry = history.find(e => e.id === id);
-    if (!entry || !entry.html){
-      alert('This history item does not have stored HTML yet. Run a new check to save full details.');
-      return;
-    }
-    const checkerPanel = document.getElementById('panel-checker');
-    if(checkerPanel){
-      checkerPanel.scrollIntoView({behavior: 'smooth', block: 'start'});
-    }
-    const htmlInput = document.getElementById('html-input');
-    const resultsList = document.getElementById('results-list');
-    const scoreE1 = document.getElementById('checker-score');
-    if (!htmlInput || resultsList){
-      alert('Checker UI is not available on this page.');
-      return;
-    }
-    htmlInput.value = entry.html;
-
-    if (typeof window.checkAccessibility !== 'function'){
-      alert('Checker script not loaded.');
-      return;
-    }
-    const result = window.checkAccessibility(entry.html);
-    const violations = (result && result.violations) || [];
-    if (scoreE1){
-      if (typeof result.score === 'number'){
-        scoreE1.hidden = false;
-        scoreE1.textContent = `Score: ${Math.round(result.score)}/100`;
-      }else{
-        scoreE1.hidden = true;
-      }
-    }
-    if (typeof window.renderResults === 'function'){
-      window.renderResults(violations, resultsList);
-    }else{
-      resultsList.innerHTML = '';
-      violations.forEach(v => { const li = document.createElement('li');
-                               li.textContent = `${v.severity || 'info'} - ${v.message || 'Issue'}`;
-                               resultList.appendChild(li);
-                              });
-    }
-  }
-  
-    
 
   const list = document.createElement('ul');
   list.className = 'history-list';
 
-  history.forEach(entry => {
+  history.forEach(h => {
     const li = document.createElement('li');
     li.className = 'history-item';
 
-    const date = new Date(entry.timestamp || Date.now());
+    const date = new Date(h.timestamp || Date.now());
     const dateStr = date.toLocaleString(undefined, {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -114,37 +64,84 @@ function renderHistory() {
 
     const title = document.createElement('div');
     title.className = 'history-item-title';
-    title.textContent = entry.title || 'Manual HTML check';
+    title.textContent = h.title || 'Manual HTML check';
 
     const meta = document.createElement('div');
     meta.className = 'history-item-meta';
 
-    const scorePart = (typeof entry.score === 'number')
-      ? `Score: ${entry.score}/100`
+    const scorePart = (typeof h.score === 'number')
+      ? `Score: ${h.score}/100`
       : 'Score: N/A';
 
-    const s = entry.summary || {};
-    const detailsPart = `Issues: ${s.total || 0} (C:${s.critical || 0} S:${s.serious || 0} M:${s.moderate || 0} m:${s.minor || 0})`;
+    const s = h.summary || {};
+    const detailsPart = `Issues: ${s.total || 0}`;
 
     meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
 
     li.appendChild(title);
     li.appendChild(meta);
+
+    // Make clickable to re-run this check
     li.tabIndex = 0;
     li.setAttribute('role', 'button');
-    li.setAttribute('aria-label', `View results for ${title.textContent}`);
-    li.addEventListener('click', () =>  openHistoryEntry(entery.id));
-    li.addEventListener('keypress', (ev) => {
-      if (ev.key === 'enter' || ev.key === ' '){
+    li.addEventListener('click', () => openHistoryEntry(h));
+    li.addEventListener('keypress', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
-        openHistoryEntry(entry.id);
+        openHistoryEntry(h);
       }
     });
+
     list.appendChild(li);
   });
 
   container.innerHTML = '';
   container.appendChild(list);
+}
+
+function openHistoryEntry(h) {
+  if (!h.html) {
+    alert('This history item does not have stored HTML yet. Run a new check to save details.');
+    return;
+  }
+
+  // Switch to ADA Checker panel on settings page
+  const checkerPanel = document.getElementById('panel-checker');
+  if (checkerPanel) {
+    checkerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const htmlInput = document.getElementById('html-input');
+  const resultsList = document.getElementById('results-list');
+  const scoreEl = document.getElementById('checker-score');
+
+  if (!htmlInput || !resultsList) {
+    alert('Checker UI is not available on this page.');
+    return;
+  }
+
+  htmlInput.value = h.html;
+
+  if (typeof window.checkAccessibility !== 'function') {
+    alert('Checker script not loaded.');
+    return;
+  }
+
+  const result = window.checkAccessibility(h.html);
+  const violations = (result && result.violations) || [];
+
+  if (scoreEl) {
+    if (typeof result.score === 'number') {
+      scoreEl.hidden = false;
+      scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
+    } else {
+      scoreEl.hidden = true;
+    }
+  }
+
+  if (typeof window.renderResults === 'function') {
+    window.renderResults(violations, resultsList);
+  }
 }
 (function () {
   'use strict';
