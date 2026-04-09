@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderHistory();
     });
   }
+});
  
 // ===== Check history storage (shared with checker.js) =====
 const SETTINGS_HISTORY_KEY = 'ada-check-history';
@@ -451,41 +452,4 @@ function renderHistory() {
       setTimeout(function () { saveProfileBtn.textContent = 'Save Profile'; }, 2000);
     });
   }
-
-  // ─── History ──────────────────────────────────────────────────────────────
-  var historyList    = document.getElementById('history-list');
-  var clearHistoryBtn = document.getElementById('clear-history-btn');
-
-  function renderHistory() {
-    if (!historyList) return;
-    var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
-    if (history.length === 0) {
-      historyList.innerHTML =
-        '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
-      return;
-    }
-    var html = '';
-    history.slice().reverse().forEach(function (entry) {
-      html +=
-        '<div class="history-entry">' +
-          '<div>' +
-            '<div class="history-score">' + entry.score + '/100</div>' +
-            '<div class="history-meta">' + entry.violations +
-              ' violation' + (entry.violations !== 1 ? 's' : '') + '</div>' +
-          '</div>' +
-          '<div class="history-meta">' + entry.date + '</div>' +
-        '</div>';
-    });
-    historyList.innerHTML = html;
-  }
-
-  renderHistory();
-
-  if (clearHistoryBtn) {
-    clearHistoryBtn.addEventListener('click', function () {
-      localStorage.removeItem('ada-history');
-      renderHistory();
-    });
-  }
-
 });
