@@ -53,11 +53,11 @@ function renderHistory() {
   const list = document.createElement('ul');
   list.className = 'history-list';
 
-  history.forEach(h => {
+  history.forEach(result => {
     const li = document.createElement('li');
     li.className = 'history-item';
 
-    const date = new Date(h.timestamp || Date.now());
+    const date = new Date(result.timestamp || Date.now());
     const dateStr = date.toLocaleString(undefined, {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -65,16 +65,16 @@ function renderHistory() {
 
     const title = document.createElement('div');
     title.className = 'history-item-title';
-    title.textContent = h.title || 'Manual HTML check';
+    title.textContent = result.title || 'Manual HTML check';
 
     const meta = document.createElement('div');
     meta.className = 'history-item-meta';
 
-    const scorePart = (typeof h.score === 'number')
-      ? `Score: ${h.score}/100`
+    const scorePart = (typeof result.score === 'number')
+      ? `Score: ${result.score}/100`
       : 'Score: N/A';
 
-    const s = h.summary || {};
+    const s = result.summary || {};
     const detailsPart = `Issues: ${s.total || 0}`;
 
     meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
@@ -85,11 +85,11 @@ function renderHistory() {
     // Make clickable to re-run this check
     li.tabIndex = 0;
     li.setAttribute('role', 'button');
-    li.addEventListener('click', () => openHistoryEntry(h));
+    li.addEventListener('click', () => openHistoryEntry(result));
     li.addEventListener('keypress', ev => {
       if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
-        openHistoryEntry(h);
+        openHistoryEntry(result);
       }
     });
 
@@ -100,8 +100,8 @@ function renderHistory() {
   container.appendChild(list);
 }
 
-function openHistoryEntry(h) {
-  if (!h.html) {
+function openHistoryEntry(result) {
+  if (!result.html) {
     alert('This history item does not have stored HTML yet. Run a new check to save details.');
     return;
   }
@@ -121,20 +121,20 @@ function openHistoryEntry(h) {
     return;
   }
 
-  htmlInput.value = h.html;
+  htmlInput.value = result.html;
 
   if (typeof window.checkAccessibility !== 'function') {
     alert('Checker script not loaded.');
     return;
   }
-
-  const h = window.checkAccessibility(h.html);
-  const violations = (h && h.violations) || [];
+ 
+  const result = window.checkAccessibility(result.html);
+  const violations = (result && result.violations) || [];
 
   if (scoreEl) {
-    if (typeof h.score === 'number') {
+    if (typeof result.score === 'number') {
       scoreEl.hidden = false;
-      scoreEl.textContent = `Score: ${Math.round(h.score)} / 100`;
+      scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
     } else {
       scoreEl.hidden = true;
     }
@@ -156,77 +156,7 @@ function openHistoryEntry(h) {
     var r = sidebar.getBoundingClientRect();
     document.documentElement.style.setProperty('--sidebar-right', r.right + 'px');
   }
-  const HISTORY_KEY = 'ada-check-history';
-
-function loadHistory() {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    console.warn('Failed to load history', e);
-    return [];
-  }
-}
-
-function saveHistory(entries) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.warn('Failed to save history', e);
-  }
-}
-
-function renderHistory() {
-  const container = document.getElementById('history-list');
-  if (!container) return;
-
-  const history = loadHistory();
-
-  if (!history.length) {
-    container.innerHTML = '<p class="history-empty">No checks recorded yet. Run an accessibility check to see your history here.</p>';
-    return;
-  }
-
-  const list = document.createElement('ul');
-  list.className = 'history-list';
-
-  history.forEach(entry => {
-    const li = document.createElement('li');
-    li.className = 'history-item';
-
-    const date = new Date(entry.timestamp);
-    const dateStr = date.toLocaleString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    const title = document.createElement('div');
-    title.className = 'history-item-title';
-    title.textContent = entry.title || 'Manual HTML check';
-
-    const meta = document.createElement('div');
-    meta.className = 'history-item-meta';
-
-    const scorePart = (typeof entry.score === 'number')
-      ? `Score: ${entry.score}/100`
-      : 'Score: N/A';
-
-    const counts = entry.summary || {};
-    const detailsPart = `Issues: ${counts.total || 0} (C:${counts.critical || 0} S:${counts.serious || 0} M:${counts.moderate || 0} m:${counts.minor || 0})`;
-
-    meta.textContent = `${scorePart} • ${detailsPart} • ${dateStr}`;
-
-    li.appendChild(title);
-    li.appendChild(meta);
-
-    list.appendChild(li);
-  });
-
-  container.innerHTML = '';
-  container.appendChild(list);
-}
+ 
 
   syncSidebarRight();
   window.addEventListener('resize', syncSidebarRight);
