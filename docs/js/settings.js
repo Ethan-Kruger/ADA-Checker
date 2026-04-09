@@ -59,6 +59,18 @@ function renderHistory() {
       alert('This history item does not have stored HTML yet. Run a new check to save full details.');
       return;
     }
+    const checkerPanel = document.getElementById('panel-checker');
+    if(checkerPanel){
+      checkerPanel.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+    const htmlInput = document.getElementById('html-input');
+    const resultsList = document.getElementById('results-list');
+    const scoreE1 = document.getElementById('checker-score');
+    if (!htmlInput || resultsList){
+      alert('Checker UI is not available on this page.');
+      return;
+    }
+    if(type
 
   const list = document.createElement('ul');
   list.className = 'history-list';
