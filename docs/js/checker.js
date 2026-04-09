@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save this run into history
     addHistoryEntry(result, {
       title: 'Manual HTML check',
-      url: null
+      url: null,
       html:html
     });
 
@@ -113,7 +113,6 @@ function renderResults(violations, listEl) {
     listEl.appendChild(li);
     return;
   }
-  window.renderResults = renderResults;
 
   violations.forEach(v => {
     const li = document.createElement('li');
@@ -142,6 +141,9 @@ function renderResults(violations, listEl) {
     listEl.appendChild(li);
   });
 }
+
+// expose for settings.js
+window.renderResults = renderResults;
 (function () {
   'use strict';
 
