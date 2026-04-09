@@ -41,14 +41,13 @@ function addHistoryEntry(result, options = {}) {
     url: options.url || null,
     title: options.title || 'Manual HTML check',
     score: typeof result.score === 'number' ? Math.round(result.score) : null,
-    summary: result.summary || {
+    summary:{
       total: (result.violations || []).length,
       critical: 0,
       serious: 0,
       moderate: 0,
       minor: 0
     },
-    html:options.html || null
   };
 
   history.unshift(entry); // newest first
@@ -58,8 +57,7 @@ function addHistoryEntry(result, options = {}) {
 
   // Notify settings.js so it can update the Check History panel
   try {
-    window.dispatchEvent(new CustomEvent('ada-check-history-updated', {
-      detail: { entry, history }
+    window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
     }));
   } catch (e) {
     // ignore if CustomEvent not supported
@@ -96,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save this run into history
     addHistoryEntry(result, {
       title: 'Manual HTML check',
-      url: null,
       html:html
     });
 
