@@ -84,6 +84,16 @@ function renderHistory() {
 
     li.appendChild(title);
     li.appendChild(meta);
+    li.tabIndex = 0;
+    li.setAttribute('role', 'button');
+    li.setAttribute('aria-label', `View results for ${title.textContent}`);
+    li.addEventListener('click', () =>  openHistoryEntry(entery.id));
+    li.addEventListener('keypress', (ev) => {
+      if (ev.key === 'enter' || ev.key === ' '){
+        ev.preventDefault();
+        openHistoryEntry(entry.id);
+      }
+    });
     list.appendChild(li);
   });
 
