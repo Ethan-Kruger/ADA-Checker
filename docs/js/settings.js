@@ -128,13 +128,13 @@ function openHistoryEntry(h) {
     return;
   }
 
-  const result = window.checkAccessibility(h.html);
-  const violations = (result && result.violations) || [];
+  const h = window.checkAccessibility(h.html);
+  const violations = (h && h.violations) || [];
 
   if (scoreEl) {
-    if (typeof result.score === 'number') {
+    if (typeof h.score === 'number') {
       scoreEl.hidden = false;
-      scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
+      scoreEl.textContent = `Score: ${Math.round(h.score)} / 100`;
     } else {
       scoreEl.hidden = true;
     }
