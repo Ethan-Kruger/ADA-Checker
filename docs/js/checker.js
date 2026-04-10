@@ -200,9 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     clearCheckerError();
 
+    // Show loading state while the async scan runs.
+    checkButton.disabled = true;
+    checkButton.textContent = 'Checking\u2026';
+    if (scoreEl) { scoreEl.hidden = false; scoreEl.textContent = 'Scanning\u2026'; }
+
     const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
-    const result = window.checkAccessibility(html, level);
+    window.checkAccessibilityAsync(html, level).then(function (result) {
     const violations = (result && result.violations) || [];
+
+    checkButton.disabled = false;
+    checkButton.textContent = 'Run accessibility check';
 
     incrementCheckCount();
 
@@ -226,8 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderResults(violations, resultsList);
-  });
-});
+    }); // end checkAccessibilityAsync.then
+  }); // end click
 
 function renderResults(violations, listEl) {
   listEl.innerHTML = '';
@@ -1009,8 +1017,85 @@ window.renderResults = renderResults;
     return { score: score, violations: violations, summary: summary, level: level };
   }
 
+  // ─── Async check runner ──────────────────────────────────────────────────────
+  // Splits checks into batches of 4, yielding to the browser between each batch
+  // via setTimeout(0). This keeps the page responsive on large HTML documents
+  // and prevents the main thread from locking up during long scans.
+  function checkAccessibilityAsync(html, level) {
+    return new Promise(function (resolve) {
+      level = (level || 'A').toUpperCase();
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+
+      var levelA = [
+        checkImageAlt, checkFormLabels, checkLinkText, checkPageTitle,
+        checkHeadings, checkLanguage, checkARIA, checkTables,
+        checkButtons, checkSkipLinks, checkIframes, checkInputImages,
+        checkDuplicateIds
+      ];
+      var levelAA = (level === 'AA' || level === 'AAA')
+        ? [checkLandmarks, checkAutoplay, checkMetaRefresh, checkErrorSuggestion]
+        : [];
+      var levelAAA = (level === 'AAA')
+        ? [checkAbbreviations, checkDuplicateLinkText, checkTimedContent]
+        : [];
+
+      var allChecks = levelA.concat(levelAA, levelAAA);
+      var violations = [];
+      var idx = 0;
+      var BATCH = 4; // checks per task; tune up/down to balance speed vs responsiveness
+
+      function runBatch() {
+        var end = Math.min(idx + BATCH, allChecks.length);
+        while (idx < end) {
+          violations = violations.concat(allChecks[idx](doc));
+          idx++;
+        }
+
+        if (idx < allChecks.length) {
+          // Yield to the browser so it can repaint / handle input, then continue.
+          setTimeout(runBatch, 0);
+          return;
+        }
+
+        // Custom rules (Enterprise) — run last, no yield needed.
+        if (planAtLeast('enterprise')) {
+          var customRules = getCustomRules();
+          if (customRules.length) {
+            violations = violations.concat(checkCustomRules(doc, customRules));
+          }
+        }
+
+        // Sort: critical → serious → moderate → minor.
+        var order = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+        violations.sort(function (a, b) { return order[a.severity] - order[b.severity]; });
+
+        // Build summary counts.
+        var summary = { total: violations.length, critical: 0, serious: 0, moderate: 0, minor: 0 };
+        violations.forEach(function (v) {
+          if (summary[v.severity] !== undefined) summary[v.severity]++;
+        });
+
+        // Calculate score.
+        var score = Math.max(0,
+          100
+          - summary.critical * PENALTY.critical
+          - summary.serious  * PENALTY.serious
+          - summary.moderate * PENALTY.moderate
+          - summary.minor    * PENALTY.minor
+        );
+
+        resolve({ score: score, violations: violations, summary: summary, level: level });
+      }
+
+      // Start first batch on the next task so the browser can render any
+      // loading-state changes (e.g. button text) before work begins.
+      setTimeout(runBatch, 0);
+    });
+  }
+
   // Export on window so app.js and the browser console can call it.
-  window.checkAccessibility = checkAccessibility;
+  window.checkAccessibility      = checkAccessibility;
+  window.checkAccessibilityAsync = checkAccessibilityAsync;
 
   // Backward-compatible alias used by app.js.
   window.runChecks = function (html) {

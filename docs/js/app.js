@@ -377,9 +377,9 @@
     checkBtn.setAttribute('aria-busy', 'true');
     showSpinner();
 
-    setTimeout(function () {
-      var result = window.checkAccessibility(html, getSelectedLevel());
-
+    // Run checks asynchronously — yields between batches so the page stays
+    // responsive while scanning large HTML documents.
+    window.checkAccessibilityAsync(html, getSelectedLevel()).then(function (result) {
       incrementCheckCount();
 
       checkBtn.disabled = false;
@@ -388,7 +388,7 @@
       hideSpinner();
 
       displayResults(result);
-    }, 50);
+    });
   }
 
   // ─── Export report ────────────────────────────────────────────────────────────
@@ -650,19 +650,24 @@
       batchCheckBtn.disabled = true;
       batchCheckBtn.textContent = 'Checking\u2026';
 
-      setTimeout(function () {
-        var results = pages.map(function (html) {
-          return window.checkAccessibility(html, getSelectedLevel());
+      // Run each page's check sequentially using the async runner so the
+      // browser stays responsive even when processing many large pages.
+      var level   = getSelectedLevel();
+      var results = [];
+      (function runNext(idx) {
+        if (idx >= pages.length) {
+          incrementCheckCount();
+          updateUsageCounter();
+          batchCheckBtn.disabled = false;
+          batchCheckBtn.textContent = 'Check All Pages';
+          renderBatchResults(results);
+          return;
+        }
+        window.checkAccessibilityAsync(pages[idx], level).then(function (result) {
+          results.push(result);
+          runNext(idx + 1);
         });
-
-        incrementCheckCount();
-        updateUsageCounter();
-
-        batchCheckBtn.disabled = false;
-        batchCheckBtn.textContent = 'Check All Pages';
-
-        renderBatchResults(results);
-      }, 50);
+      }(0));
     });
   }
 
