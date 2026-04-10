@@ -94,6 +94,11 @@
       btn.setAttribute('aria-expanded', String(on));
     });
 
+    // Re-render history when the history panel is opened (picks up checks from the main page)
+    if (panelId === 'history' && typeof renderHistory === 'function') {
+      renderHistory();
+    }
+
     // Focus the close button
     var closeBtn = panel.querySelector('.panel-close-btn');
     if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 50);
@@ -261,10 +266,23 @@
       if (entry.details && entry.details.length > 0) {
         detailsHtml = '<ul class="history-violation-list">';
         entry.details.forEach(function (v) {
+          var extra = '';
+          if (v.element) {
+            extra += '<div class="history-violation-element"><code>' + escHTML(v.element) + '</code></div>';
+          }
+          if (v.remediation) {
+            extra += '<div class="history-violation-remediation"><strong>How to fix:</strong> ' + escHTML(v.remediation) + '</div>';
+          }
+          if (v.wcag) {
+            extra += '<div class="history-violation-wcag"><strong>WCAG:</strong> ' + escHTML(v.wcag) + '</div>';
+          }
           detailsHtml +=
             '<li class="history-violation-item severity-' + escHTML(v.severity) + '">' +
               '<span class="history-violation-badge">' + escHTML(v.severity) + '</span>' +
-              '<span class="history-violation-msg">' + escHTML(v.message) + '</span>' +
+              '<div class="history-violation-body">' +
+                '<span class="history-violation-msg">' + escHTML(v.message) + '</span>' +
+                extra +
+              '</div>' +
             '</li>';
         });
         detailsHtml += '</ul>';
@@ -290,6 +308,7 @@
     historyList.innerHTML = html;
   }
 
+  window.renderHistory = renderHistory;
   renderHistory();
 
   if (clearHistoryBtn) {

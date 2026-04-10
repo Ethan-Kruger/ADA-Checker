@@ -462,9 +462,36 @@
 .history-violation-item.severity-moderate .history-violation-badge { background: rgba(202,138,4,0.2); color: #fcd34d; }
 .history-violation-item.severity-minor    .history-violation-badge { background: rgba(22,163,74,0.15); color: #86efac; }
 
+.history-violation-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
 .history-violation-msg {
   font-size: 0.8125rem;
   color: #94a3b8;
+  line-height: 1.4;
+}
+
+.history-violation-element {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.history-violation-element code {
+  font-family: monospace;
+  background: rgba(255,255,255,0.06);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  word-break: break-all;
+}
+
+.history-violation-remediation,
+.history-violation-wcag {
+  font-size: 0.75rem;
+  color: #64748b;
   line-height: 1.4;
 }
 

@@ -12,55 +12,27 @@
 
 // History + UI wiring for ADA checker
 
-const HISTORY_KEY = 'ada-check-history';
-
-function loadHistory() {
+function addHistoryEntry(result) {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    console.warn('Failed to load history', e);
-    return [];
-  }
-}
-
-function saveHistory(entries) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+    var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
+    history.push({
+      score: typeof result.score === 'number' ? Math.round(result.score) : 0,
+      violations: (result.violations || []).length,
+      date: new Date().toLocaleString(),
+      details: (result.violations || []).map(function (v) {
+        return {
+          severity: v.severity,
+          message: v.message,
+          element: v.element,
+          remediation: v.remediation,
+          wcag: v.wcag
+        };
+      })
+    });
+    if (history.length > 20) history = history.slice(-20);
+    localStorage.setItem('ada-history', JSON.stringify(history));
   } catch (e) {
     console.warn('Failed to save history', e);
-  }
-}
-
-function addHistoryEntry(result, options = {}) {
-  const history = loadHistory();
-
-  const entry = {
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    timestamp: Date.now(),
-    title: options.title || 'Manual HTML check',
-    html: options.html || null,
-    score: typeof result.score === 'number' ? Math.round(result.score) : null,
-    summary: {
-      total: (result.violations || []).length,
-      critical: 0,
-      serious: 0,
-      moderate: 0,
-      minor: 0
-    }
-  };
-
-  history.unshift(entry);
-  if (history.length > 50) history.length = 50;
-
-  saveHistory(history);
-
-  try {
-    window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
-  } catch (e) {
-    // ignore if CustomEvent not supported
   }
 }
 
@@ -89,10 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    addHistoryEntry(result, {
-      title: 'Manual HTML check',
-      html: html
-    });
+    addHistoryEntry(result);
+
+    // Re-render the history tab if it's on the same page (settings.html)
+    if (typeof window.renderHistory === 'function') {
+      window.renderHistory();
+    }
 
     renderResults(violations, resultsList);
   });
