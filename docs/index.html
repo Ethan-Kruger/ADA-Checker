@@ -86,7 +86,21 @@
         </div>
 
         <div role="tabpanel" id="panel-paste" aria-labelledby="tab-paste">
-          <label for="html-input">Paste HTML code:</label>
+          <div class="checker-input-header">
+            <label for="html-input">Paste HTML code:</label>
+            <div class="wcag-level-wrap">
+              <label for="main-wcag-level" class="wcag-level-label">WCAG Level</label>
+              <div class="wcag-select-wrap">
+                <select id="main-wcag-level" class="wcag-level-select" aria-describedby="main-wcag-hint">
+                  <option value="A">A — Free</option>
+                  <option value="AA">AA — Pro 🔒</option>
+                  <option value="AAA">AAA — Enterprise 🔒</option>
+                </select>
+              </div>
+              <span id="main-wcag-hint" class="sr-only">Level AA requires Pro plan. Level AAA requires Enterprise plan.</span>
+            </div>
+          </div>
+          <div id="wcag-upgrade-toast" class="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert"></div>
           <textarea id="html-input" rows="12"
                     placeholder="&lt;img src=&quot;photo.png&quot;&gt;"
                     spellcheck="false"
@@ -118,7 +132,10 @@
 
     <!-- Results (hidden until first check) -->
     <section id="results" aria-labelledby="results-heading" hidden>
-      <h2 id="results-heading" tabindex="-1">Results</h2>
+      <div class="results-title-row">
+        <h2 id="results-heading" tabindex="-1">Results</h2>
+        <span id="results-wcag-level" class="results-wcag-badge" hidden aria-label="Checked against WCAG level"></span>
+      </div>
 
       <!-- Score gauge -->
       <div class="score-container">

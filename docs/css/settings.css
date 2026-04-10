@@ -820,3 +820,28 @@
   .settings-panel { left: 0 !important; top: 0; }
   .panel-backdrop { top: 0; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CHECKER PANEL — WCAG LEVEL SELECTOR
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Align the label + dropdown row inside the checker card */
+#panel-checker .checker-input-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* checker-label already has its own display:block; reset bottom margin
+   so it sits centred in the flex row */
+#panel-checker .checker-label {
+  margin-bottom: 0;
+}
+
+/* Upgrade toast inside the checker panel */
+#panel-checker .wcag-upgrade-toast {
+  margin-bottom: 0.5rem;
+}

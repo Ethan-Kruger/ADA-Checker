@@ -458,12 +458,26 @@
       </button>
     </div>
 
-    <label for="html-input" class="checker-label">Paste HTML to check</label>
+    <div class="checker-input-header">
+      <label for="html-input" class="checker-label">Paste HTML to check</label>
+      <div class="wcag-level-wrap">
+        <label for="settings-wcag-level" class="wcag-level-label">WCAG Level</label>
+        <div class="wcag-select-wrap">
+          <select id="settings-wcag-level" class="wcag-level-select" aria-describedby="settings-wcag-hint">
+            <option value="A">A — Free</option>
+            <option value="AA">AA — Pro 🔒</option>
+            <option value="AAA">AAA — Enterprise 🔒</option>
+          </select>
+        </div>
+        <span id="settings-wcag-hint" class="sr-only">Level AA requires Pro plan. Level AAA requires Enterprise plan.</span>
+      </div>
+    </div>
+    <div id="wcag-upgrade-toast" class="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert"></div>
     <textarea
       id="html-input"
       rows="12"
       class="checker-textarea"
-      placeholder="Paste your full <html>…</html> or a snippet here"
+      placeholder="Paste your full &lt;html&gt;…&lt;/html&gt; or a snippet here"
     ></textarea>
 
     <div class="checker-results" aria-live="polite">

@@ -36,26 +36,71 @@ function addHistoryEntry(result) {
   }
 }
 
+function showUpgradeToast(level, selectEl) {
+  var required = level === 'AAA' ? 'Enterprise' : 'Pro';
+  var msg = 'WCAG ' + level + ' checks require the ' + required + ' plan. Upgrade in Settings → Pricing Plans.';
+  // Prefer a toast element if present, otherwise fall back to alert
+  var toast = document.getElementById('wcag-upgrade-toast');
+  if (toast) {
+    toast.textContent = msg;
+    toast.hidden = false;
+    toast.removeAttribute('aria-hidden');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function () {
+      toast.hidden = true;
+      toast.setAttribute('aria-hidden', 'true');
+    }, 4000);
+  } else {
+    alert(msg);
+  }
+}
+
+// Plan tiers: 'free' | 'pro' | 'enterprise'
+function getUserPlan() {
+  return localStorage.getItem('ada-plan') || 'free';
+}
+
+function levelAllowed(level) {
+  var plan = getUserPlan();
+  if (level === 'A')   return true;
+  if (level === 'AA')  return plan === 'pro' || plan === 'enterprise';
+  if (level === 'AAA') return plan === 'enterprise';
+  return false;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  const htmlInput = document.getElementById('html-input');
+  const htmlInput   = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
   const resultsList = document.getElementById('results-list');
-  const scoreEl = document.getElementById('checker-score');
+  const scoreEl     = document.getElementById('checker-score');
+  const levelSelect = document.getElementById('settings-wcag-level');
 
   if (!htmlInput || !checkButton || !resultsList) {
     console.warn('Checker elements not found', { htmlInput, checkButton, resultsList });
     return;
   }
 
+  // Keep the select in sync with locked options on change
+  if (levelSelect) {
+    levelSelect.addEventListener('change', () => {
+      const chosen = levelSelect.value;
+      if (!levelAllowed(chosen)) {
+        showUpgradeToast(chosen, levelSelect);
+        levelSelect.value = 'A';
+      }
+    });
+  }
+
   checkButton.addEventListener('click', () => {
-    const html = htmlInput.value;
-    const result = checkAccessibility(html); // defined later in this file
+    const html  = htmlInput.value;
+    const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
+    const result = checkAccessibility(html, level);
     const violations = (result && result.violations) || [];
 
     if (scoreEl) {
       if (typeof result.score === 'number') {
         scoreEl.hidden = false;
-        scoreEl.textContent = `Score: ${Math.round(result.score)} / 100`;
+        scoreEl.textContent = `Score: ${Math.round(result.score)} / 100 — WCAG ${result.level}`;
       } else {
         scoreEl.hidden = true;
       }
@@ -584,18 +629,183 @@ window.renderResults = renderResults;
       });
   }
 
-  // ─── Main: checkAccessibility(html) ─────────────────────────────────────────
+  // ─── Check 14: Landmark Regions (WCAG 1.3.6 / 2.4.1 — Level AA) ────────────
+
+  function checkLandmarks(doc) {
+    var issues = [];
+    var hasMain = !!(doc.querySelector('main') || doc.querySelector('[role="main"]'));
+    var hasNav  = !!(doc.querySelector('nav')  || doc.querySelector('[role="navigation"]'));
+
+    if (!hasMain) {
+      issues.push({
+        ruleId:      'landmark-main-missing',
+        severity:    'serious',
+        element:     '<body>',
+        message:     'Page has no main landmark (<main> or role="main")',
+        remediation: 'Wrap the primary page content in a <main> element.',
+        wcag:        '1.3.6 Identify Purpose (Level AA)'
+      });
+    }
+    if (!hasNav) {
+      issues.push({
+        ruleId:      'landmark-nav-missing',
+        severity:    'moderate',
+        element:     '<body>',
+        message:     'Page has no navigation landmark (<nav> or role="navigation")',
+        remediation: 'Wrap navigation links in a <nav> element.',
+        wcag:        '2.4.1 Bypass Blocks (Level AA)'
+      });
+    }
+    return issues;
+  }
+
+  // ─── Check 15: Autoplay Media (WCAG 1.4.2 — Level AA) ───────────────────────
+
+  function checkAutoplay(doc) {
+    var issues = [];
+    doc.querySelectorAll('video[autoplay], audio[autoplay]').forEach(function (el) {
+      if (!el.hasAttribute('muted')) {
+        issues.push({
+          ruleId:      'media-autoplay',
+          severity:    'serious',
+          element:     openTag(el),
+          message:     el.tagName.toLowerCase() + ' autoplays with sound',
+          remediation: 'Add the muted attribute or do not use autoplay. Provide a mechanism to pause or stop audio.',
+          wcag:        '1.4.2 Audio Control (Level AA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Check 16: Meta Refresh (WCAG 2.2.1 — Level AA) ─────────────────────────
+
+  function checkMetaRefresh(doc) {
+    var issues = [];
+    doc.querySelectorAll('meta[http-equiv="refresh"]').forEach(function (el) {
+      var content = (el.getAttribute('content') || '').trim();
+      var seconds = parseInt(content, 10);
+      if (!isNaN(seconds) && seconds > 0) {
+        issues.push({
+          ruleId:      'meta-refresh',
+          severity:    'serious',
+          element:     openTag(el),
+          message:     'Page auto-refreshes after ' + seconds + ' second' + (seconds !== 1 ? 's' : ''),
+          remediation: 'Remove the auto-refresh or provide a way for users to turn it off. Timed redirects disrupt screen reader users.',
+          wcag:        '2.2.1 Timing Adjustable (Level AA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Check 17: Error Suggestion (WCAG 3.3.3 — Level AA) ─────────────────────
+
+  function checkErrorSuggestion(doc) {
+    var issues = [];
+    doc.querySelectorAll('[aria-invalid="true"]').forEach(function (el) {
+      var described = (el.getAttribute('aria-describedby') || '').trim();
+      var errId = described.split(/\s+/).find(function (id) {
+        var ref = doc.getElementById(id);
+        return ref && ref.textContent.trim();
+      });
+      if (!errId) {
+        issues.push({
+          ruleId:      'error-no-suggestion',
+          severity:    'moderate',
+          element:     openTag(el),
+          message:     'Invalid field has no descriptive error message (aria-describedby missing or empty)',
+          remediation: 'Add aria-describedby pointing to an element that describes the error and suggests a fix.',
+          wcag:        '3.3.3 Error Suggestion (Level AA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Check 18: Abbreviations (WCAG 3.1.4 — Level AAA) ───────────────────────
+
+  function checkAbbreviations(doc) {
+    var issues = [];
+    doc.querySelectorAll('abbr').forEach(function (el) {
+      if (!(el.getAttribute('title') || '').trim()) {
+        issues.push({
+          ruleId:      'abbr-no-title',
+          severity:    'minor',
+          element:     openTag(el),
+          message:     '<abbr> element missing title expansion: "' + el.textContent.trim() + '"',
+          remediation: 'Add a title attribute to <abbr> with the full expansion of the abbreviation.',
+          wcag:        '3.1.4 Abbreviations (Level AAA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Check 19: Ambiguous Duplicate Link Text (WCAG 2.4.9 — Level AAA) ───────
+
+  function checkDuplicateLinkText(doc) {
+    var map = {};
+    doc.querySelectorAll('a[href]').forEach(function (el) {
+      var text = el.textContent.trim().toLowerCase();
+      var href = (el.getAttribute('href') || '').trim();
+      if (!text) return;
+      if (!map[text]) map[text] = new Set();
+      map[text].add(href);
+    });
+
+    var issues = [];
+    Object.keys(map).forEach(function (text) {
+      if (map[text].size > 1) {
+        issues.push({
+          ruleId:      'duplicate-link-text',
+          severity:    'moderate',
+          element:     '<a>' + text + '</a>',
+          message:     'Links with identical text "' + text + '" point to different destinations',
+          remediation: 'Make each link\'s text unique so its purpose is clear without surrounding context.',
+          wcag:        '2.4.9 Link Purpose — Link Only (Level AAA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Check 20: Timed Session Content (WCAG 2.2.3 — Level AAA) ───────────────
+
+  function checkTimedContent(doc) {
+    var issues = [];
+    // Detect short meta-refresh (already caught at AA, flag again at AAA for stricter message)
+    // Also flag setTimeout / setInterval hints in inline scripts
+    doc.querySelectorAll('script:not([src])').forEach(function (el) {
+      var src = el.textContent || '';
+      if (/setTimeout|setInterval/.test(src) && /session|timeout|expire|logout/i.test(src)) {
+        issues.push({
+          ruleId:      'timed-session',
+          severity:    'moderate',
+          element:     '<script>',
+          message:     'Inline script may impose a session timeout without user control',
+          remediation: 'Ensure users can turn off, adjust, or extend any time limits. Warn users before a session expires.',
+          wcag:        '2.2.3 No Timing (Level AAA)'
+        });
+      }
+    });
+    return issues;
+  }
+
+  // ─── Main: checkAccessibility(html, level) ───────────────────────────────────
 
   /**
-   * Runs all 13 WCAG 2.1 checks against an HTML string.
+   * Runs WCAG checks against an HTML string.
    *
-   * @param  {string} html - Raw HTML markup to analyse.
-   * @returns {{ score: number, violations: object[], summary: object }}
+   * @param  {string} html  - Raw HTML markup to analyse.
+   * @param  {string} level - 'A' | 'AA' | 'AAA' (defaults to 'A').
+   * @returns {{ score: number, violations: object[], summary: object, level: string }}
    */
-  function checkAccessibility(html) {
+  function checkAccessibility(html, level) {
+    level = (level || 'A').toUpperCase();
     var doc = new DOMParser().parseFromString(html, 'text/html');
 
-    // Collect all violations from every check.
+    // Level A — always run (13 checks).
     var violations = [].concat(
       checkImageAlt(doc),
       checkFormLabels(doc),
@@ -611,6 +821,25 @@ window.renderResults = renderResults;
       checkInputImages(doc),
       checkDuplicateIds(doc)
     );
+
+    // Level AA — adds 4 more checks.
+    if (level === 'AA' || level === 'AAA') {
+      violations = violations.concat(
+        checkLandmarks(doc),
+        checkAutoplay(doc),
+        checkMetaRefresh(doc),
+        checkErrorSuggestion(doc)
+      );
+    }
+
+    // Level AAA — adds 3 more checks.
+    if (level === 'AAA') {
+      violations = violations.concat(
+        checkAbbreviations(doc),
+        checkDuplicateLinkText(doc),
+        checkTimedContent(doc)
+      );
+    }
 
     // Sort: critical → serious → moderate → minor.
     var order = { critical: 0, serious: 1, moderate: 2, minor: 3 };
@@ -633,7 +862,7 @@ window.renderResults = renderResults;
       - summary.minor    * PENALTY.minor
     );
 
-    return { score: score, violations: violations, summary: summary };
+    return { score: score, violations: violations, summary: summary, level: level };
   }
 
   // Export on window so app.js and the browser console can call it.

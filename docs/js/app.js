@@ -15,6 +15,7 @@
   var checkBtn       = document.getElementById('check-btn');
   var htmlInput      = document.getElementById('html-input');
   var urlInput       = document.getElementById('url-input');
+  var wcagSelect     = document.getElementById('main-wcag-level');
   var resultsSection = document.getElementById('results');
   var resultsHeading = document.getElementById('results-heading');
   var scoreGauge     = document.getElementById('score-gauge');
@@ -24,6 +25,24 @@
   var liveRegion     = document.getElementById('live-region');
   var tabs           = Array.from(document.querySelectorAll('[role="tab"]'));
   var filterBtns     = Array.from(document.querySelectorAll('.filter-btn'));
+
+  // ─── WCAG level selector ──────────────────────────────────────────────────────
+  if (wcagSelect) {
+    wcagSelect.addEventListener('change', function () {
+      var chosen = wcagSelect.value;
+      if (typeof levelAllowed === 'function' && !levelAllowed(chosen)) {
+        showUpgradeToast(chosen, wcagSelect);
+        wcagSelect.value = 'A';
+      }
+    });
+  }
+
+  function getSelectedLevel() {
+    if (!wcagSelect) return 'A';
+    var v = wcagSelect.value;
+    if (typeof levelAllowed === 'function' && !levelAllowed(v)) return 'A';
+    return v;
+  }
 
   // ─── Tab switching (ARIA tablist pattern) ────────────────────────────────────
   function activateTab(tab) {
@@ -146,6 +165,14 @@
 
     updateGauge(result.score);
     renderViolations(result.violations);
+
+    // Show which WCAG level was checked
+    var levelBadge = document.getElementById('results-wcag-level');
+    if (levelBadge) {
+      levelBadge.textContent = 'WCAG ' + (result.level || 'A');
+      levelBadge.hidden = false;
+    }
+
     resultsSection.hidden = false;
     resultsHeading.focus();
 
@@ -155,7 +182,7 @@
     liveRegion.textContent =
       'Check complete. Found ' + result.summary.total +
       ' violation' + (result.summary.total !== 1 ? 's' : '') +
-      '. Score: ' + result.score + ' out of 100.';
+      '. Score: ' + result.score + ' out of 100. WCAG Level ' + (result.level || 'A') + '.';
   }
 
   // ─── Input error helper ───────────────────────────────────────────────────────
@@ -212,7 +239,7 @@
     // Yield to the browser so the button label updates before the synchronous
     // checkAccessibility() call blocks the main thread.
     setTimeout(function () {
-      var result = window.checkAccessibility(html);
+      var result = window.checkAccessibility(html, getSelectedLevel());
 
       checkBtn.disabled = false;
       checkBtn.textContent = 'Check Accessibility';
