@@ -283,6 +283,10 @@
 
   window.renderHistory = renderHistory;
   renderHistory();
+  window.addEventListener('ada-check-history-updated', renderHistory);
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'ada-history') renderHistory();
+  });
 
   if (clearHistoryBtn) {
     clearHistoryBtn.addEventListener('click', function () {
