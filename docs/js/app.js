@@ -364,6 +364,40 @@
     return lines.join('\n');
   }
 
+  function buildCsvReport(result) {
+    if (!result) return '';
+    function csvCell(val) {
+      var s = String(val == null ? '' : val);
+      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }
+    var lines = [
+      'ADA Accessibility Report',
+      'Generated,' + csvCell(new Date().toLocaleString()),
+      'WCAG Level,' + csvCell(result.level || 'A'),
+      'Score,' + csvCell(result.score + ' / 100'),
+      'Total Violations,' + csvCell(result.summary.total),
+      'Critical,' + csvCell(result.summary.critical),
+      'Serious,' + csvCell(result.summary.serious),
+      'Moderate,' + csvCell(result.summary.moderate),
+      'Minor,' + csvCell(result.summary.minor),
+      '',
+      'Severity,Issue,Element,How to Fix,WCAG Reference'
+    ];
+    result.violations.forEach(function (v) {
+      lines.push([
+        csvCell(v.severity),
+        csvCell(v.message),
+        csvCell(v.element),
+        csvCell(v.remediation),
+        csvCell(v.wcag)
+      ].join(','));
+    });
+    return lines.join('\r\n');
+  }
+
   function buildHtmlReport(result) {
     if (!result) return '';
     var rows = result.violations.map(function (v) {
@@ -412,9 +446,21 @@
   var exportHtmlBtn = document.getElementById('export-html-btn');
   var exportCopyBtn = document.getElementById('export-copy-btn');
 
+  var exportCsvBtn  = document.getElementById('export-csv-btn');
+
   if (exportPdfBtn) {
     exportPdfBtn.addEventListener('click', function () {
-      requirePro(function () { window.print(); });
+      requirePro(function () {
+        var html = buildHtmlReport(_lastResult);
+        var win  = window.open('', '_blank', 'width=900,height=700');
+        if (!win) { showToast('Pop-up blocked — allow pop-ups and try again.'); return; }
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        win.onload = function () { win.print(); };
+        // Fallback if onload already fired
+        setTimeout(function () { try { win.print(); } catch(e) {} }, 300);
+      });
     });
   }
   if (exportTxtBtn) {
@@ -431,6 +477,14 @@
       });
     });
   }
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', function () {
+      requirePro(function () {
+        downloadFile('ada-report.csv', buildCsvReport(_lastResult), 'text/csv');
+      });
+    });
+  }
+
   if (exportCopyBtn) {
     exportCopyBtn.addEventListener('click', function () {
       requirePro(function () {
