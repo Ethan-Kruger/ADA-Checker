@@ -244,6 +244,42 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 #check-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 3px; }
 #check-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
+/* ── Scan spinner ──────────────────────────────────────────────────────────── */
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes spinner-dash {
+  0%   { stroke-dasharray: 1, 126; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 90, 126; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90, 126; stroke-dashoffset: -124; }
+}
+
+.scan-spinner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+.scan-spinner[hidden] { display: none; }
+
+.spinner-circle {
+  animation: spinner-rotate 1.4s linear infinite;
+  flex-shrink: 0;
+}
+.spinner-track {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+.spinner-arc {
+  stroke: #4f4fbf;
+  stroke-dasharray: 90, 126;
+  animation: spinner-dash 1.4s ease-in-out infinite;
+}
+
+.spinner-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
 /* ── Locked tab ──────────────────────────────────────────────────────────── */
 [role="tab"].tab-locked {
   opacity: 0.55;
