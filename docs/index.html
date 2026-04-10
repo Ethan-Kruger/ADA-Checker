@@ -80,8 +80,16 @@
             Paste HTML
           </button>
           <button role="tab" id="tab-url"
-                  aria-selected="false" aria-controls="panel-url" tabindex="-1">
+                  aria-selected="false" aria-controls="panel-url" tabindex="-1"
+                  title="URL checking requires the Pro plan">
             Enter URL
+            <svg class="tab-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+          <button role="tab" id="tab-batch"
+                  aria-selected="false" aria-controls="panel-batch" tabindex="-1"
+                  title="Batch checking requires the Pro plan">
+            Batch
+            <svg class="tab-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           </button>
         </div>
 
@@ -125,8 +133,29 @@
             <strong>Paste HTML</strong> tab instead.
           </p>
         </div>
+
+        <div role="tabpanel" id="panel-batch" aria-labelledby="tab-batch" hidden>
+          <p class="field-note" style="margin-bottom:1rem">Check up to 5 pages at once (Pro) or unlimited pages (Enterprise). Results show per-page scores and violations.</p>
+          <div id="batch-items">
+            <div class="batch-item">
+              <div class="batch-item-header">
+                <label>Page 1</label>
+              </div>
+              <textarea class="batch-textarea" rows="6" placeholder="Paste HTML for page 1…" spellcheck="false"></textarea>
+            </div>
+          </div>
+          <div class="batch-actions">
+            <button type="button" id="batch-add-btn" class="batch-add-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Page
+            </button>
+            <button type="button" id="batch-check-btn" class="batch-check-btn">Check All Pages</button>
+          </div>
+          <div id="batch-results" hidden></div>
+        </div>
       </div>
 
+      <div id="usage-counter" class="usage-counter" hidden aria-live="polite"></div>
       <button type="button" id="check-btn">Check Accessibility</button>
     </section>
 
@@ -192,6 +221,32 @@
       <p id="no-violations" hidden>
         No violations found — great job! Consider also running a full manual review.
       </p>
+
+      <!-- Export report (Pro+) -->
+      <div id="export-section" class="export-section" hidden>
+        <div class="export-header">
+          <h3 class="export-title">Export Report</h3>
+          <span class="export-plan-badge">Pro</span>
+        </div>
+        <div class="export-options" role="group" aria-label="Export format options">
+          <button type="button" id="export-pdf-btn" class="export-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Print / PDF
+          </button>
+          <button type="button" id="export-txt-btn" class="export-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Download .txt
+          </button>
+          <button type="button" id="export-html-btn" class="export-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Download .html
+          </button>
+          <button type="button" id="export-copy-btn" class="export-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy Summary
+          </button>
+        </div>
+      </div>
     </section>
 
   </main>

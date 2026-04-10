@@ -68,6 +68,77 @@ function levelAllowed(level) {
   return false;
 }
 
+function planAtLeast(tier) {
+  var plan = getUserPlan();
+  if (tier === 'pro')        return plan === 'pro' || plan === 'enterprise';
+  if (tier === 'enterprise') return plan === 'enterprise';
+  return true;
+}
+
+// ─── Rate limiting (Free: 10 checks per 4-hour window) ────────────────────
+var RATE_KEY = 'ada-rate-usage';
+var FREE_CHECK_LIMIT = 10;
+var RATE_WINDOW_MS = 4 * 60 * 60 * 1000; // 4 hours in ms
+
+function getRateUsage() {
+  try {
+    var d = JSON.parse(localStorage.getItem(RATE_KEY) || 'null');
+    if (!d || typeof d.windowStart !== 'number') return _resetRate();
+    if (Date.now() - d.windowStart >= RATE_WINDOW_MS) return _resetRate();
+    return d;
+  } catch (e) { return _resetRate(); }
+}
+
+function _resetRate() {
+  var d = { windowStart: Date.now(), count: 0 };
+  try { localStorage.setItem(RATE_KEY, JSON.stringify(d)); } catch (e) {}
+  return d;
+}
+
+function canRunCheck() {
+  if (getUserPlan() !== 'free') return true;
+  return getRateUsage().count < FREE_CHECK_LIMIT;
+}
+
+function getRemainingChecks() {
+  if (getUserPlan() !== 'free') return Infinity;
+  return Math.max(0, FREE_CHECK_LIMIT - getRateUsage().count);
+}
+
+function getResetMs() {
+  var d = getRateUsage();
+  return Math.max(0, d.windowStart + RATE_WINDOW_MS - Date.now());
+}
+
+function formatResetTime() {
+  var ms = getResetMs();
+  var h = Math.floor(ms / 3600000);
+  var m = Math.floor((ms % 3600000) / 60000);
+  if (h > 0) return h + 'h ' + m + 'm';
+  return (m + 1) + 'm';
+}
+
+function incrementCheckCount() {
+  if (getUserPlan() !== 'free') return;
+  var d = getRateUsage();
+  d.count++;
+  try { localStorage.setItem(RATE_KEY, JSON.stringify(d)); } catch (e) {}
+}
+
+// ─── Custom rules (Enterprise) ────────────────────────────────────────────
+var CUSTOM_RULES_KEY = 'ada-custom-rules';
+
+function getCustomRules() {
+  try {
+    var r = JSON.parse(localStorage.getItem(CUSTOM_RULES_KEY) || '[]');
+    return Array.isArray(r) ? r : [];
+  } catch (e) { return []; }
+}
+
+function saveCustomRules(rules) {
+  try { localStorage.setItem(CUSTOM_RULES_KEY, JSON.stringify(rules)); } catch (e) {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const htmlInput   = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
@@ -92,10 +163,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   checkButton.addEventListener('click', () => {
+    if (!canRunCheck()) {
+      if (scoreEl) {
+        scoreEl.hidden = false;
+        scoreEl.textContent = 'Check limit reached — resets in ' + formatResetTime();
+      }
+      return;
+    }
+
     const html  = htmlInput.value;
     const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
     const result = checkAccessibility(html, level);
     const violations = (result && result.violations) || [];
+
+    incrementCheckCount();
 
     if (scoreEl) {
       if (typeof result.score === 'number') {
@@ -111,6 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Re-render the history tab if it's on the same page (settings.html)
     if (typeof window.renderHistory === 'function') {
       window.renderHistory();
+    }
+    if (typeof window.updateCheckerRateUI === 'function') {
+      window.updateCheckerRateUI();
     }
 
     renderResults(violations, resultsList);
@@ -792,6 +876,30 @@ window.renderResults = renderResults;
     return issues;
   }
 
+  // ─── Check 21: Custom Rules (Enterprise) ────────────────────────────────────
+
+  function checkCustomRules(doc, rules) {
+    var issues = [];
+    rules.forEach(function (rule) {
+      if (!rule.selector || !rule.message) return;
+      try {
+        doc.querySelectorAll(rule.selector).forEach(function (el) {
+          issues.push({
+            ruleId:      'custom-' + (rule.id || 'rule'),
+            severity:    rule.severity || 'moderate',
+            element:     openTag(el),
+            message:     rule.message,
+            remediation: rule.remediation || 'Review this element per your custom rule.',
+            wcag:        'Custom Rule'
+          });
+        });
+      } catch (e) {
+        // invalid selector — skip silently
+      }
+    });
+    return issues;
+  }
+
   // ─── Main: checkAccessibility(html, level) ───────────────────────────────────
 
   /**
@@ -839,6 +947,14 @@ window.renderResults = renderResults;
         checkDuplicateLinkText(doc),
         checkTimedContent(doc)
       );
+    }
+
+    // Custom rules (Enterprise) — always run if any are defined.
+    if (planAtLeast('enterprise')) {
+      var customRules = getCustomRules();
+      if (customRules.length) {
+        violations = violations.concat(checkCustomRules(doc, customRules));
+      }
     }
 
     // Sort: critical → serious → moderate → minor.

@@ -211,6 +211,236 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 #check-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 3px; }
 #check-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
+/* ── Locked tab ──────────────────────────────────────────────────────────── */
+[role="tab"].tab-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  position: relative;
+}
+
+[role="tab"].tab-locked .tab-lock-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.3em;
+  margin-bottom: 1px;
+  opacity: 0.8;
+}
+
+[role="tab"]:not(.tab-locked) .tab-lock-icon {
+  display: none;
+}
+
+/* ── Usage counter ───────────────────────────────────────────────────────── */
+.usage-counter {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-top: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.usage-counter.limit-reached {
+  color: #f87171;
+  font-weight: 500;
+}
+
+/* ── Batch check panel ───────────────────────────────────────────────────── */
+.batch-item {
+  margin-bottom: 1rem;
+}
+
+.batch-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
+.batch-item-header label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.batch-remove-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.batch-remove-btn:hover { color: #f87171; }
+
+.batch-textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  resize: vertical;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.batch-textarea:focus { outline: 2px solid #4f4fbf; outline-offset: 2px; border-color: #4f4fbf; }
+
+.batch-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.batch-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4375rem 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.batch-add-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+
+.batch-check-btn {
+  background: #4f4fbf;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.4375rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.batch-check-btn:hover:not(:disabled) { background: #3d3daa; }
+.batch-check-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Batch results */
+.batch-result-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1.25rem 0 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 0.5rem;
+}
+
+.batch-result-tab {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px 6px 0 0;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 0.35rem 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.15s, color 0.15s;
+}
+.batch-result-tab:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+.batch-result-tab.active { background: rgba(79,79,191,0.2); border-color: #4f4fbf; color: #e2e8f0; }
+
+.batch-tab-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.score-good { background: rgba(22,163,74,0.2); color: #86efac; }
+.score-warn { background: rgba(202,138,4,0.2); color: #fcd34d; }
+.score-fail { background: rgba(220,38,38,0.2); color: #fca5a5; }
+
+.batch-summary { font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.75rem; }
+
+.batch-violation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.875rem;
+}
+.batch-violation:last-child { border-bottom: none; }
+.batch-violation-msg { color: #cbd5e1; line-height: 1.4; }
+.batch-no-violations { color: #86efac; font-size: 0.875rem; }
+
+/* ── Export section ──────────────────────────────────────────────────────── */
+.export-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.export-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
+}
+
+.export-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.export-plan-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: linear-gradient(90deg, #4f4fbf, #2563eb);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.export-options {
+  display: flex;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.export-btn:hover { background: rgba(79,79,191,0.2); border-color: #4f4fbf; color: #e2e8f0; }
+.export-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+/* ── Print stylesheet ────────────────────────────────────────────────────── */
+@media print {
+  .site-nav, .page-header, section[aria-labelledby="input-heading"],
+  .filter-bar, .export-section, .score-legend, footer { display: none !important; }
+  body { background: #fff; color: #000; }
+  #results { margin: 0; }
+  .violation-card { border: 1px solid #ccc; margin-bottom: 0.5rem; page-break-inside: avoid; }
+  .severity-badge { border: 1px solid #999; }
+}
+
 /* ── WCAG level selector ──────────────────────────────────────────────────── */
 .checker-input-header {
   display: flex;

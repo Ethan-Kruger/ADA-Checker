@@ -94,9 +94,20 @@
       btn.setAttribute('aria-expanded', String(on));
     });
 
-    // Re-render history when the history panel is opened (picks up checks from the main page)
+    // Re-render history when the history panel is opened
     if (panelId === 'history' && typeof renderHistory === 'function') {
       renderHistory();
+    }
+    // Re-apply plan gates and rate UI when relevant panels open
+    if (panelId === 'checker' && typeof updateCheckerRateUI === 'function') {
+      updateCheckerRateUI();
+    }
+    if (panelId === 'api') {
+      applyPlanGate('api-gate', 'api-content', 'enterprise');
+    }
+    if (panelId === 'custom-rules') {
+      applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+      if (typeof renderCustomRules === 'function') renderCustomRules();
     }
 
     // Focus the close button
@@ -315,6 +326,186 @@
     clearHistoryBtn.addEventListener('click', function () {
       localStorage.removeItem('ada-history');
       renderHistory();
+    });
+  }
+
+  // ─── Plan selection (sets ada-plan in localStorage) ──────────────────────
+  window.selectPlan = function (plan) {
+    localStorage.setItem('ada-plan', plan);
+
+    // Update "Your Current Plan" badge
+    var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
+    ['free', 'pro', 'enterprise'].forEach(function (p) {
+      var badge = document.getElementById(badges[p]);
+      if (badge) badge.hidden = p !== plan;
+    });
+
+    // Re-apply all plan gates
+    applyPlanGate('api-gate', 'api-content', 'enterprise');
+    applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+    if (typeof updateCheckerRateUI === 'function') updateCheckerRateUI();
+
+    var label = plan === 'free' ? 'Free' : plan === 'pro' ? 'Pro' : 'Enterprise';
+    alert('Plan set to ' + label + '. Features are now ' + (plan === 'free' ? 'restricted' : 'unlocked') + '. (Demo only — no real payment processed.)');
+  };
+
+  // Show correct "Your Current Plan" badge on load
+  (function () {
+    var plan = typeof getUserPlan === 'function' ? getUserPlan() : 'free';
+    var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
+    ['free', 'pro', 'enterprise'].forEach(function (p) {
+      var badge = document.getElementById(badges[p]);
+      if (badge) badge.hidden = p !== plan;
+    });
+  }());
+
+  // ─── Checker panel rate-limit overlay ────────────────────────────────────
+  function updateCheckerRateUI() {
+    var overlay  = document.getElementById('settings-rate-overlay');
+    var timerEl  = document.getElementById('rate-overlay-timer');
+    if (!overlay) return;
+
+    if (typeof canRunCheck === 'function' && !canRunCheck()) {
+      overlay.hidden = false;
+      if (timerEl && typeof formatResetTime === 'function') {
+        timerEl.textContent = formatResetTime();
+      }
+    } else {
+      overlay.hidden = true;
+    }
+  }
+
+  window.updateCheckerRateUI = updateCheckerRateUI;
+  updateCheckerRateUI();
+  setInterval(updateCheckerRateUI, 60000);
+
+  // ─── Enterprise plan gate helper ──────────────────────────────────────────
+  function applyPlanGate(gateId, contentId, requiredTier) {
+    var gate    = document.getElementById(gateId);
+    var content = document.getElementById(contentId);
+    if (!gate || !content) return;
+    var allowed = typeof planAtLeast === 'function' ? planAtLeast(requiredTier) : false;
+    gate.hidden    = allowed;
+    content.hidden = !allowed;
+  }
+
+  // ─── API Access panel ─────────────────────────────────────────────────────
+  applyPlanGate('api-gate', 'api-content', 'enterprise');
+
+  function getOrCreateApiKey() {
+    var key = localStorage.getItem('ada-api-key');
+    if (!key) {
+      var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      key = 'ada_ent_';
+      for (var i = 0; i < 32; i++) {
+        key += chars[Math.floor(Math.random() * chars.length)];
+      }
+      localStorage.setItem('ada-api-key', key);
+    }
+    return key;
+  }
+
+  var apiKeyDisplay = document.getElementById('api-key-display');
+  var apiKeyCopyBtn = document.getElementById('api-key-copy-btn');
+
+  if (apiKeyDisplay) {
+    apiKeyDisplay.value = getOrCreateApiKey();
+  }
+
+  if (apiKeyCopyBtn) {
+    apiKeyCopyBtn.addEventListener('click', function () {
+      var key = getOrCreateApiKey();
+      navigator.clipboard.writeText(key).then(function () {
+        apiKeyCopyBtn.textContent = 'Copied!';
+        setTimeout(function () { apiKeyCopyBtn.textContent = 'Copy'; }, 2000);
+      }).catch(function () {
+        if (apiKeyDisplay) {
+          apiKeyDisplay.select();
+          document.execCommand('copy');
+          apiKeyCopyBtn.textContent = 'Copied!';
+          setTimeout(function () { apiKeyCopyBtn.textContent = 'Copy'; }, 2000);
+        }
+      });
+    });
+  }
+
+  // ─── Custom Rules panel ───────────────────────────────────────────────────
+  applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+
+  var addRuleBtn       = document.getElementById('add-rule-btn');
+  var ruleSelector     = document.getElementById('rule-selector');
+  var ruleMessage      = document.getElementById('rule-message');
+  var ruleSeverity     = document.getElementById('rule-severity');
+  var ruleRemediation  = document.getElementById('rule-remediation');
+  var customRulesList  = document.getElementById('custom-rules-list');
+  var customRulesEmpty = document.getElementById('custom-rules-empty');
+
+  function renderCustomRules() {
+    if (!customRulesList) return;
+    var rules = typeof getCustomRules === 'function' ? getCustomRules() : [];
+    customRulesList.innerHTML = '';
+    if (rules.length === 0) {
+      if (customRulesEmpty) customRulesEmpty.hidden = false;
+      return;
+    }
+    if (customRulesEmpty) customRulesEmpty.hidden = true;
+    rules.forEach(function (rule, i) {
+      var li = document.createElement('li');
+      li.className = 'custom-rule-item';
+      li.innerHTML =
+        '<div class="custom-rule-info">' +
+          '<span class="custom-rule-selector"><code>' + escHTML(rule.selector) + '</code></span>' +
+          '<span class="custom-rule-msg">' + escHTML(rule.message) + '</span>' +
+          '<span class="history-violation-badge sev-badge-' + escHTML(rule.severity) + '">' + escHTML(rule.severity) + '</span>' +
+        '</div>' +
+        '<button type="button" class="custom-rule-delete" data-index="' + i + '" aria-label="Delete rule: ' + escHTML(rule.message) + '">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>' +
+        '</button>';
+
+      li.querySelector('.custom-rule-delete').addEventListener('click', function () {
+        var rules = typeof getCustomRules === 'function' ? getCustomRules() : [];
+        rules.splice(i, 1);
+        if (typeof saveCustomRules === 'function') saveCustomRules(rules);
+        renderCustomRules();
+      });
+
+      customRulesList.appendChild(li);
+    });
+  }
+
+  renderCustomRules();
+
+  if (addRuleBtn) {
+    addRuleBtn.addEventListener('click', function () {
+      var sel = (ruleSelector  && ruleSelector.value.trim())  || '';
+      var msg = (ruleMessage   && ruleMessage.value.trim())   || '';
+      var sev = (ruleSeverity  && ruleSeverity.value)         || 'moderate';
+      var rem = (ruleRemediation && ruleRemediation.value.trim()) || '';
+
+      if (!sel || !msg) {
+        if (!sel && ruleSelector) { ruleSelector.setAttribute('aria-invalid', 'true'); ruleSelector.focus(); }
+        else if (!msg && ruleMessage) { ruleMessage.setAttribute('aria-invalid', 'true'); ruleMessage.focus(); }
+        return;
+      }
+
+      var rules = typeof getCustomRules === 'function' ? getCustomRules() : [];
+      rules.push({
+        id:          Date.now().toString(16),
+        selector:    sel,
+        message:     msg,
+        severity:    sev,
+        remediation: rem
+      });
+      if (typeof saveCustomRules === 'function') saveCustomRules(rules);
+
+      if (ruleSelector)    { ruleSelector.value = ''; ruleSelector.removeAttribute('aria-invalid'); }
+      if (ruleMessage)     { ruleMessage.value  = ''; ruleMessage.removeAttribute('aria-invalid'); }
+      if (ruleRemediation) ruleRemediation.value = '';
+      if (ruleSeverity)    ruleSeverity.value = 'moderate';
+
+      renderCustomRules();
+      addRuleBtn.textContent = 'Rule Added!';
+      setTimeout(function () { addRuleBtn.textContent = 'Add Rule'; }, 1500);
     });
   }
 
