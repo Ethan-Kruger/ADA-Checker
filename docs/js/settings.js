@@ -163,39 +163,6 @@
     }
   });
 
-  // ─── Theme ────────────────────────────────────────────────────────────────
-  var themeButtons = Array.from(document.querySelectorAll('.theme-option'));
-  var savedTheme   = localStorage.getItem('ada-theme') || 'dark';
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('ada-theme', theme);
-    themeButtons.forEach(function (btn) {
-      btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme));
-    });
-  }
-
-  themeButtons.forEach(function (btn) {
-    btn.addEventListener('click', function () { applyTheme(btn.dataset.theme); });
-  });
-  applyTheme(savedTheme);
-
-  // ─── WCAG level ───────────────────────────────────────────────────────────
-  var wcagButtons = Array.from(document.querySelectorAll('.wcag-option'));
-  var savedWcag   = localStorage.getItem('ada-wcag') || 'AA';
-
-  function applyWcag(level) {
-    localStorage.setItem('ada-wcag', level);
-    wcagButtons.forEach(function (btn) {
-      btn.setAttribute('aria-pressed', String(btn.dataset.wcag === level));
-    });
-  }
-
-  wcagButtons.forEach(function (btn) {
-    btn.addEventListener('click', function () { applyWcag(btn.dataset.wcag); });
-  });
-  applyWcag(savedWcag);
-
   // ─── Font size ────────────────────────────────────────────────────────────
   var sizeButtons = Array.from(document.querySelectorAll('.font-size-option'));
   var sizePreview = document.getElementById('font-size-preview');

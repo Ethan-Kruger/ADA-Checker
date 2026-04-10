@@ -122,32 +122,6 @@
             </li>
 
             <li>
-              <button class="settings-nav-item" data-panel="appearance">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="5"></circle>
-                  <line x1="12" y1="1" x2="12" y2="3"></line>
-                  <line x1="12" y1="21" x2="12" y2="23"></line>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                  <line x1="1" y1="12" x2="3" y2="12"></line>
-                  <line x1="21" y1="12" x2="23" y2="12"></line>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <span>Appearance</span>
-              </button>
-            </li>
-
-            <li>
-              <button class="settings-nav-item" data-panel="wcag">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>WCAG Level</span>
-              </button>
-            </li>
-
-            <li>
               <button class="settings-nav-item" data-panel="font-size">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polyline points="4 7 4 4 20 4 20 7"></polyline>
@@ -330,75 +304,6 @@
             </div>
           </div>
           <button type="button" class="clear-history-btn" id="clear-history-btn">Clear All History</button>
-        </section>
-
-        <!-- APPEARANCE -->
-        <section class="settings-panel" id="panel-appearance" aria-labelledby="panel-appearance-title">
-          <h2 class="panel-title" id="panel-appearance-title">Appearance</h2>
-          <p class="panel-subtitle">Customize the look of ADA Checker across all pages.</p>
-
-          <div class="panel-section">
-            <p class="panel-section-title">Color Theme</p>
-            <div class="settings-card">
-              <div class="theme-options" role="group" aria-label="Choose color theme">
-
-                <button class="theme-option theme-dark" data-theme="dark" aria-pressed="true">
-                  <div class="theme-preview" aria-hidden="true">
-                    <div class="theme-preview-nav tp-dark-nav"></div>
-                    <div class="theme-preview-body tp-dark-body">
-                      <div class="theme-preview-block tp-dark-block"></div>
-                      <div class="theme-preview-block tp-dark-block"></div>
-                      <div class="theme-preview-block tp-dark-block"></div>
-                    </div>
-                  </div>
-                  Dark
-                </button>
-
-                <button class="theme-option theme-light" data-theme="light" aria-pressed="false">
-                  <div class="theme-preview" aria-hidden="true">
-                    <div class="theme-preview-nav tp-light-nav"></div>
-                    <div class="theme-preview-body tp-light-body">
-                      <div class="theme-preview-block tp-light-block"></div>
-                      <div class="theme-preview-block tp-light-block"></div>
-                      <div class="theme-preview-block tp-light-block"></div>
-                    </div>
-                  </div>
-                  Light
-                </button>
-
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- WCAG LEVEL -->
-        <section class="settings-panel" id="panel-wcag" aria-labelledby="panel-wcag-title">
-          <h2 class="panel-title" id="panel-wcag-title">WCAG Level</h2>
-          <p class="panel-subtitle">Set the conformance level used when checking your HTML.</p>
-
-          <div class="settings-card">
-            <div class="wcag-options" role="group" aria-label="Choose WCAG conformance level">
-
-              <button class="wcag-option" data-wcag="A" aria-pressed="false">
-                <span class="wcag-level-badge">A</span>
-                <span class="wcag-level-name">Level A</span>
-                <span class="wcag-level-desc">Minimum accessibility requirements</span>
-              </button>
-
-              <button class="wcag-option" data-wcag="AA" aria-pressed="false">
-                <span class="wcag-level-badge">AA</span>
-                <span class="wcag-level-name">Level AA</span>
-                <span class="wcag-level-desc">Standard — legally required in most regions</span>
-              </button>
-
-              <button class="wcag-option" data-wcag="AAA" aria-pressed="false">
-                <span class="wcag-level-badge">AAA</span>
-                <span class="wcag-level-name">Level AAA</span>
-                <span class="wcag-level-desc">Strictest — highest standard</span>
-              </button>
-
-            </div>
-          </div>
         </section>
 
         <!-- FONT SIZE -->
