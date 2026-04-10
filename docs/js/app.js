@@ -11,8 +11,17 @@
       .replace(/'/g, '&#39;');
   }
 
+  // ─── Spinner helpers ─────────────────────────────────────────────────────────
+  function showSpinner() {
+    if (scanSpinner) { scanSpinner.hidden = false; scanSpinner.removeAttribute('aria-hidden'); }
+  }
+  function hideSpinner() {
+    if (scanSpinner) { scanSpinner.hidden = true; scanSpinner.setAttribute('aria-hidden', 'true'); }
+  }
+
   // ─── Element references ──────────────────────────────────────────────────────
   var checkBtn       = document.getElementById('check-btn');
+  var scanSpinner    = document.getElementById('scan-spinner');
   var htmlInput      = document.getElementById('html-input');
   var urlInput       = document.getElementById('url-input');
   var wcagSelect     = document.getElementById('main-wcag-level');
@@ -312,12 +321,14 @@
       clearInputError(urlInput, urlErrorEl);
       checkBtn.disabled = true;
       checkBtn.textContent = 'Fetching\u2026';
+      showSpinner();
 
       try {
         var response = await fetch(url);
         if (!response.ok) {
           checkBtn.disabled = false;
           checkBtn.textContent = 'Check Accessibility';
+          hideSpinner();
           showInputError(urlInput, urlErrorEl,
             'The server returned an error (HTTP\u00a0' + response.status + '\u00a0' + response.statusText + '). ' +
             'The page may not exist or the server is down. Double-check the URL and try again.');
@@ -327,6 +338,7 @@
       } catch (err) {
         checkBtn.disabled = false;
         checkBtn.textContent = 'Check Accessibility';
+        hideSpinner();
         // Show CORS/network error inline near the URL input AND in the results area
         showInputError(urlInput, urlErrorEl,
           'Could not reach that URL. This is usually caused by the server blocking cross-origin ' +
@@ -361,6 +373,7 @@
     checkBtn.disabled = true;
     checkBtn.textContent = 'Checking\u2026';
     checkBtn.setAttribute('aria-busy', 'true');
+    showSpinner();
 
     setTimeout(function () {
       var result = window.checkAccessibility(html, getSelectedLevel());
@@ -370,6 +383,7 @@
       checkBtn.disabled = false;
       checkBtn.textContent = 'Check Accessibility';
       checkBtn.removeAttribute('aria-busy');
+      hideSpinner();
 
       displayResults(result);
     }, 50);
