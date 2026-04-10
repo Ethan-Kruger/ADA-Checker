@@ -163,11 +163,9 @@
     }
   });
 
-  // ─── Font size ────────────────────────────────────────────────────────────
+  // ─── Text size ────────────────────────────────────────────────────────────
   var sizeButtons = Array.from(document.querySelectorAll('.font-size-option'));
-  var sizePreview = document.getElementById('font-size-preview');
   var savedSize   = localStorage.getItem('ada-font-size') || 'medium';
-  var sizeMap     = { small: '0.875rem', medium: '1rem', large: '1.125rem', xlarge: '1.25rem' };
 
   function applyFontSize(size) {
     document.documentElement.setAttribute('data-font-size', size);
@@ -175,9 +173,6 @@
     sizeButtons.forEach(function (btn) {
       btn.setAttribute('aria-pressed', String(btn.dataset.size === size));
     });
-    if (sizePreview) {
-      sizePreview.style.fontSize = sizeMap[size] || '1rem';
-    }
   }
 
   sizeButtons.forEach(function (btn) {

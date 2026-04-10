@@ -699,10 +699,11 @@
 .font-size-option:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
 
 .font-size-sample { font-weight: 700; color: #e2e8f0; line-height: 1; }
-.fss-small  { font-size: 0.875rem; }
-.fss-medium { font-size: 1.125rem; }
-.fss-large  { font-size: 1.375rem; }
-.fss-xlarge { font-size: 1.625rem; }
+/* These are fixed visual indicators on the button — they don't scale with the app size */
+.fss-small  { font-size: 0.8rem; }
+.fss-medium { font-size: 1.05rem; }
+.fss-large  { font-size: 1.3rem; }
+.fss-xlarge { font-size: 1.6rem; }
 
 .font-size-label {
   font-size: 0.75rem;
@@ -786,6 +787,31 @@
   background: rgba(0,0,0,0.15);
   border-radius: 6px;
   border-left: 3px solid #4f4fbf;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LARGE-FONT OVERFLOW SAFETY
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Sidebar text truncation — prevents nav labels from overflowing at xlarge */
+.settings-nav-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Font type option labels — truncate at min-width if font name is very wide */
+.font-type-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Panel titles wrap instead of overflow */
+.panel-title {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

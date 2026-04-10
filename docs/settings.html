@@ -15,6 +15,9 @@
       document.documentElement.setAttribute('data-font-size',s);
     })();
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/settings.css">
 </head>
@@ -122,24 +125,13 @@
             </li>
 
             <li>
-              <button class="settings-nav-item" data-panel="font-size">
+              <button class="settings-nav-item" data-panel="text-font">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polyline points="4 7 4 4 20 4 20 7"></polyline>
                   <line x1="9" y1="20" x2="15" y2="20"></line>
                   <line x1="12" y1="4" x2="12" y2="20"></line>
                 </svg>
-                <span>Font Size</span>
-              </button>
-            </li>
-
-            <li>
-              <button class="settings-nav-item" data-panel="font-type">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M4 7V4h16v3"></path>
-                  <path d="M9 20h6"></path>
-                  <path d="M12 4v16"></path>
-                </svg>
-                <span>Font Type</span>
+                <span>Text &amp; Font</span>
               </button>
             </li>
 
@@ -306,13 +298,15 @@
           <button type="button" class="clear-history-btn" id="clear-history-btn">Clear All History</button>
         </section>
 
-        <!-- FONT SIZE -->
-        <section class="settings-panel" id="panel-font-size" aria-labelledby="panel-font-size-title">
-          <h2 class="panel-title" id="panel-font-size-title">Font Size</h2>
-          <p class="panel-subtitle">Adjust text size across all pages.</p>
+        <!-- TEXT & FONT (combined size + type) -->
+        <section class="settings-panel" id="panel-text-font" aria-labelledby="panel-text-font-title">
+          <h2 class="panel-title" id="panel-text-font-title">Text &amp; Font</h2>
+          <p class="panel-subtitle">Adjust text size and font style across all pages.</p>
 
+          <!-- Font Size -->
           <div class="settings-card">
-            <div class="font-size-options" role="group" aria-label="Choose font size">
+            <p class="panel-section-title">Text Size</p>
+            <div class="font-size-options" role="group" aria-label="Choose text size">
               <button class="font-size-option" data-size="small" aria-pressed="false">
                 <span class="font-size-sample fss-small">Aa</span>
                 <span class="font-size-label">Small</span>
@@ -330,47 +324,43 @@
                 <span class="font-size-label">X-Large</span>
               </button>
             </div>
-            <p class="preview-label">Preview</p>
+            <p class="preview-label">Size Preview</p>
             <p id="font-size-preview">The quick brown fox jumps over the lazy dog.</p>
           </div>
-        </section>
 
-        <!-- FONT TYPE -->
-        <section class="settings-panel" id="panel-font-type" aria-labelledby="panel-font-type-title">
-          <h2 class="panel-title" id="panel-font-type-title">Font Type</h2>
-          <p class="panel-subtitle">Choose a font to improve readability, including options designed for dyslexia.</p>
-
-          <div class="settings-card">
-            <div class="font-type-options" role="group" aria-label="Choose font type">
+          <!-- Font Type -->
+          <div class="settings-card" style="margin-top: 1.25rem;">
+            <p class="panel-section-title">Font Style</p>
+            <div class="font-type-options" role="group" aria-label="Choose font style">
 
               <button class="font-type-option" data-font="system" aria-pressed="false">
                 <span class="font-type-name">System Default</span>
-                <span class="font-type-sample fts-system">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-system">The quick brown fox.</span>
               </button>
 
               <button class="font-type-option" data-font="lexend" aria-pressed="false">
                 <span class="font-type-name">Lexend</span>
-                <span class="font-type-sample fts-lexend">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-lexend">The quick brown fox.</span>
               </button>
 
               <button class="font-type-option" data-font="atkinson" aria-pressed="false">
                 <span class="font-type-name">Atkinson Hyperlegible</span>
-                <span class="font-type-sample fts-atkinson">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-atkinson">The quick brown fox.</span>
               </button>
 
               <button class="font-type-option" data-font="arial" aria-pressed="false">
                 <span class="font-type-name">Arial</span>
-                <span class="font-type-sample fts-arial">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-arial">The quick brown fox.</span>
               </button>
 
               <button class="font-type-option" data-font="verdana" aria-pressed="false">
                 <span class="font-type-name">Verdana</span>
-                <span class="font-type-sample fts-verdana">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-verdana">The quick brown fox.</span>
               </button>
 
               <button class="font-type-option" data-font="comic-sans" aria-pressed="false">
                 <span class="font-type-name">Comic Sans</span>
-                <span class="font-type-sample fts-comic">The quick brown fox jumps over the lazy dog.</span>
+                <span class="font-type-sample fts-comic">The quick brown fox.</span>
               </button>
 
             </div>
