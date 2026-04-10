@@ -732,6 +732,28 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   border-radius: 2px;
 }
 
+/* ── Inline input error messages ────────────────────────────────────────── */
+.input-error-msg {
+  display: block;
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.6rem 0.875rem;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #fca5a5;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.input-error-msg[hidden] { display: none; }
+
+textarea[aria-invalid="true"],
+input[aria-invalid="true"] {
+  border-color: #dc2626 !important;
+  outline: 2px solid rgba(220, 38, 38, 0.4);
+  outline-offset: 0;
+}
+
 /* ── Status messages ────────────────────────────────────────────────────── */
 .fetch-error {
   padding: 1rem;

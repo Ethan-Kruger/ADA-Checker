@@ -162,6 +162,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const errorEl = document.getElementById('settings-html-input-error');
+
+  function showCheckerError(msg) {
+    htmlInput.setAttribute('aria-invalid', 'true');
+    if (errorEl) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    htmlInput.focus();
+  }
+
+  function clearCheckerError() {
+    htmlInput.removeAttribute('aria-invalid');
+    if (errorEl) {
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+    }
+  }
+
   checkButton.addEventListener('click', () => {
     if (!canRunCheck()) {
       if (scoreEl) {
@@ -171,7 +190,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const html  = htmlInput.value;
+    const html = htmlInput.value.trim();
+    if (!html) {
+      showCheckerError(
+        'The HTML field is empty. Paste the HTML you want to check, ' +
+        'for example: <img src="photo.png"> or your full page source.'
+      );
+      return;
+    }
+    clearCheckerError();
+
     const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
     const result = window.checkAccessibility(html, level);
     const violations = (result && result.violations) || [];

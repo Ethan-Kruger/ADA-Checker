@@ -109,6 +109,7 @@
             </div>
           </div>
           <div id="wcag-upgrade-toast" class="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert"></div>
+          <p id="html-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
           <textarea id="html-input" rows="12"
                     placeholder="&lt;img src=&quot;photo.png&quot;&gt;"
                     spellcheck="false"
@@ -127,6 +128,7 @@
           <input type="url" id="url-input"
                  placeholder="https://example.com"
                  aria-describedby="url-note">
+          <p id="url-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
           <p id="url-note" class="field-note">
             Note: URL fetching may be blocked by CORS restrictions.
             If the request fails, paste the page's HTML source into the
@@ -144,6 +146,7 @@
               <textarea class="batch-textarea" rows="6" placeholder="Paste HTML for page 1…" spellcheck="false"></textarea>
             </div>
           </div>
+          <p id="batch-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
           <div class="batch-actions">
             <button type="button" id="batch-add-btn" class="batch-add-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>

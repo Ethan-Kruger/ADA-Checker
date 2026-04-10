@@ -248,12 +248,35 @@
       '. Score: ' + result.score + ' out of 100. WCAG Level ' + (result.level || 'A') + '.';
   }
 
-  // ─── Input error helper ───────────────────────────────────────────────────────
-  function markInputError(input) {
+  // ─── Input error helpers ──────────────────────────────────────────────────────
+  function showInputError(input, errorEl, msg) {
     input.setAttribute('aria-invalid', 'true');
+    if (errorEl) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
     input.focus();
-    setTimeout(function () { input.removeAttribute('aria-invalid'); }, 3000);
   }
+
+  function clearInputError(input, errorEl) {
+    input.removeAttribute('aria-invalid');
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.hidden = true;
+    }
+  }
+
+  function isValidUrl(str) {
+    try {
+      var u = new URL(str);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  var htmlErrorEl = document.getElementById('html-input-error');
+  var urlErrorEl  = document.getElementById('url-input-error');
 
   // ─── Button click handler ─────────────────────────────────────────────────────
   checkBtn.addEventListener('click', handleCheck);
@@ -272,29 +295,67 @@
 
     if (isUrlTab) {
       var url = (urlInput.value || '').trim();
-      if (!url) { markInputError(urlInput); return; }
 
+      if (!url) {
+        showInputError(urlInput, urlErrorEl,
+          'Please enter a URL before checking. Example: https://example.com');
+        return;
+      }
+
+      if (!isValidUrl(url)) {
+        showInputError(urlInput, urlErrorEl,
+          'That doesn\u2019t look like a valid URL. Make sure it starts with https:// or http://, ' +
+          'for example: https://example.com or http://mysite.org/page');
+        return;
+      }
+
+      clearInputError(urlInput, urlErrorEl);
       checkBtn.disabled = true;
       checkBtn.textContent = 'Fetching\u2026';
 
       try {
         var response = await fetch(url);
+        if (!response.ok) {
+          checkBtn.disabled = false;
+          checkBtn.textContent = 'Check Accessibility';
+          showInputError(urlInput, urlErrorEl,
+            'The server returned an error (HTTP\u00a0' + response.status + '\u00a0' + response.statusText + '). ' +
+            'The page may not exist or the server is down. Double-check the URL and try again.');
+          return;
+        }
         html = await response.text();
       } catch (err) {
         checkBtn.disabled = false;
         checkBtn.textContent = 'Check Accessibility';
+        // Show CORS/network error inline near the URL input AND in the results area
+        showInputError(urlInput, urlErrorEl,
+          'Could not reach that URL. This is usually caused by the server blocking cross-origin ' +
+          'requests (CORS). To work around this, open the page in your browser, view its source ' +
+          '(Ctrl+U / Cmd+U), copy all the HTML, and paste it into the \u201cPaste HTML\u201d tab instead.');
         resultsSection.hidden = false;
         violationList.innerHTML =
-          '<p class="fetch-error">Could not fetch the URL \u2014 the server likely blocks ' +
-          'cross-origin requests (CORS). Copy and paste the page\'s HTML source into ' +
-          'the <strong>Paste HTML</strong> tab instead.</p>';
+          '<p class="fetch-error">' +
+          '<strong>Unable to fetch the URL.</strong><br>' +
+          'The server is either unreachable or blocking cross-origin (CORS) requests from this tool. ' +
+          'To check this page anyway:<br><br>' +
+          '1. Open the URL in a new browser tab.<br>' +
+          '2. View the page source (Ctrl+U on Windows, Cmd+U on Mac).<br>' +
+          '3. Select all (Ctrl+A / Cmd+A), copy (Ctrl+C / Cmd+C).<br>' +
+          '4. Paste the HTML into the <strong>Paste HTML</strong> tab and run the check.' +
+          '</p>';
         noViolations.hidden = true;
         resultsHeading.focus();
         return;
       }
     } else {
       html = (htmlInput.value || '').trim();
-      if (!html) { markInputError(htmlInput); return; }
+      if (!html) {
+        showInputError(htmlInput, htmlErrorEl,
+          'The HTML field is empty. Paste the HTML you want to check, ' +
+          'for example: <img src="photo.png"> or your full page source.');
+        return;
+      }
+      clearInputError(htmlInput, htmlErrorEl);
     }
 
     checkBtn.disabled = true;
@@ -550,13 +611,25 @@
     batchPageCount = batchItems.querySelectorAll('.batch-item').length;
   }
 
+  var batchErrorEl = document.getElementById('batch-input-error');
+
   if (batchCheckBtn) {
     batchCheckBtn.addEventListener('click', function () {
       if (!canRunCheck()) { updateUsageCounter(); return; }
 
       var textareas = Array.from(batchItems.querySelectorAll('.batch-textarea'));
       var pages     = textareas.map(function (ta) { return ta.value.trim(); }).filter(Boolean);
-      if (!pages.length) return;
+      if (!pages.length) {
+        if (batchErrorEl) {
+          batchErrorEl.textContent = 'At least one HTML field must have content before running a batch check. Paste HTML into Page\u00a01 (and any additional pages) to continue.';
+          batchErrorEl.hidden = false;
+        }
+        var firstEmpty = textareas.find(function (ta) { return !ta.value.trim(); });
+        if (firstEmpty) { firstEmpty.setAttribute('aria-invalid', 'true'); firstEmpty.focus(); }
+        return;
+      }
+      if (batchErrorEl) { batchErrorEl.hidden = true; batchErrorEl.textContent = ''; }
+      textareas.forEach(function (ta) { ta.removeAttribute('aria-invalid'); });
 
       batchCheckBtn.disabled = true;
       batchCheckBtn.textContent = 'Checking\u2026';
