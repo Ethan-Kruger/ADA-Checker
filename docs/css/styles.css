@@ -1173,8 +1173,9 @@ input[aria-invalid="true"] {
 }
 .checker-switcher-wrap {
   position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
 }
 .checker-switcher {
   background-color: rgba(13, 43, 110, 0.92);
