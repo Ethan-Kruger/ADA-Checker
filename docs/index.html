@@ -80,16 +80,6 @@
     <!-- Live region announces results to screen readers without moving focus -->
     <div role="status" aria-live="polite" id="live-region" class="sr-only"></div>
 
-    <!-- Checker switcher -->
-    <div class="checker-switcher-wrap">
-      <label for="checker-switcher" class="sr-only">Select a checker</label>
-      <select id="checker-switcher" class="checker-switcher" aria-label="Select a checker">
-        <option value="" disabled>Checkers</option>
-        <option value="ada" selected>ADA Accessibility Checker</option>
-        <option value="contrast">Color Contrast Checker</option>
-      </select>
-    </div>
-
     <section aria-labelledby="input-heading">
       <h2 id="input-heading">HTML to Check</h2>
 
@@ -131,10 +121,20 @@
           </div>
           <div id="wcag-upgrade-toast" class="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert"></div>
           <p id="html-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
-          <textarea id="html-input" rows="12"
-                    placeholder="&lt;img src=&quot;photo.png&quot;&gt;"
-                    spellcheck="false"
-                    aria-describedby="html-hint"></textarea>
+          <div class="textarea-wrapper">
+            <textarea id="html-input" rows="12"
+                      placeholder="&lt;img src=&quot;photo.png&quot;&gt;"
+                      spellcheck="false"
+                      aria-describedby="html-hint"></textarea>
+            <div class="checker-switcher-wrap">
+              <label for="checker-switcher" class="sr-only">Select a checker</label>
+              <select id="checker-switcher" class="checker-switcher" aria-label="Select a checker">
+                <option value="" disabled>Checkers</option>
+                <option value="ada" selected>ADA Accessibility Checker</option>
+                <option value="contrast">Color Contrast Checker</option>
+              </select>
+            </div>
+          </div>
           <p id="html-hint" class="field-note">
             Example violations to test:
             <code>&lt;img src="test.png"&gt;</code> &middot;
