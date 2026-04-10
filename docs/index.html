@@ -171,6 +171,13 @@
 
       <div id="usage-counter" class="usage-counter" hidden aria-live="polite"></div>
       <button type="button" id="check-btn">Check Accessibility</button>
+      <div id="scan-spinner" class="scan-spinner" hidden aria-hidden="true">
+        <svg class="spinner-circle" viewBox="0 0 50 50" width="36" height="36" aria-hidden="true">
+          <circle class="spinner-track" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+          <circle class="spinner-arc"   cx="25" cy="25" r="20" fill="none" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <span class="spinner-label">Checking…</span>
+      </div>
     </section>
 
     <!-- Results (hidden until first check) -->
