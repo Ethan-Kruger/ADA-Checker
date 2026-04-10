@@ -739,3 +739,154 @@
   }
 
 }());
+
+// ─── Checker Switcher ────────────────────────────────────────────────────────
+(function () {
+  'use strict';
+
+  var switcher          = document.getElementById('checker-switcher');
+  var adaSection        = document.querySelector('section[aria-labelledby="input-heading"]');
+  var contrastSection   = document.getElementById('contrast-checker-section');
+  var resultsSection    = document.getElementById('results');
+
+  if (!switcher || !adaSection || !contrastSection) return;
+
+  switcher.addEventListener('change', function () {
+    var val = switcher.value;
+    if (val === 'ada') {
+      adaSection.hidden      = false;
+      contrastSection.hidden = true;
+    } else if (val === 'contrast') {
+      adaSection.hidden      = true;
+      contrastSection.hidden = false;
+      if (resultsSection) resultsSection.hidden = true;
+      updateContrast();
+    }
+  });
+
+  // ─── Contrast checker logic ──────────────────────────────────────────────
+  var fgPicker   = document.getElementById('fg-color-picker');
+  var bgPicker   = document.getElementById('bg-color-picker');
+  var fgHex      = document.getElementById('fg-hex');
+  var bgHex      = document.getElementById('bg-hex');
+  var swapBtn    = document.getElementById('contrast-swap-btn');
+  var previewBox = document.getElementById('contrast-preview-box');
+  var ratioVal   = document.getElementById('contrast-ratio-value');
+
+  var badges = {
+    aaNormal:  document.getElementById('badge-aa-normal'),
+    aaLarge:   document.getElementById('badge-aa-large'),
+    aaaNormal: document.getElementById('badge-aaa-normal'),
+    aaaLarge:  document.getElementById('badge-aaa-large')
+  };
+  var statuses = {
+    aaNormal:  document.getElementById('status-aa-normal'),
+    aaLarge:   document.getElementById('status-aa-large'),
+    aaaNormal: document.getElementById('status-aaa-normal'),
+    aaaLarge:  document.getElementById('status-aaa-large')
+  };
+
+  function hexToRgb(hex) {
+    var h = hex.replace('#', '');
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if (h.length !== 6 || !/^[0-9a-f]{6}$/i.test(h)) return null;
+    return {
+      r: parseInt(h.slice(0,2), 16),
+      g: parseInt(h.slice(2,4), 16),
+      b: parseInt(h.slice(4,6), 16)
+    };
+  }
+
+  function linearize(c) {
+    c = c / 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+
+  function relativeLuminance(rgb) {
+    return 0.2126 * linearize(rgb.r) + 0.7152 * linearize(rgb.g) + 0.0722 * linearize(rgb.b);
+  }
+
+  function contrastRatio(l1, l2) {
+    var lighter = Math.max(l1, l2);
+    var darker  = Math.min(l1, l2);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  function setBadge(badge, statusEl, passes) {
+    badge.classList.remove('pass', 'fail');
+    if (passes === null) {
+      badge.classList.remove('pass', 'fail');
+      statusEl.textContent = '—';
+    } else if (passes) {
+      badge.classList.add('pass');
+      statusEl.textContent = 'Pass';
+    } else {
+      badge.classList.add('fail');
+      statusEl.textContent = 'Fail';
+    }
+  }
+
+  function updateContrast() {
+    var fg = hexToRgb(fgHex.value.trim());
+    var bg = hexToRgb(bgHex.value.trim());
+
+    fgHex.setAttribute('aria-invalid', fg ? 'false' : 'true');
+    bgHex.setAttribute('aria-invalid', bg ? 'false' : 'true');
+
+    if (!fg || !bg) {
+      ratioVal.textContent = '—';
+      ['aaNormal','aaLarge','aaaNormal','aaaLarge'].forEach(function (k) {
+        setBadge(badges[k], statuses[k], null);
+      });
+      return;
+    }
+
+    // Update preview
+    previewBox.style.backgroundColor = bgHex.value.trim();
+    previewBox.style.color            = fgHex.value.trim();
+
+    var lFg = relativeLuminance(fg);
+    var lBg = relativeLuminance(bg);
+    var ratio = contrastRatio(lFg, lBg);
+
+    ratioVal.textContent = ratio.toFixed(2) + ':1';
+
+    setBadge(badges.aaNormal,  statuses.aaNormal,  ratio >= 4.5);
+    setBadge(badges.aaLarge,   statuses.aaLarge,   ratio >= 3.0);
+    setBadge(badges.aaaNormal, statuses.aaaNormal, ratio >= 7.0);
+    setBadge(badges.aaaLarge,  statuses.aaaLarge,  ratio >= 4.5);
+  }
+
+  // Sync color picker → hex input
+  fgPicker.addEventListener('input', function () {
+    fgHex.value = fgPicker.value;
+    updateContrast();
+  });
+  bgPicker.addEventListener('input', function () {
+    bgHex.value = bgPicker.value;
+    updateContrast();
+  });
+
+  // Sync hex input → color picker
+  fgHex.addEventListener('input', function () {
+    var rgb = hexToRgb(fgHex.value.trim());
+    if (rgb) fgPicker.value = fgHex.value.trim();
+    updateContrast();
+  });
+  bgHex.addEventListener('input', function () {
+    var rgb = hexToRgb(bgHex.value.trim());
+    if (rgb) bgPicker.value = bgHex.value.trim();
+    updateContrast();
+  });
+
+  // Swap button
+  swapBtn.addEventListener('click', function () {
+    var tmpHex = fgHex.value;
+    fgHex.value   = bgHex.value;
+    bgHex.value   = tmpHex;
+    fgPicker.value = fgHex.value;
+    bgPicker.value = bgHex.value;
+    updateContrast();
+  });
+
+}());
