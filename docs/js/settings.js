@@ -107,7 +107,7 @@
     }
     if (panelId === 'custom-rules') {
       applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
-      if (typeof renderCustomRules === 'function') renderCustomRules();
+      if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
     }
 
     // Focus the close button
@@ -343,7 +343,8 @@
     // Re-apply all plan gates
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
-    if (typeof updateCheckerRateUI === 'function') updateCheckerRateUI();
+    updateCheckerRateUI();
+    if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
 
     var label = plan === 'free' ? 'Free' : plan === 'pro' ? 'Pro' : 'Enterprise';
     alert('Plan set to ' + label + '. Features are now ' + (plan === 'free' ? 'restricted' : 'unlocked') + '. (Demo only — no real payment processed.)');
@@ -473,6 +474,7 @@
     });
   }
 
+  window.renderCustomRules = renderCustomRules;
   renderCustomRules();
 
   if (addRuleBtn) {

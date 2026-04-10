@@ -315,9 +315,23 @@
   }
 
   // ─── Export report ────────────────────────────────────────────────────────────
+  function showToast(msg) {
+    var toast = document.getElementById('wcag-upgrade-toast');
+    if (toast) {
+      toast.textContent = msg;
+      toast.hidden = false;
+      toast.removeAttribute('aria-hidden');
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(function () {
+        toast.hidden = true;
+        toast.setAttribute('aria-hidden', 'true');
+      }, 4000);
+    }
+  }
+
   function requirePro(action) {
     if (!planAtLeast('pro')) {
-      showUpgradeToast('export');
+      showToast('Exporting reports requires the Pro plan. Upgrade in Settings \u2192 Pricing Plans.');
       return false;
     }
     action();
@@ -446,9 +460,9 @@
     batchAddBtn.addEventListener('click', function () {
       var limit = getBatchLimit();
       if (batchPageCount >= limit) {
-        var msg = limit === 5 ? 'Pro plan supports up to 5 pages. Upgrade to Enterprise for unlimited batch pages.'
-                              : 'Batch checking requires the Pro plan.';
-        showUpgradeToast(msg);
+        var msg = limit === 5 ? 'Pro plan supports up to 5 pages. Upgrade to Enterprise for unlimited.'
+                              : 'Batch checking requires the Pro plan. Upgrade in Settings \u2192 Pricing Plans.';
+        showToast(msg);
         return;
       }
       batchPageCount++;
