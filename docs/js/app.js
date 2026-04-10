@@ -14,9 +14,11 @@
   // ─── Spinner helpers ─────────────────────────────────────────────────────────
   function showSpinner() {
     if (scanSpinner) { scanSpinner.hidden = false; scanSpinner.removeAttribute('aria-hidden'); }
+    if (liveRegion) { liveRegion.textContent = 'Checking accessibility, please wait.'; }
   }
   function hideSpinner() {
     if (scanSpinner) { scanSpinner.hidden = true; scanSpinner.setAttribute('aria-hidden', 'true'); }
+    if (liveRegion) { liveRegion.textContent = ''; }
   }
 
   // ─── Element references ──────────────────────────────────────────────────────
