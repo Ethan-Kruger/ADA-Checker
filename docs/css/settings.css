@@ -227,7 +227,56 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MINI PRICING GRID
+   PANEL PRICING GRID (full cards inside the settings panel)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.panel-pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr 1fr;
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+@media (max-width: 680px) {
+  .panel-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* h3 inside card-header (settings panel uses h3, pricing page uses h2) */
+.panel-pricing-grid .card-header h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.625rem;
+  color: #f1f5f9;
+}
+
+/* scale down card padding slightly to fit the narrower panel */
+.panel-pricing-grid .pricing-card {
+  padding: 1.5rem 1.25rem;
+}
+
+.panel-pricing-grid .price-amount {
+  font-size: 2.25rem;
+}
+
+.panel-pricing-grid .feature-list li {
+  font-size: 0.875rem;
+}
+
+.panel-pricing-grid .pricing-btn {
+  font-size: 0.9375rem;
+}
+
+.panel-pricing-note {
+  text-align: center;
+  padding: 1rem 0 0.25rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MINI PRICING GRID (legacy — kept for reference)
    ───────────────────────────────────────────────────────────────────────────── */
 
 .mini-pricing-grid {

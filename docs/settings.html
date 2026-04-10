@@ -179,41 +179,82 @@
         <!-- PRICING PLANS -->
         <section class="settings-panel" id="panel-pricing" aria-labelledby="panel-pricing-title">
           <h2 class="panel-title" id="panel-pricing-title">Pricing Plans</h2>
-          <p class="panel-subtitle">Your current plan and available upgrades.</p>
+          <p class="panel-subtitle">Simple, transparent pricing. Start for free. Upgrade when you need more.</p>
 
-          <div class="panel-section">
-            <p class="panel-section-title">Current Plan</p>
-            <div class="mini-pricing-grid">
-              <div class="mini-pricing-card current-plan">
-                <div class="mini-plan-name">Free</div>
-                <div>
-                  <span class="mini-plan-price">$0</span>
-                  <span class="mini-plan-period">/mo</span>
-                </div>
-                <div class="current-plan-badge">Current</div>
-              </div>
-              <div class="mini-pricing-card">
-                <div class="mini-plan-name">Pro</div>
-                <div>
-                  <span class="mini-plan-price">$19</span>
-                  <span class="mini-plan-period">/mo</span>
+          <div class="panel-pricing-grid">
+
+            <!-- Free tier -->
+            <article class="pricing-card" aria-labelledby="sp-tier-free">
+              <div class="card-header">
+                <h3 id="sp-tier-free">Free</h3>
+                <div class="price-display">
+                  <span class="price-amount">$0</span>
+                  <span class="price-period">/month</span>
                 </div>
               </div>
-              <div class="mini-pricing-card">
-                <div class="mini-plan-name">Enterprise</div>
-                <div>
-                  <span class="mini-plan-price mini-plan-custom">Custom</span>
+              <ul class="feature-list" aria-label="Free tier features">
+                <li>Check up to 10 pages per day</li>
+                <li>Basic 13 accessibility checks</li>
+                <li>HTML paste only</li>
+                <li>Email support</li>
+              </ul>
+              <div class="current-plan-badge">Your Current Plan</div>
+              <button type="button" class="pricing-btn btn-outline"
+                      onclick="alert('Free tier — just start using the checker!')">
+                Get Started
+              </button>
+            </article>
+
+            <!-- Pro tier (featured) -->
+            <article class="pricing-card featured" aria-labelledby="sp-tier-pro">
+              <div class="popular-badge" aria-label="Most popular plan">Most Popular</div>
+              <div class="card-header">
+                <h3 id="sp-tier-pro">Pro</h3>
+                <div class="price-display">
+                  <span class="price-amount">$19</span>
+                  <span class="price-period">/month</span>
                 </div>
               </div>
-            </div>
-            <a href="pricing.html" class="view-pricing-link">
-              View full pricing details
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
+              <ul class="feature-list" aria-label="Pro tier features">
+                <li>Unlimited page checks</li>
+                <li>All 13 accessibility checks</li>
+                <li>URL checking enabled</li>
+                <li>Batch checking (multiple pages)</li>
+                <li>Priority email support</li>
+                <li>Downloadable PDF reports</li>
+              </ul>
+              <button type="button" class="pricing-btn btn-primary"
+                      onclick="alert('Payment integration coming soon! This will be a real checkout.')">
+                Start Free Trial
+              </button>
+            </article>
+
+            <!-- Enterprise tier -->
+            <article class="pricing-card" aria-labelledby="sp-tier-enterprise">
+              <div class="card-header">
+                <h3 id="sp-tier-enterprise">Enterprise</h3>
+                <div class="price-display">
+                  <span class="price-amount price-custom">Custom</span>
+                  <span class="price-period">pricing</span>
+                </div>
+              </div>
+              <ul class="feature-list" aria-label="Enterprise tier features">
+                <li>Everything in Pro</li>
+                <li>API access</li>
+                <li>Team collaboration</li>
+                <li>Custom rules</li>
+                <li>Dedicated account manager</li>
+                <li>SLA guarantee</li>
+              </ul>
+              <button type="button" class="pricing-btn btn-outline"
+                      onclick="alert('Contact form coming soon!')">
+                Contact Sales
+              </button>
+            </article>
+
           </div>
+
+          <p class="panel-pricing-note">All plans include WCAG 2.1 compliance checks. No credit card required for Free tier.</p>
         </section>
 
         <!-- PROFILE -->
