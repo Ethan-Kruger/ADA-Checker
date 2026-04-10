@@ -1162,30 +1162,40 @@ input[aria-invalid="true"] {
   .filter-btn { padding: 0.3rem 0.625rem; font-size: 0.8125rem; }
 }
 
-/* ── Checker switcher ──────────────────────────────────────────────────────── */
+/* ── Textarea wrapper + checker switcher ───────────────────────────────────── */
+.textarea-wrapper {
+  position: relative;
+}
+.textarea-wrapper textarea {
+  display: block;
+  width: 100%;
+  padding-bottom: 2.75rem;
+}
 .checker-switcher-wrap {
-  margin-bottom: 1.5rem;
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
 }
 .checker-switcher {
-  background-color: #1a3a7a;
+  background-color: rgba(13, 43, 110, 0.92);
   color: #e2e8f0;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 6px;
-  padding: 0.5rem 2.25rem 0.5rem 0.875rem;
-  font-size: 0.9375rem;
+  padding: 0.3rem 2rem 0.3rem 0.65rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a5b4fc' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a5b4fc' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.75rem center;
+  background-position: right 0.6rem center;
   transition: border-color 0.15s, background-color 0.15s;
-  min-width: 240px;
+  backdrop-filter: blur(4px);
 }
 .checker-switcher:focus-visible {
   outline: 2px solid #a5b4fc;
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 .checker-switcher:hover { border-color: #4f4fbf; }
 
