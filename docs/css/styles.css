@@ -1164,18 +1164,39 @@ input[aria-invalid="true"] {
 
 /* ── Textarea wrapper + checker switcher ───────────────────────────────────── */
 .textarea-wrapper {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  background: #071020;
+  transition: border-color 0.15s;
+  overflow: hidden;
+}
+.textarea-wrapper:focus-within {
+  outline: 2px solid #4f4fbf;
+  outline-offset: 2px;
+  border-color: #4f4fbf;
 }
 .textarea-wrapper textarea {
-  display: block;
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0;
+  background: transparent;
+  resize: none;
   width: 100%;
-  padding-bottom: 2.75rem;
+}
+.textarea-wrapper textarea:focus {
+  outline: none !important;
+  border-color: transparent !important;
 }
 .checker-switcher-wrap {
-  position: absolute;
-  bottom: 0.6rem;
-  right: 0.6rem;
-  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  background: #071020;
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 .checker-switcher {
   background-color: rgba(13, 43, 110, 0.92);
