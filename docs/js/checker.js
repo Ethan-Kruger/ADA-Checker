@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const html  = htmlInput.value;
     const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
-    const result = checkAccessibility(html, level);
+    const result = window.checkAccessibility(html, level);
     const violations = (result && result.violations) || [];
 
     incrementCheckCount();

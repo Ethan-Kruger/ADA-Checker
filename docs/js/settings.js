@@ -362,17 +362,14 @@
 
   // ─── Checker panel rate-limit overlay ────────────────────────────────────
   function updateCheckerRateUI() {
-    var overlay  = document.getElementById('settings-rate-overlay');
-    var timerEl  = document.getElementById('rate-overlay-timer');
+    var overlay = document.getElementById('settings-rate-overlay');
+    var timerEl = document.getElementById('rate-overlay-timer');
     if (!overlay) return;
 
-    if (typeof canRunCheck === 'function' && !canRunCheck()) {
-      overlay.hidden = false;
-      if (timerEl && typeof formatResetTime === 'function') {
-        timerEl.textContent = formatResetTime();
-      }
-    } else {
-      overlay.hidden = true;
+    var limited = typeof canRunCheck === 'function' && !canRunCheck();
+    overlay.style.display = limited ? 'flex' : 'none';
+    if (limited && timerEl && typeof formatResetTime === 'function') {
+      timerEl.textContent = formatResetTime();
     }
   }
 

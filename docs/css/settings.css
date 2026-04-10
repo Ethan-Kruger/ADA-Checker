@@ -886,13 +886,13 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .settings-rate-overlay {
+  display: none; /* shown via JS only */
   position: absolute;
   inset: 0;
   background: rgba(15,23,42,0.88);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border-radius: inherit;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
