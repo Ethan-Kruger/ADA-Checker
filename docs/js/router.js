@@ -96,6 +96,8 @@
     if (href.startsWith('http') || href.startsWith('mailto') || href.startsWith('#')) return;
     if (a.target === '_blank') return;
     if (!href.endsWith('.html') && href !== '/') return;
+    // Settings has a complex sidebar layout — let it do a full page load
+    if (href.includes('settings.html') || document.body.dataset.page === 'settings') return;
     e.preventDefault();
     navigate(href);
   });
