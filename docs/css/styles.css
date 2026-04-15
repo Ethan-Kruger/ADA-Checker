@@ -312,6 +312,30 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   font-weight: 500;
 }
 
+/* ── Locked-tab upgrade banner ───────────────────────────────────────────── */
+.tab-upgrade-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #c7d2fe;
+}
+
+.tab-upgrade-banner svg {
+  flex-shrink: 0;
+  color: #818cf8;
+}
+
+.tab-upgrade-banner a {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
 /* ── Batch check panel ───────────────────────────────────────────────────── */
 .batch-item {
   margin-bottom: 1rem;

@@ -80,11 +80,6 @@
 
   // ─── Tab switching (ARIA tablist pattern) ────────────────────────────────────
   function activateTab(tab) {
-    // Block locked tabs (URL tab for free users)
-    if (tab.classList.contains('tab-locked')) {
-      showUrlUpgradeTooltip(tab);
-      return;
-    }
     tabs.forEach(function (t) {
       var active = t === tab;
       t.setAttribute('aria-selected', String(active));
@@ -111,17 +106,22 @@
     var urlTab   = document.getElementById('tab-url');
     var batchTab = document.getElementById('tab-batch');
 
+    var locked = !planAtLeast('pro');
+
     if (urlTab) {
-      var urlLocked = !planAtLeast('pro');
-      urlTab.classList.toggle('tab-locked', urlLocked);
-      urlTab.setAttribute('aria-disabled', String(urlLocked));
+      urlTab.classList.toggle('tab-locked', locked);
+      urlTab.setAttribute('aria-disabled', String(locked));
     }
 
     if (batchTab) {
-      var batchLocked = !planAtLeast('pro');
-      batchTab.classList.toggle('tab-locked', batchLocked);
-      batchTab.setAttribute('aria-disabled', String(batchLocked));
+      batchTab.classList.toggle('tab-locked', locked);
+      batchTab.setAttribute('aria-disabled', String(locked));
     }
+
+    var urlBanner   = document.getElementById('url-upgrade-banner');
+    var batchBanner = document.getElementById('batch-upgrade-banner');
+    if (urlBanner)   urlBanner.hidden   = !locked;
+    if (batchBanner) batchBanner.hidden = !locked;
   }
   applyTabLocks();
 
@@ -305,6 +305,11 @@
     var html = '';
 
     if (isUrlTab) {
+      if (!planAtLeast('pro')) {
+        showUrlUpgradeTooltip(activeTab);
+        return;
+      }
+
       var url = (urlInput.value || '').trim();
 
       if (!url) {
@@ -631,6 +636,10 @@
 
   if (batchCheckBtn) {
     batchCheckBtn.addEventListener('click', function () {
+      if (!planAtLeast('pro')) {
+        showToast('Batch checking requires the Pro plan. Upgrade in Pricing Plans.');
+        return;
+      }
       if (!canRunCheck()) { updateUsageCounter(); return; }
 
       var textareas = Array.from(batchItems.querySelectorAll('.batch-textarea'));
