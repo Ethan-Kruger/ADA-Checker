@@ -212,6 +212,13 @@
               Add Page
             </button>
             <button type="button" id="batch-check-btn" class="batch-check-btn">Check All Pages</button>
+            <div id="batch-spinner" class="scan-spinner" role="status" hidden aria-hidden="true">
+              <svg class="spinner-circle" viewBox="0 0 50 50" width="28" height="28" aria-hidden="true">
+                <circle class="spinner-track" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+                <circle class="spinner-arc"   cx="25" cy="25" r="20" fill="none" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+              <span class="spinner-label">Checking…</span>
+            </div>
           </div>
           <div id="batch-results" hidden></div>
           </div><!-- end batch-content -->

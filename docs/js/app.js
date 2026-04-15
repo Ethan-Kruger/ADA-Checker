@@ -88,8 +88,9 @@
       if (panel) panel.hidden = !active;
     });
     tab.focus();
-    // Hide the main check button when the batch tab is active — batch has its own button
-    if (checkBtn) checkBtn.hidden = tab.id === 'tab-batch';
+    // Re-evaluate locks whenever the active tab changes so the check button
+    // visibility stays in sync (URL tab locked → hide button; batch tab → always hide button)
+    applyTabLocks();
   }
 
   tabs.forEach(function (tab) {
@@ -127,15 +128,18 @@
 
     if (urlBanner)    urlBanner.hidden    = !locked;
     if (batchBanner)  batchBanner.hidden  = !locked;
-    if (urlContent)   urlContent.classList.toggle('tab-locked-content--disabled', locked);
-    if (batchContent) batchContent.classList.toggle('tab-locked-content--disabled', locked);
 
-    // Disable / enable inputs inside locked panels
-    var urlInput = document.getElementById('url-input');
-    if (urlInput) urlInput.disabled = locked;
-    document.querySelectorAll('#batch-content input, #batch-content textarea, #batch-content button').forEach(function (el) {
-      el.disabled = locked;
-    });
+    // Hide/show the content areas entirely — no graying, just gone
+    if (urlContent)   urlContent.hidden   = locked;
+    if (batchContent) batchContent.hidden = locked;
+
+    // Hide the main check button when:
+    //   - batch tab is active (it has its own button), OR
+    //   - URL tab is active and user is locked (no input to submit)
+    var activeTabId = (tabs.find(function (t) { return t.getAttribute('aria-selected') === 'true'; }) || {}).id;
+    if (checkBtn) {
+      checkBtn.hidden = activeTabId === 'tab-batch' || (locked && activeTabId === 'tab-url');
+    }
   }
   applyTabLocks();
 
@@ -688,8 +692,11 @@
       if (batchErrorEl) { batchErrorEl.hidden = true; batchErrorEl.textContent = ''; }
       textareas.forEach(function (ta) { ta.removeAttribute('aria-invalid'); });
 
+      var batchSpinner = document.getElementById('batch-spinner');
       batchCheckBtn.disabled = true;
       batchCheckBtn.textContent = 'Checking\u2026';
+      if (batchSpinner) { batchSpinner.hidden = false; batchSpinner.removeAttribute('aria-hidden'); }
+      if (liveRegion)   { liveRegion.textContent = 'Batch check started, please wait.'; }
 
       // Run each page's check sequentially using the async runner so the
       // browser stays responsive even when processing many large pages.
@@ -701,6 +708,8 @@
           updateUsageCounter();
           batchCheckBtn.disabled = false;
           batchCheckBtn.textContent = 'Check All Pages';
+          if (batchSpinner) { batchSpinner.hidden = true; batchSpinner.setAttribute('aria-hidden', 'true'); }
+          if (liveRegion)   { liveRegion.textContent = 'Batch check complete. ' + results.length + ' page' + (results.length !== 1 ? 's' : '') + ' checked.'; }
           renderBatchResults(results);
           return;
         }

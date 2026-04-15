@@ -361,12 +361,6 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 }
 .tab-paywall-btn:hover { background: #3d3daa; }
 
-/* ── Grayed-out content inside locked tabs ───────────────────────────────── */
-.tab-locked-content--disabled {
-  opacity: 0.4;
-  pointer-events: none;
-  user-select: none;
-}
 
 /* ── Batch check panel ───────────────────────────────────────────────────── */
 .batch-item {
