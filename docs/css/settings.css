@@ -773,12 +773,12 @@
   text-overflow: ellipsis;
 }
 
-.fts-system  { font-family: system-ui, -apple-system, sans-serif; }
-.fts-lexend  { font-family: 'Lexend', system-ui, sans-serif; }
-.fts-atkinson { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; }
-.fts-arial   { font-family: Arial, sans-serif; }
-.fts-verdana { font-family: Verdana, sans-serif; }
-.fts-comic   { font-family: 'Comic Sans MS', 'Comic Sans', cursive; }
+.fts-system  { font-family: system-ui, -apple-system, sans-serif !important; }
+.fts-lexend  { font-family: 'Lexend', system-ui, sans-serif !important; }
+.fts-atkinson { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important; }
+.fts-arial   { font-family: Arial, sans-serif !important; }
+.fts-verdana { font-family: Verdana, sans-serif !important; }
+.fts-comic   { font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; }
 
 .font-type-tip {
   font-size: 0.8125rem;
