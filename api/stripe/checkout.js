@@ -56,7 +56,9 @@ module.exports = async function handler(req, res) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-  const session = await stripe.checkout.sessions.create({
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create({
     customer:   customerId,
     mode:       'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
@@ -67,6 +69,10 @@ module.exports = async function handler(req, res) {
       metadata: { user_id: payload.sub, plan },
     },
   });
+  } catch (err) {
+    console.error('Stripe checkout error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
 
   return res.status(200).json({ url: session.url });
 };

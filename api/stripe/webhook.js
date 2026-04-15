@@ -2,7 +2,7 @@ const stripe   = require('../_lib/stripe');
 const supabase = require('../_lib/supabase');
 
 // Vercel buffers the body by default — we need the raw body to verify Stripe's signature.
-export const config = { api: { bodyParser: false } };
+// bodyParser is disabled via vercel.json for this route.
 
 function getRawBody(req) {
   return new Promise((resolve, reject) => {
