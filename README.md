@@ -10,6 +10,11 @@ Paste any HTML (or enter a URL) and get an instant accessibility report with:
 - **Violation breakdown** — Critical / Serious / Moderate / Minor counts
 - **Filterable violation cards** — each with the element, fix guidance, and WCAG reference
 - **Check history** — every run is saved locally so you can track improvement over time
+- **Loading spinner** — visible feedback while a scan runs, announced to screen readers via `role="status"`
+- **Screen reader live region** — announces scan start and end so assistive technology users get the same feedback
+- **Color contrast checker** — test foreground/background color pairs against WCAG AA and AAA thresholds, with a live preview and swap button
+- **Checker switcher** — dropdown in the editor corner to switch between the ADA scanner and the Color Contrast Checker
+- **Export results** *(Pro+)* — download or copy results as PDF, HTML, CSV, TXT, or clipboard copy
 
 ## Pages
 
@@ -19,7 +24,7 @@ Paste any HTML (or enter a URL) and get an instant accessibility report with:
 | `pricing.html` | Plan comparison (Free / Pro / Enterprise) |
 | `settings.html` | Appearance, profile, WCAG level, check history, and an embedded checker |
 
-## Checks (13 rules, WCAG 2.1 Level A)
+## Checks (17 rules, WCAG 2.1)
 
 | # | Rule | Severity |
 |---|---|---|
@@ -79,8 +84,8 @@ docs/
 │   ├── styles.css      — Global styles (themes, nav, checker UI)
 │   └── settings.css    — Settings page styles
 ├── js/
-│   ├── checker.js      — 13 WCAG checks + checkAccessibility() + history save
-│   ├── app.js          — Checker page UI (tabs, gauge, filter, results)
+│   ├── checker.js      — WCAG checks + checkAccessibility() + history save
+│   ├── app.js          — Checker page UI (tabs, gauge, filter, results, export, contrast checker, switcher)
 │   ├── settings.js     — Settings panel logic + history rendering
 │   └── nav.js          — Hamburger menu + brightness slider
 └── images/
