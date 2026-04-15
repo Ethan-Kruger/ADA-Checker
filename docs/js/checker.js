@@ -1024,72 +1024,77 @@ window.renderResults = renderResults;
   function checkAccessibilityAsync(html, level) {
     return new Promise(function (resolve) {
       level = (level || 'A').toUpperCase();
-      var doc = new DOMParser().parseFromString(html, 'text/html');
 
-      var levelA = [
-        checkImageAlt, checkFormLabels, checkLinkText, checkPageTitle,
-        checkHeadings, checkLanguage, checkARIA, checkTables,
-        checkButtons, checkSkipLinks, checkIframes, checkInputImages,
-        checkDuplicateIds
-      ];
-      var levelAA = (level === 'AA' || level === 'AAA')
-        ? [checkLandmarks, checkAutoplay, checkMetaRefresh, checkErrorSuggestion]
-        : [];
-      var levelAAA = (level === 'AAA')
-        ? [checkAbbreviations, checkDuplicateLinkText, checkTimedContent]
-        : [];
+      // Yield to the browser first so button/spinner state renders,
+      // then parse + run checks entirely off the critical interaction path.
+      setTimeout(function () {
+        // DOMParser can block for 100-500ms on large HTML — run inside
+        // the yielded task so it doesn't count against INP.
+        var doc = new DOMParser().parseFromString(html, 'text/html');
 
-      var allChecks = levelA.concat(levelAA, levelAAA);
-      var violations = [];
-      var idx = 0;
-      var BATCH = 4; // checks per task; tune up/down to balance speed vs responsiveness
+        var levelA = [
+          checkImageAlt, checkFormLabels, checkLinkText, checkPageTitle,
+          checkHeadings, checkLanguage, checkARIA, checkTables,
+          checkButtons, checkSkipLinks, checkIframes, checkInputImages,
+          checkDuplicateIds
+        ];
+        var levelAA = (level === 'AA' || level === 'AAA')
+          ? [checkLandmarks, checkAutoplay, checkMetaRefresh, checkErrorSuggestion]
+          : [];
+        var levelAAA = (level === 'AAA')
+          ? [checkAbbreviations, checkDuplicateLinkText, checkTimedContent]
+          : [];
 
-      function runBatch() {
-        var end = Math.min(idx + BATCH, allChecks.length);
-        while (idx < end) {
-          violations = violations.concat(allChecks[idx](doc));
-          idx++;
-        }
+        var allChecks = levelA.concat(levelAA, levelAAA);
+        var violations = [];
+        var idx = 0;
+        var BATCH = 3; // smaller batches = more yields = better INP
 
-        if (idx < allChecks.length) {
-          // Yield to the browser so it can repaint / handle input, then continue.
-          setTimeout(runBatch, 0);
-          return;
-        }
-
-        // Custom rules (Enterprise) — run last, no yield needed.
-        if (planAtLeast('enterprise')) {
-          var customRules = getCustomRules();
-          if (customRules.length) {
-            violations = violations.concat(checkCustomRules(doc, customRules));
+        function runBatch() {
+          var end = Math.min(idx + BATCH, allChecks.length);
+          while (idx < end) {
+            violations = violations.concat(allChecks[idx](doc));
+            idx++;
           }
+
+          if (idx < allChecks.length) {
+            // Yield to the browser so it can repaint / handle input, then continue.
+            setTimeout(runBatch, 0);
+            return;
+          }
+
+          // Custom rules (Enterprise) — run last, no yield needed.
+          if (planAtLeast('enterprise')) {
+            var customRules = getCustomRules();
+            if (customRules.length) {
+              violations = violations.concat(checkCustomRules(doc, customRules));
+            }
+          }
+
+          // Sort: critical → serious → moderate → minor.
+          var order = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+          violations.sort(function (a, b) { return order[a.severity] - order[b.severity]; });
+
+          // Build summary counts.
+          var summary = { total: violations.length, critical: 0, serious: 0, moderate: 0, minor: 0 };
+          violations.forEach(function (v) {
+            if (summary[v.severity] !== undefined) summary[v.severity]++;
+          });
+
+          // Calculate score.
+          var score = Math.max(0,
+            100
+            - summary.critical * PENALTY.critical
+            - summary.serious  * PENALTY.serious
+            - summary.moderate * PENALTY.moderate
+            - summary.minor    * PENALTY.minor
+          );
+
+          resolve({ score: score, violations: violations, summary: summary, level: level });
         }
 
-        // Sort: critical → serious → moderate → minor.
-        var order = { critical: 0, serious: 1, moderate: 2, minor: 3 };
-        violations.sort(function (a, b) { return order[a.severity] - order[b.severity]; });
-
-        // Build summary counts.
-        var summary = { total: violations.length, critical: 0, serious: 0, moderate: 0, minor: 0 };
-        violations.forEach(function (v) {
-          if (summary[v.severity] !== undefined) summary[v.severity]++;
-        });
-
-        // Calculate score.
-        var score = Math.max(0,
-          100
-          - summary.critical * PENALTY.critical
-          - summary.serious  * PENALTY.serious
-          - summary.moderate * PENALTY.moderate
-          - summary.minor    * PENALTY.minor
-        );
-
-        resolve({ score: score, violations: violations, summary: summary, level: level });
-      }
-
-      // Start first batch on the next task so the browser can render any
-      // loading-state changes (e.g. button text) before work begins.
-      setTimeout(runBatch, 0);
+        runBatch();
+      }, 0);
     });
   }
 
