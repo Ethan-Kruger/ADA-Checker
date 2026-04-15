@@ -197,6 +197,15 @@
   });
   applyFont(savedFont);
 
+  // ─── Reset text settings ─────────────────────────────────────────────────
+  var resetBtn = document.getElementById('reset-text-settings');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      applyFontSize('medium');
+      applyFont('system');
+    });
+  }
+
   // ─── Profile ──────────────────────────────────────────────────────────────
   var profileName   = document.getElementById('profile-name');
   var profileEmail  = document.getElementById('profile-email');

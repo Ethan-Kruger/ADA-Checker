@@ -794,6 +794,24 @@
   border-left: 3px solid #4f4fbf;
 }
 
+.reset-text-btn {
+  margin-top: 1.25rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.reset-text-btn:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.25);
+  color: #e2e8f0;
+}
+.reset-text-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
 /* ─────────────────────────────────────────────────────────────────────────────
    LARGE-FONT OVERFLOW SAFETY
    ───────────────────────────────────────────────────────────────────────────── */
