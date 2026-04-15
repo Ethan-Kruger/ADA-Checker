@@ -483,4 +483,16 @@
     });
   }
 
+  // Re-initialize settings when navigating to settings page via router
+  window.addEventListener('ada-navigate', function (e) {
+    if (e.detail.page !== 'settings') return;
+    var newSidebar = document.querySelector('.settings-sidebar');
+    if (newSidebar) {
+      sidebar = newSidebar;
+      syncSidebarRight();
+    }
+    if (typeof window.renderHistory === 'function') window.renderHistory();
+    if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
+  });
+
 }());

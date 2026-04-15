@@ -70,6 +70,9 @@
   font-display: fallback;
 }
 
+/* ── Page transition ───────────────────────────────────────────────────────── */
+#main-content { transition: opacity 0.15s ease; }
+
 /* ── Reset & base ──────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

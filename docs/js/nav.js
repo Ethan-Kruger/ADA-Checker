@@ -70,4 +70,39 @@
       localStorage.setItem(BRIGHTNESS_KEY, String(val));
     });
   });
+
+  // ── Re-run active state on client-side navigation ─────────────────────────
+  function updateActiveNav(page) {
+    var desktopLinkIds = {
+      checker:  'desktop-nav-checker',
+      pricing:  'desktop-nav-pricing',
+      settings: 'desktop-nav-settings'
+    };
+    // Remove active from all
+    Object.values(desktopLinkIds).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    // Add active to current
+    var activeId = desktopLinkIds[page];
+    if (activeId) {
+      var activeEl = document.getElementById(activeId);
+      if (activeEl) activeEl.classList.add('active');
+    }
+    // Reset hamburger link visibility
+    var linkIds = { checker: 'nav-checker-link', pricing: 'nav-pricing-link', settings: 'nav-settings-link' };
+    Object.values(linkIds).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+    var hideId = linkIds[page];
+    if (hideId) {
+      var hideEl = document.getElementById(hideId);
+      if (hideEl) hideEl.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('ada-navigate', function (e) {
+    updateActiveNav(e.detail.page);
+  });
 }());

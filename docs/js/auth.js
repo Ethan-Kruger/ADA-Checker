@@ -288,6 +288,11 @@
     }
   });
 
+  // Re-run updateNav on client-side navigation (profile bubble stays correct)
+  window.addEventListener('ada-navigate', function () {
+    updateNav();
+  });
+
   // Handle ?upgrade=success — re-sync the plan after Stripe redirects back
   if (new URLSearchParams(window.location.search).get('upgrade') === 'success') {
     syncPlan().then(function () {
