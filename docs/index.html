@@ -145,27 +145,35 @@
         </div>
 
         <div role="tabpanel" id="panel-url" aria-labelledby="tab-url" hidden>
-          <div id="url-upgrade-banner" class="tab-upgrade-banner" hidden>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            URL checking requires the <strong>Pro plan</strong>. <a href="pricing.html">View pricing</a> to upgrade.
+          <div id="url-upgrade-banner" class="tab-paywall" hidden>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <p class="tab-paywall-title">Pro Plan Required</p>
+            <p class="tab-paywall-desc">URL checking is available on the Pro plan and above. Upgrade to check live pages directly by URL.</p>
+            <a href="pricing.html" class="tab-paywall-btn">View Pricing</a>
           </div>
-          <label for="url-input">Page URL:</label>
-          <input type="url" id="url-input"
-                 placeholder="https://example.com"
-                 aria-describedby="url-note">
-          <p id="url-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
-          <p id="url-note" class="field-note">
-            Note: URL fetching may be blocked by CORS restrictions.
-            If the request fails, paste the page's HTML source into the
-            <strong>Paste HTML</strong> tab instead.
-          </p>
+          <div id="url-content" class="tab-locked-content">
+            <label for="url-input">Page URL:</label>
+            <input type="url" id="url-input"
+                   placeholder="https://example.com"
+                   aria-describedby="url-note"
+                   disabled>
+            <p id="url-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
+            <p id="url-note" class="field-note">
+              Note: URL fetching may be blocked by CORS restrictions.
+              If the request fails, paste the page's HTML source into the
+              <strong>Paste HTML</strong> tab instead.
+            </p>
+          </div>
         </div>
 
         <div role="tabpanel" id="panel-batch" aria-labelledby="tab-batch" hidden>
-          <div id="batch-upgrade-banner" class="tab-upgrade-banner" hidden>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            Batch checking requires the <strong>Pro plan</strong>. <a href="pricing.html">View pricing</a> to upgrade.
+          <div id="batch-upgrade-banner" class="tab-paywall" hidden>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <p class="tab-paywall-title">Pro Plan Required</p>
+            <p class="tab-paywall-desc">Batch checking is available on the Pro plan (up to 5 pages) and Enterprise (unlimited). Upgrade to check multiple pages at once.</p>
+            <a href="pricing.html" class="tab-paywall-btn">View Pricing</a>
           </div>
+          <div id="batch-content" class="tab-locked-content">
           <p class="field-note" style="margin-bottom:1rem">Check up to 5 pages at once (Pro) or unlimited pages (Enterprise). Results show per-page scores and violations.</p>
           <div id="batch-items">
             <div class="batch-item">
@@ -184,6 +192,7 @@
             <button type="button" id="batch-check-btn" class="batch-check-btn">Check All Pages</button>
           </div>
           <div id="batch-results" hidden></div>
+          </div><!-- end batch-content -->
         </div>
       </div>
 

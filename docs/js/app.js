@@ -120,10 +120,22 @@
       batchTab.setAttribute('aria-disabled', String(locked));
     }
 
-    var urlBanner   = document.getElementById('url-upgrade-banner');
-    var batchBanner = document.getElementById('batch-upgrade-banner');
-    if (urlBanner)   urlBanner.hidden   = !locked;
-    if (batchBanner) batchBanner.hidden = !locked;
+    var urlBanner    = document.getElementById('url-upgrade-banner');
+    var batchBanner  = document.getElementById('batch-upgrade-banner');
+    var urlContent   = document.getElementById('url-content');
+    var batchContent = document.getElementById('batch-content');
+
+    if (urlBanner)    urlBanner.hidden    = !locked;
+    if (batchBanner)  batchBanner.hidden  = !locked;
+    if (urlContent)   urlContent.classList.toggle('tab-locked-content--disabled', locked);
+    if (batchContent) batchContent.classList.toggle('tab-locked-content--disabled', locked);
+
+    // Disable / enable inputs inside locked panels
+    var urlInput = document.getElementById('url-input');
+    if (urlInput) urlInput.disabled = locked;
+    document.querySelectorAll('#batch-content input, #batch-content textarea, #batch-content button').forEach(function (el) {
+      el.disabled = locked;
+    });
   }
   applyTabLocks();
 
