@@ -1103,4 +1103,6 @@ window.renderResults = renderResults;
     return { score: result.score, violations: result.violations };
   };
 
-}());
+}()); // end IIFE
+
+}); // end DOMContentLoaded
