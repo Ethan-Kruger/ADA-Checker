@@ -1,2 +1,4 @@
 node_modules/
 ada-checker/
+.env.local
+.env*.local
