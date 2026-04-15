@@ -153,10 +153,21 @@
           </div>
           <div id="url-content" class="tab-locked-content">
             <label for="url-input">Page URL:</label>
-            <input type="url" id="url-input"
-                   placeholder="https://example.com"
-                   aria-describedby="url-note"
-                   disabled>
+            <div class="textarea-wrapper url-input-wrapper">
+              <input type="url" id="url-input"
+                     placeholder="https://example.com"
+                     aria-describedby="url-note"
+                     disabled>
+              <div class="checker-switcher-wrap">
+                <label for="url-checker-switcher" class="sr-only">Select a checker</label>
+                <select id="url-checker-switcher" class="checker-switcher" aria-label="Select a checker">
+                  <option value="" disabled>Checkers</option>
+                  <option value="paste">ADA Accessibility Checker</option>
+                  <option value="url" selected>Enter URL</option>
+                  <option value="batch">Batch Checker</option>
+                </select>
+              </div>
+            </div>
             <p id="url-input-error" class="input-error-msg" hidden role="alert" aria-live="polite"></p>
             <p id="url-note" class="field-note">
               Note: URL fetching may be blocked by CORS restrictions.
@@ -174,8 +185,19 @@
             <a href="pricing.html" class="tab-paywall-btn">View Pricing</a>
           </div>
           <div id="batch-content" class="tab-locked-content">
-          <p class="field-note" style="margin-bottom:1rem">Check up to 5 pages at once (Pro) or unlimited pages (Enterprise). Results show per-page scores and violations.</p>
-          <div id="batch-items">
+          <div class="batch-header-row">
+            <p class="field-note" style="margin:0">Check up to 5 pages at once (Pro) or unlimited pages (Enterprise). Results show per-page scores and violations.</p>
+            <div class="checker-switcher-wrap checker-switcher-wrap--inline">
+              <label for="batch-checker-switcher" class="sr-only">Select a checker</label>
+              <select id="batch-checker-switcher" class="checker-switcher" aria-label="Select a checker">
+                <option value="" disabled>Checkers</option>
+                <option value="paste">ADA Accessibility Checker</option>
+                <option value="url">Enter URL</option>
+                <option value="batch" selected>Batch Checker</option>
+              </select>
+            </div>
+          </div>
+          <div id="batch-items" style="margin-top:1rem">
             <div class="batch-item">
               <div class="batch-item-header">
                 <label>Page 1</label>

@@ -155,6 +155,24 @@
     }
   }
 
+  // ─── Panel checker switchers (URL + Batch panels) ────────────────────────────
+  var tabIdMap = { paste: 'tab-paste', url: 'tab-url', batch: 'tab-batch' };
+
+  ['url-checker-switcher', 'batch-checker-switcher'].forEach(function (id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    sel.addEventListener('change', function () {
+      var targetTabId = tabIdMap[sel.value];
+      var targetTab   = targetTabId && document.getElementById(targetTabId);
+      if (targetTab) {
+        activateTab(targetTab);
+        // Reset this select back to its "current" option so it reads correctly
+        // if the user returns to this panel and opens the dropdown again.
+        sel.value = sel.querySelector('option[selected]') ? sel.querySelector('option[selected]').value : sel.value;
+      }
+    });
+  });
+
   // ─── Score counter animation ──────────────────────────────────────────────────
   function animateScore(finalScore) {
     var current   = 0;

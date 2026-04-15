@@ -1254,6 +1254,39 @@ input[aria-invalid="true"] {
   background: #071020;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
+
+/* Inline variant used in the batch header row */
+.checker-switcher-wrap--inline {
+  border-top: none;
+  background: transparent;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* Wrapper for the URL input that mirrors the textarea-wrapper style */
+.url-input-wrapper {
+  position: relative;
+}
+.url-input-wrapper input[type="url"] {
+  border: none !important;
+  outline: none !important;
+  border-radius: 0;
+  background: transparent;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+}
+.url-input-wrapper input[type="url"]:focus {
+  outline: none !important;
+}
+
+/* Batch panel header: description + switcher side by side */
+.batch-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 .checker-switcher {
   background-color: rgba(13, 43, 110, 0.92);
   color: #e2e8f0;
