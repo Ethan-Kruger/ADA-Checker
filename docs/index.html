@@ -453,8 +453,12 @@
           el.addEventListener('focus', loadChecker, { once: true });
         }
       });
-      // Also load after 3 seconds idle as a fallback so it's ready when needed
-      setTimeout(loadChecker, 3000);
+      // Load during browser idle time — won't interrupt user interactions
+      if (window.requestIdleCallback) {
+        requestIdleCallback(loadChecker, { timeout: 8000 });
+      } else {
+        setTimeout(loadChecker, 5000);
+      }
     }());
   </script>
 </body>
