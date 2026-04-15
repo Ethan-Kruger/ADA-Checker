@@ -423,10 +423,37 @@
     <p class="footer-copy">&copy; 2026 ADA Checker</p>
   </footer>
 
-  <script defer src="js/checker.js"></script>
-  <script defer src="js/app.js"></script>
   <script defer src="js/nav.js"></script>
   <script defer src="js/auth.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script>
+    // Lazy-load checker.js + app.js only when the user first interacts
+    // with the checker — keeps the main thread free for nav clicks on load.
+    (function () {
+      var loaded = false;
+      function loadChecker() {
+        if (loaded) return;
+        loaded = true;
+        var s1 = document.createElement('script');
+        s1.src = 'js/checker.js';
+        s1.onload = function () {
+          var s2 = document.createElement('script');
+          s2.src = 'js/app.js';
+          document.head.appendChild(s2);
+        };
+        document.head.appendChild(s1);
+      }
+      // Trigger on first interaction with any checker element
+      ['html-input', 'check-btn', 'tab-paste', 'tab-url', 'tab-batch'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('click', loadChecker, { once: true });
+          el.addEventListener('focus', loadChecker, { once: true });
+        }
+      });
+      // Also load after 3 seconds idle as a fallback so it's ready when needed
+      setTimeout(loadChecker, 3000);
+    }());
+  </script>
 </body>
 </html>
