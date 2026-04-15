@@ -1,1 +1,17 @@
-
+{
+  "name": "ada-checker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "stripe": "^15.8.0"
+  },
+  "devDependencies": {
+    "vercel": "^34.0.0"
+  }
+}

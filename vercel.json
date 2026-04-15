@@ -1,0 +1,13 @@
+{
+  "outputDirectory": "docs",
+  "functions": {
+    "api/**/*.js": {
+      "memory": 256,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
