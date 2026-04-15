@@ -88,6 +88,8 @@
       if (panel) panel.hidden = !active;
     });
     tab.focus();
+    // Hide the main check button when the batch tab is active — batch has its own button
+    if (checkBtn) checkBtn.hidden = tab.id === 'tab-batch';
   }
 
   tabs.forEach(function (tab) {
