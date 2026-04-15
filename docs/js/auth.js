@@ -57,11 +57,22 @@
     window.location.reload();
   }
 
+  var PLAN_CACHE_KEY = 'ada-plan-synced-at';
+  var PLAN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
   // Fetches the latest plan from the API and syncs it to localStorage.
-  // Called on every page load so the plan stays accurate after a Stripe payment.
+  // Skips the network call if the plan was synced less than 5 minutes ago,
+  // unless ?upgrade=success is in the URL (forces a fresh fetch after Stripe).
   async function syncPlan() {
     const token = getToken();
     if (!token) return;
+
+    const forceRefresh = new URLSearchParams(window.location.search).get('upgrade') === 'success';
+    const lastSynced   = parseInt(localStorage.getItem(PLAN_CACHE_KEY) || '0', 10);
+    const age          = Date.now() - lastSynced;
+
+    if (!forceRefresh && age < PLAN_CACHE_TTL) return; // still fresh — skip network call
+
     try {
       const res  = await fetch(API + '/auth/me', {
         headers: { 'Authorization': 'Bearer ' + token },
@@ -70,6 +81,7 @@
       const data = await res.json();
       if (data.plan) {
         localStorage.setItem(PLAN_KEY, data.plan);
+        localStorage.setItem(PLAN_CACHE_KEY, String(Date.now()));
         if (data.user) setUser(data.user);
       }
     } catch (e) {
