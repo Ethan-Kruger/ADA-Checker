@@ -773,12 +773,17 @@
   text-overflow: ellipsis;
 }
 
-.fts-system  { font-family: system-ui, -apple-system, sans-serif !important; }
-.fts-lexend  { font-family: 'Lexend', system-ui, sans-serif !important; }
-.fts-atkinson { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important; }
-.fts-arial   { font-family: Arial, sans-serif !important; }
-.fts-verdana { font-family: Verdana, sans-serif !important; }
-.fts-comic   { font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; }
+/* Lock entire font option button (name + sample) to its own font */
+.font-type-option[data-font="system"]   { font-family: system-ui, -apple-system, sans-serif !important; }
+.font-type-option[data-font="lexend"]   { font-family: 'Lexend', system-ui, sans-serif !important; }
+.font-type-option[data-font="atkinson"] { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important; }
+.font-type-option[data-font="arial"]    { font-family: Arial, sans-serif !important; }
+.font-type-option[data-font="verdana"]  { font-family: Verdana, sans-serif !important; }
+.font-type-option[data-font="comic-sans"] { font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; }
+
+/* Sample text inherits from the button above — no override needed */
+.fts-system, .fts-lexend, .fts-atkinson,
+.fts-arial, .fts-verdana, .fts-comic { font-family: inherit !important; }
 
 .font-type-tip {
   font-size: 0.8125rem;
