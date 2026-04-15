@@ -35,8 +35,20 @@
       }
     });
 
-    // ── Hide the link for the current page ───────────────────────────────────
+    // ── Active state on desktop nav links ────────────────────────────────────
     var page = document.body.dataset.page || '';
+    var desktopLinkIds = {
+      checker:  'desktop-nav-checker',
+      pricing:  'desktop-nav-pricing',
+      settings: 'desktop-nav-settings'
+    };
+    var activeDesktopId = desktopLinkIds[page];
+    if (activeDesktopId) {
+      var activeDesktopLink = document.getElementById(activeDesktopId);
+      if (activeDesktopLink) activeDesktopLink.classList.add('active');
+    }
+
+    // ── Hide the link for the current page in hamburger ───────────────────────
     var linkIds = {
       checker:  'nav-checker-link',
       pricing:  'nav-pricing-link',

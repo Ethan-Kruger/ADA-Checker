@@ -92,6 +92,8 @@ body {
   background: #060e1a;
   border-bottom: 1px solid rgba(255,255,255,0.07);
   box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  /* needed so .nav-links absolute centering is relative to the nav bar */
+  overflow: visible;
 }
 
 .nav-logo {
@@ -112,7 +114,14 @@ body {
   border-radius: 4px;
 }
 
-.nav-links { display: flex; align-items: center; gap: 0.5rem; }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 .nav-link {
   display: inline-flex;
@@ -122,16 +131,30 @@ body {
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #e2e8f0;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  color: rgba(255,255,255,0.7);
+  transition: background 0.15s, color 0.15s;
 }
 .nav-link:hover {
-  background: rgba(79,79,191,0.3);
-  border-color: #4f4fbf;
+  background: rgba(255,255,255,0.08);
   color: #fff;
 }
-.nav-link:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+.nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+.nav-link:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; border-radius: 6px; }
+
+/* Hide nav page links from hamburger dropdown on desktop */
+@media (min-width: 640px) {
+  #nav-checker-link,
+  #nav-pricing-link,
+  #nav-settings-link { display: none; }
+}
+
+/* Hide desktop nav links on mobile */
+@media (max-width: 639px) {
+  .nav-links { display: none; }
+}
 
 /* ── Page header (hero below nav) ──────────────────────────────────────────── */
 .page-header {
