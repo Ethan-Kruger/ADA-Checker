@@ -199,30 +199,65 @@
     if (modal) { modal.hidden = true; modal.classList.remove('is-open'); }
   }
 
-  // ── Nav: show login/logout button ────────────────────────────────────────────
+  // ── Nav: profile bubble or sign-up button ────────────────────────────────────
   function updateNav() {
-    var user = getUser();
-    // Find or create the auth nav item
-    var nav = document.querySelector('.hamburger-dropdown');
-    if (!nav) return;
+    var user    = getUser();
+    var siteNav = document.querySelector('.site-nav');
+    if (!siteNav) return;
 
-    var existing = document.getElementById('nav-auth-btn');
+    // Remove any existing auth element
+    var existing = document.getElementById('nav-auth-widget');
     if (existing) existing.remove();
 
-    var btn = document.createElement('button');
-    btn.id        = 'nav-auth-btn';
-    btn.className = 'hamburger-menu-item hamburger-menu-item--btn';
-    btn.setAttribute('role', 'menuitem');
+    var widget = document.createElement('div');
+    widget.id = 'nav-auth-widget';
 
     if (user) {
-      btn.textContent = 'Sign out (' + user.email + ')';
-      btn.addEventListener('click', logout);
+      // Profile bubble — shows first letter of email
+      var initial = (user.email || '?')[0].toUpperCase();
+      widget.className = 'nav-profile-bubble';
+      widget.setAttribute('aria-label', 'Account: ' + user.email);
+      widget.setAttribute('title', user.email);
+      widget.setAttribute('role', 'button');
+      widget.setAttribute('tabindex', '0');
+      widget.textContent = initial;
+
+      // Clicking bubble shows a small dropdown with sign out
+      var menu = document.createElement('div');
+      menu.className = 'nav-profile-menu';
+      menu.innerHTML =
+        '<span class="nav-profile-email">' + user.email + '</span>' +
+        '<button class="nav-profile-signout" id="nav-signout-btn">Sign out</button>';
+      widget.appendChild(menu);
+
+      widget.addEventListener('click', function (e) {
+        widget.classList.toggle('is-open');
+        e.stopPropagation();
+      });
+      widget.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') widget.classList.toggle('is-open');
+      });
+      document.addEventListener('click', function () {
+        widget.classList.remove('is-open');
+      });
+      menu.addEventListener('click', function (e) { e.stopPropagation(); });
+      menu.querySelector('#nav-signout-btn').addEventListener('click', logout);
     } else {
-      btn.textContent = 'Sign in / Sign up';
-      btn.addEventListener('click', function () { showAuthModal('login'); });
+      // Sign Up button
+      widget.className = 'nav-signup-btn';
+      widget.setAttribute('role', 'button');
+      widget.setAttribute('tabindex', '0');
+      widget.textContent = 'Sign Up';
+
+      widget.addEventListener('click', function () { showAuthModal('signup'); });
+      widget.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') showAuthModal('signup');
+      });
     }
 
-    nav.insertBefore(btn, nav.querySelector('.dropdown-divider'));
+    // Insert just before the hamburger wrapper
+    var hamburger = document.getElementById('hamburger-wrapper');
+    siteNav.insertBefore(widget, hamburger);
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
