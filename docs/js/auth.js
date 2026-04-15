@@ -255,9 +255,9 @@
       });
     }
 
-    // Insert just before the hamburger wrapper
+    // Insert inside the hamburger wrapper, after the hamburger button
     var hamburger = document.getElementById('hamburger-wrapper');
-    siteNav.insertBefore(widget, hamburger);
+    hamburger.appendChild(widget);
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────

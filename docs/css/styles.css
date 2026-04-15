@@ -1093,7 +1093,6 @@ input[aria-invalid="true"] {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  margin-right: 0.75rem;
   transition: background 0.15s;
   white-space: nowrap;
 }
@@ -1113,7 +1112,6 @@ input[aria-invalid="true"] {
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  margin-right: 0.75rem;
   user-select: none;
   flex-shrink: 0;
 }
@@ -1156,7 +1154,12 @@ input[aria-invalid="true"] {
 }
 .nav-profile-signout:hover { background: rgba(248,113,113,0.1); }
 
-.hamburger-wrapper { position: relative; }
+.hamburger-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 .hamburger-btn {
   display: flex;
