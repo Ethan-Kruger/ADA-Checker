@@ -100,7 +100,7 @@
           <li>Email support</li>
         </ul>
         <button type="button" class="pricing-btn btn-outline"
-                onclick="alert('Free tier - just start using the checker!')">
+                onclick="window.location.href='index.html'">
           Get Started
         </button>
       </article>
@@ -124,8 +124,8 @@
           <li>Downloadable PDF reports</li>
         </ul>
         <button type="button" class="pricing-btn btn-primary"
-                onclick="alert('Payment integration coming soon! This will be a real checkout.')">
-          Start Free Trial
+                data-checkout="pro">
+          Get Started
         </button>
       </article>
 
@@ -147,7 +147,7 @@
           <li>SLA guarantee</li>
         </ul>
         <button type="button" class="pricing-btn btn-outline"
-                onclick="alert('Contact form coming soon!')">
+                data-checkout="enterprise">
           Contact Sales
         </button>
       </article>
@@ -172,5 +172,6 @@
   </footer>
 
   <script src="js/nav.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>
