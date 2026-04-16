@@ -234,12 +234,27 @@
       widget.setAttribute('tabindex', '0');
       widget.textContent = initial;
 
-      // Clicking bubble shows a small dropdown with sign out
+      // Clicking bubble shows a small dropdown — built with createElement to prevent XSS
       var menu = document.createElement('div');
       menu.className = 'nav-profile-menu';
-      menu.innerHTML =
-        '<span class="nav-profile-email">' + user.email + '</span>' +
-        '<button class="nav-profile-signout" id="nav-signout-btn">Sign out</button>';
+
+      var emailSpan = document.createElement('span');
+      emailSpan.className = 'nav-profile-email';
+      emailSpan.textContent = user.email; // textContent is XSS-safe
+
+      var editLink = document.createElement('a');
+      editLink.href = 'profile.html';
+      editLink.className = 'nav-profile-edit';
+      editLink.textContent = 'Edit Profile';
+
+      var signoutBtn = document.createElement('button');
+      signoutBtn.className = 'nav-profile-signout';
+      signoutBtn.id = 'nav-signout-btn';
+      signoutBtn.textContent = 'Sign out';
+
+      menu.appendChild(emailSpan);
+      menu.appendChild(editLink);
+      menu.appendChild(signoutBtn);
       widget.appendChild(menu);
 
       widget.addEventListener('click', function (e) {
@@ -253,7 +268,7 @@
         widget.classList.remove('is-open');
       });
       menu.addEventListener('click', function (e) { e.stopPropagation(); });
-      menu.querySelector('#nav-signout-btn').addEventListener('click', logout);
+      signoutBtn.addEventListener('click', logout);
     } else {
       // Sign Up button
       widget.className = 'nav-signup-btn';

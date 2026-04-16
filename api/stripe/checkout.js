@@ -1,6 +1,7 @@
 const stripe   = require('../_lib/stripe');
 const supabase = require('../_lib/supabase');
-const { requireAuth } = require('../_lib/auth');
+const { requireAuth }  = require('../_lib/auth');
+const { applyHeaders } = require('../_lib/cors');
 
 const PRICE_IDS = {
   pro:        process.env.STRIPE_PRO_PRICE_ID,
@@ -8,9 +9,7 @@ const PRICE_IDS = {
 };
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  applyHeaders(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -18,7 +17,7 @@ module.exports = async function handler(req, res) {
   try {
     payload = requireAuth(req);
   } catch (err) {
-    return res.status(err.status || 401).json({ error: err.message });
+    return res.status(err.status || 401).json({ error: 'Unauthorized' });
   }
 
   const { plan } = req.body || {};
@@ -59,19 +58,19 @@ module.exports = async function handler(req, res) {
   let session;
   try {
     session = await stripe.checkout.sessions.create({
-    customer:   customerId,
-    mode:       'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${appUrl}/settings.html?upgrade=success`,
-    cancel_url:  `${appUrl}/pricing.html`,
-    metadata:    { user_id: payload.sub, plan },
-    subscription_data: {
-      metadata: { user_id: payload.sub, plan },
-    },
-  });
+      customer:   customerId,
+      mode:       'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${appUrl}/settings.html?upgrade=success`,
+      cancel_url:  `${appUrl}/pricing.html`,
+      metadata:    { user_id: payload.sub, plan },
+      subscription_data: {
+        metadata: { user_id: payload.sub, plan },
+      },
+    });
   } catch (err) {
     console.error('Stripe checkout error:', err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Failed to create checkout session' });
   }
 
   return res.status(200).json({ url: session.url });

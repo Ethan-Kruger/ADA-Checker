@@ -1,10 +1,9 @@
 const supabase = require('../_lib/supabase');
 const { requireAuth } = require('../_lib/auth');
+const { applyHeaders } = require('../_lib/cors');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  applyHeaders(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -12,7 +11,7 @@ module.exports = async function handler(req, res) {
   try {
     payload = requireAuth(req);
   } catch (err) {
-    return res.status(err.status || 401).json({ error: err.message });
+    return res.status(err.status || 401).json({ error: 'Unauthorized' });
   }
 
   const { data: user } = await supabase
