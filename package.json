@@ -8,6 +8,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.2",
+    "@vercel/kv": "^3.0.0",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",

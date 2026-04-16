@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // 5 signup attempts per IP per 10 minutes
-  const { limited } = rateLimit(req, 5, 10 * 60 * 1000);
+  const { limited } = await rateLimit(req, 'rl:signup', 5, 10 * 60 * 1000);
   if (limited) {
     return res.status(429).json({ error: 'Too many signup attempts. Please wait and try again.' });
   }

@@ -1,16 +1,16 @@
 const bcrypt      = require('bcryptjs');
 const supabase    = require('../_lib/supabase');
-const { signToken } = require('../_lib/auth');
+const { signToken }   = require('../_lib/auth');
 const { applyHeaders } = require('../_lib/cors');
-const { rateLimit }    = require('../_lib/rateLimit');
+const { rateLimit, recordFailedLogin, isLockedOut, clearLockout } = require('../_lib/rateLimit');
 
 module.exports = async function handler(req, res) {
   applyHeaders(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // 10 login attempts per IP per minute
-  const { limited } = rateLimit(req, 10, 60 * 1000);
+  // 10 login attempts per IP per minute (distributed via KV)
+  const { limited } = await rateLimit(req, 'rl:login', 10, 60 * 1000);
   if (limited) {
     return res.status(429).json({ error: 'Too many login attempts. Please wait a minute and try again.' });
   }
@@ -28,14 +28,28 @@ module.exports = async function handler(req, res) {
     .single();
 
   // Generic error — don't confirm whether email exists
-  const invalid = () => res.status(401).json({ error: 'Invalid email or password' });
+  const invalid = async () => res.status(401).json({ error: 'Invalid email or password' });
 
   if (error || !user) return invalid();
 
-  const match = await bcrypt.compare(password, user.password_hash);
-  if (!match) return invalid();
+  // Check account lockout before attempting password compare
+  const { locked, ttl } = await isLockedOut(user.id);
+  if (locked) {
+    const mins = Math.ceil(ttl / 60);
+    return res.status(423).json({
+      error: `Account temporarily locked due to too many failed attempts. Try again in ${mins} minute${mins !== 1 ? 's' : ''}.`,
+    });
+  }
 
-  // Fetch the user's plan
+  const match = await bcrypt.compare(password, user.password_hash);
+  if (!match) {
+    await recordFailedLogin(user.id);
+    return invalid();
+  }
+
+  // Successful login — clear any lockout counter
+  await clearLockout(user.id);
+
   const { data: sub } = await supabase
     .from('subscriptions')
     .select('plan, status, current_period_end')
