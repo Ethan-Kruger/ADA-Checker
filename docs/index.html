@@ -12,12 +12,43 @@
       document.documentElement.setAttribute('data-font-size',s);
     })();
   </script>
-  <link rel="preload" href="css/styles.css" as="style">
+  <style>
+    @font-face{font-family:'Lexend';src:url('fonts/lexend-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:fallback}
+    @font-face{font-family:'Lexend';src:url('fonts/lexend-bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:fallback}
+    @font-face{font-family:'Atkinson Hyperlegible';src:url('fonts/atkinson-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:fallback}
+    @font-face{font-family:'Atkinson Hyperlegible';src:url('fonts/atkinson-bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:fallback}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--app-font:system-ui,-apple-system,sans-serif}
+    html[data-font="lexend"]{--app-font:'Lexend',system-ui,sans-serif}
+    html[data-font="atkinson"]{--app-font:'Atkinson Hyperlegible',system-ui,sans-serif}
+    html[data-font="arial"]{--app-font:Arial,sans-serif}
+    html[data-font="verdana"]{--app-font:Verdana,sans-serif}
+    html[data-font="comic-sans"]{--app-font:'Comic Sans MS','Comic Sans',cursive}
+    html{font-size:100%;background:#0d0d0d}
+    html[data-font-size="small"]{font-size:87.5%}
+    html[data-font-size="large"]{font-size:112.5%}
+    html[data-font-size="xlarge"]{font-size:125%}
+    body{background:#0d2b6e;color:#e2e8f0;font-family:var(--app-font);max-width:960px;margin:0 auto;padding:0 1.5rem 3rem;min-height:100vh;line-height:1.6}
+    .site-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:60px;margin-left:-1.5rem;margin-right:-1.5rem;padding:0 1.5rem;background:#060e1a;border-bottom:1px solid rgba(255,255,255,0.07);overflow:visible}
+    .nav-logo{display:flex;align-items:center;gap:.625rem;text-decoration:none;color:#fff;font-weight:700;font-size:1.0625rem}
+    .nav-logo img{flex-shrink:0;display:block}
+    .nav-links{display:flex;align-items:center;gap:.25rem;position:absolute;left:50%;transform:translateX(-50%)}
+    .nav-link{display:inline-flex;align-items:center;padding:.4rem 1rem;border-radius:6px;font-size:.9375rem;font-weight:500;text-decoration:none;color:rgba(255,255,255,0.7)}
+    .nav-link.active{color:#fff;background:rgba(255,255,255,0.1)}
+    .hamburger-wrapper{position:relative;display:flex;align-items:center;gap:.5rem}
+    .hamburger-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;width:46px;height:42px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;color:#e2e8f0}
+    .nav-signup-btn{display:flex;align-items:center;padding:0 1rem;height:36px;border-radius:8px;background:#6366f1;color:#fff;font-size:.875rem;font-weight:600;cursor:pointer;border:none;white-space:nowrap}
+    .page-header{padding:2rem 0 1.5rem;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:2rem}
+    .page-header h1{font-size:1.75rem;margin-bottom:.375rem}
+    .page-header p{color:#94a3b8;font-size:.9375rem}
+    .skip-link{position:absolute;top:-100%;left:0}
+  </style>
+  <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
   <link rel="preload" href="fonts/lexend-regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/lexend-bold.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="js/nav.js" as="script">
   <link rel="preload" href="js/auth.js" as="script">
-  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="checker">
 
