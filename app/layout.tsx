@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AuthGate from '@/components/AuthGate';
-import Banner from '@/components/Banner';
-import { authGateEnabled } from '@/lib/flags';
+import { authGateEnabled, bannerMessage } from '@/lib/flags';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const gateEnabled = await authGateEnabled();
+  const [gateEnabled, banner] = await Promise.all([authGateEnabled(), bannerMessage()]);
 
   return (
     <html lang="en">
@@ -27,8 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
-        <Banner />
-        <AuthGate enabled={gateEnabled}>
+        <AuthGate enabled={gateEnabled} banner={banner}>
           {children}
         </AuthGate>
         <Analytics />

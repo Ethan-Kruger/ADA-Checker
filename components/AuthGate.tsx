@@ -12,9 +12,11 @@ interface User {
 export default function AuthGate({
   children,
   enabled = true,
+  banner = '',
 }: {
   children: React.ReactNode;
   enabled?: boolean;
+  banner?: string;
 }) {
   const [user, setUser] = useState<User | null>(null);
   const [checked, setChecked] = useState(false);
@@ -127,5 +129,14 @@ export default function AuthGate({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {banner && (
+        <div className="site-banner" role="status" aria-live="polite">
+          <span className="site-banner-text">{banner}</span>
+        </div>
+      )}
+      {children}
+    </>
+  );
 }
