@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 export default function CheckerPage() {
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
 
       <header className="page-header">
@@ -20,8 +19,9 @@ export default function CheckerPage() {
       </header>
 
       <main id="main-content">
-        {/* Live region for screen readers */}
-        <div role="status" aria-live="polite" id="live-region" className="sr-only" />
+        {/* Live region for screen readers — aria-atomic ensures the full
+            message is always read as one unit, not just the changed portion */}
+        <div role="status" aria-live="polite" aria-atomic="true" id="live-region" className="sr-only" />
 
         <section aria-labelledby="input-heading">
           <h2 id="input-heading">HTML to Check</h2>
@@ -65,7 +65,7 @@ export default function CheckerPage() {
                 </div>
               </div>
               <div id="wcag-upgrade-toast" className="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert" />
-              <p id="html-input-error" className="input-error-msg" hidden role="alert" aria-live="polite" />
+              <p id="html-input-error" className="input-error-msg" hidden role="alert" />
               <div className="textarea-wrapper">
                 <textarea
                   id="html-input"
@@ -117,7 +117,7 @@ export default function CheckerPage() {
                     </select>
                   </div>
                 </div>
-                <p id="url-input-error" className="input-error-msg" hidden role="alert" aria-live="polite" />
+                <p id="url-input-error" className="input-error-msg" hidden role="alert" />
                 <p id="url-note" className="field-note">
                   Note: URL fetching may be blocked by CORS restrictions.
                   If the request fails, paste the page&rsquo;s HTML source into the <strong>Paste HTML</strong> tab instead.
@@ -154,7 +154,7 @@ export default function CheckerPage() {
                     <textarea className="batch-textarea" rows={6} placeholder="Paste HTML for page 1…" spellCheck={false} />
                   </div>
                 </div>
-                <p id="batch-input-error" className="input-error-msg" hidden role="alert" aria-live="polite" />
+                <p id="batch-input-error" className="input-error-msg" hidden role="alert" />
                 <div className="batch-actions">
                   <button type="button" id="batch-add-btn" className="batch-add-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

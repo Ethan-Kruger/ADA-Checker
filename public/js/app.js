@@ -296,17 +296,21 @@
     var exportSection = document.getElementById('export-section');
     if (exportSection) exportSection.hidden = false;
 
+    // Announce result count BEFORE moving focus so the live region message
+    // is queued and read after the heading announcement, not missed.
+    if (liveRegion) {
+      liveRegion.textContent =
+        'Check complete. Found ' + result.summary.total +
+        ' violation' + (result.summary.total !== 1 ? 's' : '') +
+        '. Score: ' + result.score + ' out of 100. WCAG Level ' + (result.level || 'A') + '.';
+    }
+
     resultsSection.hidden = false;
     resultsHeading.focus();
 
     saveToHistory(result);
     window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
     updateUsageCounter();
-
-    liveRegion.textContent =
-      'Check complete. Found ' + result.summary.total +
-      ' violation' + (result.summary.total !== 1 ? 's' : '') +
-      '. Score: ' + result.score + ' out of 100. WCAG Level ' + (result.level || 'A') + '.';
   }
 
   // ─── Input error helpers ──────────────────────────────────────────────────────

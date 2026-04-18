@@ -26,6 +26,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
+        {/* Skip link rendered before AuthGate so it is always server-rendered
+            and is the first focusable element regardless of auth state */}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <AuthGate enabled={gateEnabled} banner={banner}>
           {children}
         </AuthGate>

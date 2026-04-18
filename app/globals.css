@@ -326,7 +326,7 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 .field-note {
   margin-top: 0.5rem;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.5;
 }
 .field-note code {
@@ -802,7 +802,7 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
 }
 
 #score-number { font-size: 2.25rem; font-weight: 700; line-height: 1; }
-.score-label  { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+.score-label  { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
 
 .score-legend { display: flex; gap: 1rem; font-size: 0.75rem; }
 .legend-item  { display: flex; align-items: center; gap: 0.3rem; }

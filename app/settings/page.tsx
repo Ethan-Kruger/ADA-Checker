@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 export default function SettingsPage() {
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
 
       <main id="main-content" className="settings-main">

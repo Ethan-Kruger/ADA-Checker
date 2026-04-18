@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
 
       <main id="main-content">
