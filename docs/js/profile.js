@@ -16,7 +16,7 @@
 
   function showPanel(id) {
     panels.forEach(function (p) {
-      p.hidden = p.id !== 'panel-' + id;
+      p.classList.toggle('active', p.id === 'panel-' + id);
     });
     navItems.forEach(function (btn) {
       btn.classList.toggle('active', btn.dataset.panel === id);

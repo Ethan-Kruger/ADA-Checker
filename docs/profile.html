@@ -220,24 +220,24 @@
               <input type="text" id="profile-display-name" class="custom-rule-input" placeholder="Your name" autocomplete="name">
             </div>
             <button type="button" id="save-name-btn" class="settings-save-btn" style="margin-top:.75rem">Save Name</button>
-            <p id="save-name-msg" class="form-msg form-msg--success" hidden></p>
+            <p id="save-name-msg" class="form-msg form-msg--success"></p>
           </div>
         </section>
 
         <!-- PAYMENT HISTORY -->
-        <section class="settings-panel" id="panel-payment-history" aria-labelledby="panel-payment-title" hidden>
+        <section class="settings-panel" id="panel-payment-history" aria-labelledby="panel-payment-title">
           <h2 class="panel-title" id="panel-payment-title">Payment History</h2>
           <p class="panel-subtitle">Your past Stripe invoices.</p>
 
           <div class="settings-card">
             <p id="invoices-loading" class="history-empty">Loading invoices…</p>
-            <p id="invoices-empty" class="history-empty" hidden>No invoices yet. Invoices appear here after your first paid subscription.</p>
+            <p id="invoices-empty" class="history-empty">No invoices yet. Invoices appear here after your first paid subscription.</p>
             <div id="invoices-list" class="invoices-list" aria-live="polite"></div>
           </div>
         </section>
 
         <!-- SECURITY -->
-        <section class="settings-panel" id="panel-security" aria-labelledby="panel-security-title" hidden>
+        <section class="settings-panel" id="panel-security" aria-labelledby="panel-security-title">
           <h2 class="panel-title" id="panel-security-title">Security</h2>
           <p class="panel-subtitle">Change your password.</p>
 
@@ -256,14 +256,14 @@
                 <label for="confirm-password">Confirm New Password</label>
                 <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Repeat new password" required>
               </div>
-              <p id="change-password-msg" class="form-msg" hidden></p>
+              <p id="change-password-msg" class="form-msg"></p>
               <button type="submit" id="change-password-btn" class="settings-save-btn" style="margin-top:1rem">Update Password</button>
             </form>
           </div>
         </section>
 
         <!-- PRIVACY POLICY -->
-        <section class="settings-panel" id="panel-privacy" aria-labelledby="panel-privacy-title" hidden>
+        <section class="settings-panel" id="panel-privacy" aria-labelledby="panel-privacy-title">
           <h2 class="panel-title" id="panel-privacy-title">Privacy Policy</h2>
           <p class="panel-subtitle">Last updated: January 1, 2026</p>
 
@@ -289,7 +289,7 @@
         </section>
 
         <!-- TERMS OF USE -->
-        <section class="settings-panel" id="panel-terms" aria-labelledby="panel-terms-title" hidden>
+        <section class="settings-panel" id="panel-terms" aria-labelledby="panel-terms-title">
           <h2 class="panel-title" id="panel-terms-title">Terms of Use</h2>
           <p class="panel-subtitle">Last updated: January 1, 2026</p>
 
