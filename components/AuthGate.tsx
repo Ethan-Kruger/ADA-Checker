@@ -22,12 +22,20 @@ export default function AuthGate({
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem('ada-user');
       if (raw) setUser(JSON.parse(raw));
     } catch {}
+
+    // Suppress banner on the first load after sign-in / sign-up
+    if (sessionStorage.getItem('ada-just-authed')) {
+      setShowBanner(false);
+      sessionStorage.removeItem('ada-just-authed');
+    }
+
     setChecked(true);
   }, []);
 
@@ -131,7 +139,7 @@ export default function AuthGate({
 
   return (
     <>
-      {banner && (
+      {banner && showBanner && (
         <div className="site-banner" role="status" aria-live="polite">
           <span className="site-banner-text">{banner}</span>
         </div>

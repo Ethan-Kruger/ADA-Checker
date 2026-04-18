@@ -43,6 +43,7 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
       localStorage.setItem('ada-token', data.token);
       localStorage.setItem('ada-user', JSON.stringify(data.user));
       localStorage.setItem('ada-plan', data.plan || 'free');
+      sessionStorage.setItem('ada-just-authed', '1');
       onSuccess(data.user);
       window.location.reload();
     } catch (err) {
