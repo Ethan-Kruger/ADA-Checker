@@ -32,33 +32,33 @@ export default function CheckerPage() {
               <button role="tab" id="tab-paste" aria-selected="true" aria-controls="panel-paste" tabIndex={0}>
                 Paste HTML
               </button>
-              <button role="tab" id="tab-url" aria-selected="false" aria-controls="panel-url" tabIndex={-1}
-                      title="URL checking requires the Pro plan">
+              <button role="tab" id="tab-url" aria-selected="false" aria-controls="panel-url" tabIndex={-1}>
                 Enter URL
                 <svg className="tab-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
+                <span className="sr-only">(requires Pro plan)</span>
               </button>
-              <button role="tab" id="tab-batch" aria-selected="false" aria-controls="panel-batch" tabIndex={-1}
-                      title="Batch checking requires the Pro plan">
+              <button role="tab" id="tab-batch" aria-selected="false" aria-controls="panel-batch" tabIndex={-1}>
                 Batch
                 <svg className="tab-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
+                <span className="sr-only">(requires Pro plan)</span>
               </button>
             </div>
 
             {/* Paste tab */}
             <div role="tabpanel" id="panel-paste" aria-labelledby="tab-paste">
               <div className="checker-input-header">
-                <label htmlFor="html-input">Paste HTML code:</label>
+                <label htmlFor="html-input" id="html-input-label">Paste HTML code:</label>
                 <div className="wcag-level-wrap">
                   <label htmlFor="main-wcag-level" className="wcag-level-label">WCAG Level</label>
                   <div className="wcag-select-wrap">
                     <select id="main-wcag-level" className="wcag-level-select" aria-describedby="main-wcag-hint">
                       <option value="A">A — Free</option>
-                      <option value="AA">AA — Pro 🔒</option>
-                      <option value="AAA">AAA — Enterprise 🔒</option>
+                      <option value="AA">AA — Pro (locked)</option>
+                      <option value="AAA">AAA — Enterprise (locked)</option>
                     </select>
                   </div>
                   <span id="main-wcag-hint" className="sr-only">Level AA requires Pro plan. Level AAA requires Enterprise plan.</span>
@@ -72,6 +72,7 @@ export default function CheckerPage() {
                   rows={12}
                   placeholder={'<img src="photo.png">'}
                   spellCheck={false}
+                  aria-labelledby="html-input-label"
                   aria-describedby="html-hint"
                 />
                 <div className="checker-switcher-wrap">
