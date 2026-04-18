@@ -3,47 +3,6 @@
    (reuses .settings-* layout classes from settings.css)
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── Override settings.css overlay panel behaviour ──────────────────────────
-   settings.css makes .settings-panel a position:fixed slide-in overlay.
-   On the profile page panels must be static inline content, not overlays.  */
-body[data-page="profile"] .settings-content {
-  display: block;        /* not flex/centred — panels stack normally */
-  align-items: unset;
-  justify-content: unset;
-  padding: 2rem 1.5rem;
-}
-
-body[data-page="profile"] .settings-panel {
-  position: static  !important;
-  transform: none   !important;
-  transition: none  !important;
-  box-shadow: none  !important;
-  border-left: none !important;
-  background: transparent !important;
-  padding: 0        !important;
-  pointer-events: auto !important;
-  overflow: visible !important;
-  /* hidden by default — JS adds .active to show the chosen panel */
-  display: none;
-}
-
-body[data-page="profile"] .settings-panel.active {
-  display: block;
-}
-
-/* Panel title / subtitle — restore normal flow spacing */
-body[data-page="profile"] .panel-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #f1f5f9;
-  margin-bottom: 0.25rem;
-}
-
-body[data-page="profile"] .panel-subtitle {
-  color: #64748b;
-  font-size: 0.9375rem;
-  margin-bottom: 1.5rem;
-}
 
 /* ── Account panel — identity card ──────────────────────────────────────────── */
 .profile-identity-card {
