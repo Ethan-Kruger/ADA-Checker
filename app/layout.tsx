@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AuthGate from '@/components/AuthGate';
+import Banner from '@/components/Banner';
+import { authGateEnabled } from '@/lib/flags';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
   description: 'Check any HTML for WCAG 2.1 violations — runs entirely in your browser.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const gateEnabled = await authGateEnabled();
+
   return (
     <html lang="en">
       <head>
@@ -23,7 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <AuthGate>
+        <Banner />
+        <AuthGate enabled={gateEnabled}>
           {children}
         </AuthGate>
         <Analytics />

@@ -9,7 +9,13 @@ interface User {
   email: string;
 }
 
-export default function AuthGate({ children }: { children: React.ReactNode }) {
+export default function AuthGate({
+  children,
+  enabled = true,
+}: {
+  children: React.ReactNode;
+  enabled?: boolean;
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +28,9 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     } catch {}
     setChecked(true);
   }, []);
+
+  // Auth gate disabled via feature flag — let everyone through
+  if (!enabled) return <>{children}</>;
 
   // Avoid flash of wrong content during hydration
   if (!checked) return null;

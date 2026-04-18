@@ -3719,6 +3719,24 @@ body[data-page="profile"] .panel-header {
   border: 0;
 }
 
+/* ── Announcement Banner ───────────────────────────────────────────────────── */
+.site-banner {
+  width: 100%;
+  background: #312e81;
+  color: #e0e7ff;
+  text-align: center;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(165, 180, 252, 0.2);
+}
+
+.site-banner-text {
+  display: block;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 /* ── Welcome / Auth Gate ───────────────────────────────────────────────────── */
 .welcome-gate {
   display: flex;
