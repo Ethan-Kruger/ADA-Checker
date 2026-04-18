@@ -42,9 +42,7 @@
     });
 
     // Panel-specific side effects
-    if (panelId === 'account')          initAccount();
-    if (panelId === 'payment-history')  loadInvoices();
-    if (panelId === 'security')         initSecurity();
+    if (panelId === 'profile')          initProfilePanel();
     if (panelId === 'history')          renderHistory();
     if (panelId === 'checker')          updateCheckerRateUI();
     if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'enterprise');
@@ -117,6 +115,47 @@
     resetBtn.addEventListener('click', function () {
       applyFontSize('medium');
       applyFont('system');
+    });
+  }
+
+  // ─── Profile panel — inner sub-nav ───────────────────────────────────────
+  var profileInited = false;
+  function initProfilePanel() {
+    if (profileInited) return;
+    profileInited = true;
+
+    var subPanels    = Array.from(document.querySelectorAll('.profile-sub-panel'));
+    var subNavItems  = Array.from(document.querySelectorAll('.profile-sub-nav-item'));
+    var subPlaceholder = document.getElementById('profile-sub-placeholder');
+
+    function openSubPanel(id) {
+      subPanels.forEach(function (p) { p.classList.remove('active'); });
+      var p = document.getElementById('sub-panel-' + id);
+      if (p) p.classList.add('active');
+      if (subPlaceholder) subPlaceholder.style.display = 'none';
+      subNavItems.forEach(function (b) {
+        b.classList.toggle('active', b.dataset.subPanel === id);
+      });
+      if (id === 'account')          initAccount();
+      if (id === 'payment-history')  loadInvoices();
+      if (id === 'security')         initSecurity();
+    }
+
+    function closeSubPanel() {
+      subPanels.forEach(function (p) { p.classList.remove('active'); });
+      if (subPlaceholder) subPlaceholder.style.display = '';
+      subNavItems.forEach(function (b) { b.classList.remove('active'); });
+    }
+
+    subNavItems.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.dataset.subPanel;
+        if (btn.classList.contains('active')) {
+          closeSubPanel();
+        } else {
+          openSubPanel(id);
+        }
+      });
     });
   }
 
