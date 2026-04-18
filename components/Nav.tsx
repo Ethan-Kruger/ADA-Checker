@@ -86,7 +86,8 @@ export default function Nav() {
               className={`nav-profile-bubble${profileOpen ? ' is-open' : ''}`}
               ref={profileRef}
               aria-label={`Account: ${user.email}`}
-              title={user.email}
+              aria-haspopup="true"
+              aria-expanded={profileOpen}
               role="button"
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); setProfileOpen((o) => !o); }}

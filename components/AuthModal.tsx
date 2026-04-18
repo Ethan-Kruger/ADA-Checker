@@ -21,8 +21,27 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Focus the first input when the modal opens
+    document.getElementById('ada-email')?.focus();
+
+    // Trap focus inside the modal and handle Escape
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab') return;
+      const box = document.querySelector('.ada-auth-box') as HTMLElement;
+      if (!box) return;
+      const focusable = Array.from(
+        box.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(el => !el.closest('[hidden]'));
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
@@ -68,7 +87,7 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
         <h2 className="ada-auth-title" id="ada-auth-title">
           {isSignup ? 'Create account' : 'Sign in'}
         </h2>
-        {error && <p className="ada-auth-error">{error}</p>}
+        {error && <p className="ada-auth-error" role="alert">{error}</p>}
         <form id="ada-auth-form" onSubmit={handleSubmit} noValidate>
           <label htmlFor="ada-email">Email</label>
           <input

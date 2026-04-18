@@ -34,7 +34,7 @@ export default function PricingPage() {
               <li>HTML paste only</li>
               <li>Email support</li>
             </ul>
-            <a href="/" className="pricing-btn btn-outline">Get Started</a>
+            <a href="/" className="pricing-btn btn-outline" aria-label="Get started with the Free plan">Get Started</a>
           </article>
 
           {/* Pro tier (featured) */}
@@ -55,7 +55,7 @@ export default function PricingPage() {
               <li>Priority email support</li>
               <li>Downloadable PDF reports</li>
             </ul>
-            <button type="button" className="pricing-btn btn-primary" data-checkout="pro">
+            <button type="button" className="pricing-btn btn-primary" data-checkout="pro" aria-label="Get started with the Pro plan">
               Get Started
             </button>
           </article>
@@ -77,7 +77,7 @@ export default function PricingPage() {
               <li>Dedicated account manager</li>
               <li>SLA guarantee</li>
             </ul>
-            <button type="button" className="pricing-btn btn-outline" data-checkout="enterprise">
+            <button type="button" className="pricing-btn btn-outline" data-checkout="enterprise" aria-label="Contact sales for the Enterprise plan">
               Contact Sales
             </button>
           </article>

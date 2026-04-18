@@ -1090,7 +1090,7 @@ input[aria-invalid="true"] {
   line-height: 1;
 }
 .price-custom { font-size: 1.875rem; }
-.price-period { font-size: 0.9375rem; color: #64748b; }
+.price-period { font-size: 0.9375rem; color: #94a3b8; }
 
 .feature-list {
   list-style: none;
@@ -1148,7 +1148,7 @@ input[aria-invalid="true"] {
 .pricing-note {
   text-align: center;
   padding: 1.25rem 0 2.5rem;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.9rem;
 }
 
@@ -1172,20 +1172,28 @@ input[aria-invalid="true"] {
   flex-wrap: wrap;
   justify-content: center;
 }
-.footer-links a {
-  color: #64748b;
+.footer-links a,
+.footer-links button {
+  color: #94a3b8;
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.15s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
-.footer-links a:hover { color: #93c5fd; }
-.footer-links a:focus-visible {
+.footer-links a:hover,
+.footer-links button:hover { color: #93c5fd; }
+.footer-links a:focus-visible,
+.footer-links button:focus-visible {
   outline: 2px solid #a5b4fc;
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-.footer-copy { color: #475569; font-size: 0.8125rem; }
+.footer-copy { color: #94a3b8; font-size: 0.8125rem; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HAMBURGER MENU (shared across all pages)
