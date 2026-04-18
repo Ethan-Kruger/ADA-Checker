@@ -94,6 +94,10 @@
       btn.setAttribute('aria-expanded', String(on));
     });
 
+    // Refresh profile showcase when the profile panel is opened
+    if (panelId === 'profile' && typeof initProfilePanel === 'function') {
+      initProfilePanel();
+    }
     // Re-render history when the history panel is opened
     if (panelId === 'history' && typeof renderHistory === 'function') {
       renderHistory();
@@ -207,21 +211,67 @@
   }
 
   // ─── Profile ──────────────────────────────────────────────────────────────
-  var profileName   = document.getElementById('profile-name');
-  var profileEmail  = document.getElementById('profile-email');
-  var saveProfileBtn = document.getElementById('save-profile-btn');
+  function initProfilePanel() {
+    var user = (function () {
+      try { return JSON.parse(localStorage.getItem('ada-user')); } catch (e) { return null; }
+    }());
+    var plan = localStorage.getItem('ada-plan') || 'free';
 
-  if (profileName)  profileName.value  = localStorage.getItem('ada-profile-name')  || '';
-  if (profileEmail) profileEmail.value = localStorage.getItem('ada-profile-email') || '';
+    // Showcase — avatar initial, email, plan badge
+    var avatarEl    = document.getElementById('settings-profile-avatar');
+    var initialEl   = document.getElementById('settings-avatar-initial');
+    var nameEl      = document.getElementById('settings-showcase-name');
+    var emailEl     = document.getElementById('settings-showcase-email');
+    var planEl      = document.getElementById('settings-plan-display');
 
-  if (saveProfileBtn) {
-    saveProfileBtn.addEventListener('click', function () {
-      if (profileName)  localStorage.setItem('ada-profile-name',  profileName.value);
-      if (profileEmail) localStorage.setItem('ada-profile-email', profileEmail.value);
-      saveProfileBtn.textContent = 'Saved!';
-      setTimeout(function () { saveProfileBtn.textContent = 'Save Profile'; }, 2000);
+    if (user) {
+      var initial = (user.email || '?')[0].toUpperCase();
+      if (initialEl) initialEl.textContent = initial;
+      if (avatarEl)  avatarEl.dataset.initial = initial;
+      var displayName = localStorage.getItem('ada-profile-name') || '';
+      if (nameEl) nameEl.textContent  = displayName || 'No display name set';
+      if (emailEl) emailEl.textContent = user.email || '';
+    } else {
+      if (initialEl) initialEl.textContent = '?';
+      if (nameEl)    nameEl.textContent    = 'Not signed in';
+      if (emailEl)   emailEl.textContent   = '';
+    }
+
+    if (planEl) {
+      var planLabel = plan === 'enterprise' ? 'Enterprise' : plan === 'pro' ? 'Pro' : 'Free';
+      planEl.textContent = planLabel + ' Plan';
+    }
+
+    // Editable display name
+    var profileName    = document.getElementById('profile-name');
+    var saveProfileBtn = document.getElementById('save-profile-btn');
+    var saveMsg        = document.getElementById('settings-profile-save-msg');
+
+    if (profileName) profileName.value = localStorage.getItem('ada-profile-name') || '';
+
+    if (saveProfileBtn) {
+      // Remove any previous listener by replacing the node
+      var newBtn = saveProfileBtn.cloneNode(true);
+      saveProfileBtn.parentNode.replaceChild(newBtn, saveProfileBtn);
+      newBtn.addEventListener('click', function () {
+        var name = profileName ? profileName.value.trim() : '';
+        localStorage.setItem('ada-profile-name', name);
+        if (nameEl) nameEl.textContent = name || 'No display name set';
+        if (saveMsg) { saveMsg.hidden = false; }
+        setTimeout(function () { if (saveMsg) saveMsg.hidden = true; }, 3000);
+      });
+    }
+
+    // Quick-links: store target panel in sessionStorage before navigating
+    var moreLinks = document.querySelectorAll('.profile-more-link[data-panel-target]');
+    moreLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        sessionStorage.setItem('profile-panel', link.dataset.panelTarget);
+      });
     });
   }
+
+  initProfilePanel();
 
   // ─── History ──────────────────────────────────────────────────────────────
   var historyList    = document.getElementById('history-list');

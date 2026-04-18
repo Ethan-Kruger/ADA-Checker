@@ -1315,6 +1315,10 @@ input[aria-invalid="true"] {
   outline: 2px solid #a5b4fc;
   outline-offset: -2px;
 }
+.hamburger-menu-item--active {
+  background: rgba(79,79,191,0.2);
+  color: #a5b4fc;
+}
 
 /* ── Dropdown divider & brightness slider ───────────────────────────────── */
 .dropdown-divider {
