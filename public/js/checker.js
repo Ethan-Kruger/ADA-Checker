@@ -284,7 +284,9 @@ function renderResults(violations, listEl) {
 
 window.renderResults = renderResults;
 
-// your existing (function () { 'use strict'; ... }()); should follow below
+}()); // end initCheckerUI
+
+// Accessibility engine — runs at top level so it's always available.
 (function () {
   'use strict';
 
@@ -1115,6 +1117,4 @@ window.renderResults = renderResults;
     return { score: result.score, violations: result.violations };
   };
 
-}()); // end IIFE
-
-}()); // end initCheckerUI
+}()); // end engine IIFE
