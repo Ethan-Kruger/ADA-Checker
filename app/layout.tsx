@@ -8,6 +8,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'ADA Accessibility Checker',
   description: 'Check any HTML for WCAG 2.1 violations — runs entirely in your browser.',
+  icons: { icon: '/images/logo.svg' },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -343,7 +343,7 @@ export default function CheckerPage() {
       <Footer />
 
       {/* Load auth script first, then lazily load checker */}
-      <Script src="/js/auth.js" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=4" strategy="afterInteractive" />
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
           var loaded = false;
@@ -351,10 +351,10 @@ export default function CheckerPage() {
             if (loaded) return;
             loaded = true;
             var s1 = document.createElement('script');
-            s1.src = '/js/checker.js';
+            s1.src = '/js/checker.js?v=4';
             s1.onload = function () {
               var s2 = document.createElement('script');
-              s2.src = '/js/app.js';
+              s2.src = '/js/app.js?v=4';
               document.head.appendChild(s2);
             };
             document.head.appendChild(s1);
