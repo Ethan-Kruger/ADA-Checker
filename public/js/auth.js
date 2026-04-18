@@ -291,21 +291,16 @@
   // Expose to other scripts
   window.adaAuth = { signup, login, logout, startCheckout, showAuthModal, syncPlan, getUser, getToken };
 
-  // Sync plan from API then update nav
-  syncPlan().then(updateNav);
+  // Sync plan from API — nav is handled by the React Nav component, skip updateNav()
+  syncPlan();
 
-  // Wire up any [data-checkout] buttons (e.g. on pricing.html)
+  // Wire up any [data-checkout] buttons (e.g. on pricing page)
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-checkout]');
     if (btn) {
       e.preventDefault();
       startCheckout(btn.dataset.checkout);
     }
-  });
-
-  // Re-run updateNav on client-side navigation (profile bubble stays correct)
-  window.addEventListener('ada-navigate', function () {
-    updateNav();
   });
 
   // Handle ?upgrade=success — re-sync the plan after Stripe redirects back
