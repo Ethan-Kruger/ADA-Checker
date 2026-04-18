@@ -13,15 +13,12 @@ interface User {
 
 export default function Nav() {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Determine current page for active nav link and hamburger link hiding
   const page = pathname === '/' ? 'checker' : pathname.slice(1).split('/')[0];
 
   useEffect(() => {
@@ -31,21 +28,14 @@ export default function Nav() {
     } catch {}
   }, []);
 
-  // Close menu on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setProfileOpen(false);
       }
     }
     function handleKeydown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setMenuOpen(false);
-        setProfileOpen(false);
-      }
+      if (e.key === 'Escape') setProfileOpen(false);
     }
     document.addEventListener('click', handleClick);
     document.addEventListener('keydown', handleKeydown);
@@ -84,15 +74,13 @@ export default function Nav() {
               key={l.key}
               href={l.href}
               className={`nav-link${page === l.key ? ' active' : ''}`}
-              id={`desktop-nav-${l.key}`}
             >
               {l.label}
             </Link>
           ))}
         </div>
 
-        <div className="hamburger-wrapper" id="hamburger-wrapper" ref={wrapperRef}>
-          {/* Auth widget */}
+        <div className="nav-auth">
           {user ? (
             <div
               className={`nav-profile-bubble${profileOpen ? ' is-open' : ''}`}
@@ -121,42 +109,6 @@ export default function Nav() {
               Sign Up
             </button>
           )}
-
-          <button
-            className="hamburger-btn"
-            id="hamburger-btn"
-            aria-label="Open menu"
-            aria-expanded={menuOpen}
-            aria-haspopup="true"
-            onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-          >
-            <svg width="20" height="14" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true">
-              <rect width="20" height="2" rx="1" />
-              <rect y="6" width="20" height="2" rx="1" />
-              <rect y="12" width="20" height="2" rx="1" />
-            </svg>
-          </button>
-
-          <div
-            className={`hamburger-dropdown${menuOpen ? ' is-open' : ''}`}
-            id="hamburger-dropdown"
-            role="menu"
-            aria-label="Site menu"
-          >
-            {navLinks
-              .filter((l) => l.key !== page)
-              .map((l) => (
-                <Link
-                  key={l.key}
-                  href={l.href}
-                  className="hamburger-menu-item"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {l.label}
-                </Link>
-              ))}
-          </div>
         </div>
       </nav>
 
@@ -173,4 +125,3 @@ export default function Nav() {
     </>
   );
 }
-

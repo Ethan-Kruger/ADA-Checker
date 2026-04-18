@@ -78,6 +78,9 @@
     return levelAllowed(v) ? v : 'A';
   }
 
+  // ─── Track which tab ran the last check ─────────────────────────────────────
+  var lastCheckedTabId = null;
+
   // ─── Tab switching (ARIA tablist pattern) ────────────────────────────────────
   function activateTab(tab) {
     tabs.forEach(function (t) {
@@ -88,6 +91,12 @@
       if (panel) panel.hidden = !active;
     });
     tab.focus();
+    // Hide results when switching to a tab that didn't run the check
+    if (resultsSection && lastCheckedTabId && tab.id !== lastCheckedTabId) {
+      resultsSection.hidden = true;
+    } else if (resultsSection && lastCheckedTabId && tab.id === lastCheckedTabId) {
+      resultsSection.hidden = false;
+    }
     // Re-evaluate locks whenever the active tab changes so the check button
     // visibility stays in sync (URL tab locked → hide button; batch tab → always hide button)
     applyTabLocks();
@@ -265,6 +274,10 @@
   // ─── Display results ──────────────────────────────────────────────────────────
   function displayResults(result) {
     _lastResult = result;
+
+    // Record which tab triggered this check so we can hide results on tab switch
+    var activeTab = tabs.find(function (t) { return t.getAttribute('aria-selected') === 'true'; });
+    lastCheckedTabId = activeTab ? activeTab.id : null;
 
     ['critical', 'serious', 'moderate', 'minor'].forEach(function (s) {
       document.getElementById('count-' + s).textContent = result.summary[s];

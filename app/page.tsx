@@ -358,13 +358,20 @@ export default function CheckerPage() {
             };
             document.head.appendChild(s1);
           }
-          ['html-input', 'check-btn', 'tab-paste', 'tab-url', 'tab-batch'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) {
-              el.addEventListener('click', loadChecker, { once: true });
-              el.addEventListener('focus', loadChecker, { once: true });
+          // Use event delegation so we catch clicks even if AuthGate hasn't
+          // rendered the checker elements yet when this script first runs.
+          document.addEventListener('click', function onCheckerClick(e) {
+            if (e.target.closest('#check-btn, #tab-paste, #tab-url, #tab-batch, #html-input, #batch-check-btn')) {
+              document.removeEventListener('click', onCheckerClick);
+              loadChecker();
             }
           });
+          document.addEventListener('focus', function onCheckerFocus(e) {
+            if (e.target.closest('#html-input, #url-input')) {
+              document.removeEventListener('focus', onCheckerFocus, true);
+              loadChecker();
+            }
+          }, true);
           if (window.requestIdleCallback) {
             requestIdleCallback(loadChecker, { timeout: 8000 });
           } else {

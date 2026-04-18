@@ -219,16 +219,22 @@ body {
 }
 .nav-link:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; border-radius: 6px; }
 
-/* Hide nav page links from hamburger dropdown on desktop */
-@media (min-width: 640px) {
-  #nav-checker-link,
-  #nav-pricing-link,
-  #nav-settings-link { display: none; }
+/* Nav auth widget container (right side) */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Hide desktop nav links on mobile */
+/* Shrink nav link text on small screens so it fits next to the logo and auth widget */
 @media (max-width: 639px) {
-  .nav-links { display: none; }
+  .nav-links {
+    gap: 0;
+  }
+  .nav-link {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8125rem;
+  }
 }
 
 /* ── Page header (hero below nav) ──────────────────────────────────────────── */
