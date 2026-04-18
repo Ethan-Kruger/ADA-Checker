@@ -277,7 +277,7 @@ function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
         {error && (
           <p className="ada-auth-error">{error}</p>
         )}
-        <form onSubmit={handleSubmit} noValidate>
+        <form id="ada-auth-form" onSubmit={handleSubmit} noValidate>
           <label htmlFor="ada-email">Email</label>
           <input
             id="ada-email"

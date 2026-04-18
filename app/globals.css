@@ -1237,8 +1237,20 @@ input[aria-invalid="true"] {
   padding: 0.4rem 0.75rem;
   font-size: 0.8rem;
   color: rgba(255,255,255,0.5);
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 }
+.nav-profile-edit {
+  display: block;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  text-decoration: none;
+  border-radius: 6px;
+}
+.nav-profile-edit:hover { background: rgba(255,255,255,0.07); color: #fff; }
 .nav-profile-signout {
   width: 100%;
   text-align: left;
@@ -3333,7 +3345,7 @@ input[type="color"]:focus-visible {
 
 .invoices-header {
   display: grid;
-  grid-template-columns: 100px 1fr 80px 70px 70px;
+  grid-template-columns: 100px minmax(0, 1fr) 80px 70px 70px;
   gap: 1rem;
   padding: 0 0.75rem 0.5rem;
   font-size: 0.7rem;
@@ -3344,6 +3356,7 @@ input[type="color"]:focus-visible {
   border-bottom: 1px solid rgba(255,255,255,0.06);
   margin-bottom: 0.25rem;
 }
+.invoices-header span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .invoices-list {
   display: flex;
