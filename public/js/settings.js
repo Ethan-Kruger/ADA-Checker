@@ -671,6 +671,23 @@
     });
   }
 
+  // ─── Brightness slider ────────────────────────────────────────────────────
+  var brightnessSlider = document.getElementById('brightness-slider');
+  var brightnessValue  = document.getElementById('brightness-value');
+
+  if (brightnessSlider) {
+    var savedBrightness = parseInt(localStorage.getItem('ada-brightness') || '100', 10);
+    brightnessSlider.value = String(savedBrightness);
+    if (brightnessValue) brightnessValue.textContent = savedBrightness + '%';
+
+    brightnessSlider.addEventListener('input', function () {
+      var val = parseInt(brightnessSlider.value, 10);
+      document.documentElement.style.filter = val === 100 ? '' : 'brightness(' + (val / 100) + ')';
+      localStorage.setItem('ada-brightness', String(val));
+      if (brightnessValue) brightnessValue.textContent = val + '%';
+    });
+  }
+
   // ─── Re-init when SPA navigates to settings ───────────────────────────────
   window.addEventListener('ada-navigate', function (e) {
     if (e.detail.page !== 'settings') return;

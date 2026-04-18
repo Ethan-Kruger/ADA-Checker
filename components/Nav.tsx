@@ -14,7 +14,6 @@ interface User {
 export default function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [brightness, setBrightness] = useState(100);
   const [user, setUser] = useState<User | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -26,12 +25,6 @@ export default function Nav() {
   const page = pathname === '/' ? 'checker' : pathname.slice(1).split('/')[0];
 
   useEffect(() => {
-    const saved = parseInt(localStorage.getItem('ada-brightness') || '100', 10);
-    setBrightness(saved);
-    if (saved !== 100) {
-      document.documentElement.style.filter = `brightness(${saved / 100})`;
-    }
-
     try {
       const raw = localStorage.getItem('ada-user');
       if (raw) setUser(JSON.parse(raw));
@@ -61,12 +54,6 @@ export default function Nav() {
       document.removeEventListener('keydown', handleKeydown);
     };
   }, []);
-
-  function handleBrightness(val: number) {
-    setBrightness(val);
-    document.documentElement.style.filter = val === 100 ? '' : `brightness(${val / 100})`;
-    localStorage.setItem('ada-brightness', String(val));
-  }
 
   function logout() {
     localStorage.removeItem('ada-token');
@@ -169,32 +156,6 @@ export default function Nav() {
                   {l.label}
                 </Link>
               ))}
-            <hr className="dropdown-divider" />
-            <div className="brightness-control">
-              <label htmlFor="brightness-slider">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-                Brightness
-              </label>
-              <input
-                type="range"
-                id="brightness-slider"
-                min={50}
-                max={150}
-                value={brightness}
-                aria-label="Adjust page brightness"
-                onChange={(e) => handleBrightness(parseInt(e.target.value, 10))}
-              />
-            </div>
           </div>
         </div>
       </nav>

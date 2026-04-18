@@ -1346,6 +1346,24 @@ input[aria-invalid="true"] {
   gap: 0.4rem;
 }
 
+.brightness-control--settings {
+  padding: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brightness-control--settings #brightness-slider {
+  flex: 1;
+}
+
+#brightness-value {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  min-width: 3rem;
+  text-align: right;
+}
+
 .brightness-control label {
   display: flex;
   align-items: center;
