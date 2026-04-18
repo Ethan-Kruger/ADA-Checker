@@ -12,59 +12,17 @@
     try { return JSON.parse(localStorage.getItem('ada-user')); } catch (e) { return null; }
   }());
 
-  // ── Sidebar right-edge → CSS custom property (same as settings.js) ───────────
-  var sidebar = document.querySelector('.settings-sidebar');
-
-  function syncSidebarRight() {
-    if (!sidebar) return;
-    var r = sidebar.getBoundingClientRect();
-    document.documentElement.style.setProperty('--sidebar-right', r.right + 'px');
-  }
-  syncSidebarRight();
-  window.addEventListener('resize', syncSidebarRight);
-
-  // ── Backdrop ──────────────────────────────────────────────────────────────────
-  var backdrop = document.createElement('div');
-  backdrop.className = 'panel-backdrop';
-  backdrop.id = 'profile-backdrop';
-  document.body.appendChild(backdrop);
-
-  // ── Inject close buttons into every panel header (same as settings.js) ────────
-  var closeSVG =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<line x1="18" y1="6" x2="6" y2="18"></line>' +
-    '<line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
+  // ── Panel references ──────────────────────────────────────────────────────────
   var panels   = Array.from(document.querySelectorAll('.settings-panel'));
   var navItems = Array.from(document.querySelectorAll('.settings-nav-item[data-panel]'));
 
-  panels.forEach(function (panel) {
-    var heading = panel.querySelector('.panel-title');
-    if (!heading) return;
-
-    var header = document.createElement('div');
-    header.className = 'panel-header';
-    heading.parentNode.insertBefore(header, heading);
-    header.appendChild(heading);
-
-    var closeBtn = document.createElement('button');
-    closeBtn.type      = 'button';
-    closeBtn.className = 'panel-close-btn';
-    closeBtn.setAttribute('aria-label', 'Close panel');
-    closeBtn.innerHTML = closeSVG;
-    header.appendChild(closeBtn);
-
-    closeBtn.addEventListener('click', function () {
-      closePanel(panel.id.replace('panel-', ''));
-    });
-  });
-
-  // ── Inject the "select a section" placeholder (same as settings.js) ───────────
+  // ── Inject the "select a section" placeholder ─────────────────────────────────
   var contentArea = document.querySelector('.settings-content');
+  var placeholder;
   if (contentArea) {
-    var placeholder = document.createElement('div');
+    placeholder = document.createElement('div');
     placeholder.className = 'settings-placeholder';
+    placeholder.id = 'profile-placeholder';
     placeholder.setAttribute('aria-hidden', 'true');
     placeholder.innerHTML =
       '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
@@ -79,77 +37,58 @@
   var activePanel = null;
 
   function openPanel(panelId) {
-    syncSidebarRight();
     var panel = document.getElementById('panel-' + panelId);
     if (!panel) return;
 
-    if (activePanel && activePanel !== panel) {
-      activePanel.classList.remove('active');
-      activePanel.removeAttribute('role');
-      activePanel.removeAttribute('aria-modal');
-    }
-
+    // Hide all panels, show the target
+    panels.forEach(function (p) { p.classList.remove('active'); });
     panel.classList.add('active');
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-modal', 'true');
-    backdrop.classList.add('visible');
     activePanel = panel;
 
+    // Hide placeholder
+    if (placeholder) placeholder.style.display = 'none';
+
+    // Update nav active state
     navItems.forEach(function (btn) {
       var on = btn.dataset.panel === panelId;
       btn.classList.toggle('active', on);
-      btn.setAttribute('aria-expanded', String(on));
+      btn.setAttribute('aria-selected', String(on));
     });
 
-    // Side-effects when specific panels open
+    // Lazy-init panel content
     if (panelId === 'payment-history') loadInvoices();
     if (panelId === 'account')         initAccount();
     if (panelId === 'security')        initSecurity();
 
-    var closeBtn = panel.querySelector('.panel-close-btn');
-    if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 50);
-
     sessionStorage.setItem('profile-panel', panelId);
   }
 
-  function closePanel(returnToPanelId) {
-    panels.forEach(function (p) {
-      p.classList.remove('active');
-      p.removeAttribute('role');
-      p.removeAttribute('aria-modal');
-    });
-    backdrop.classList.remove('visible');
+  function closePanel() {
+    panels.forEach(function (p) { p.classList.remove('active'); });
+    activePanel = null;
+
+    // Show placeholder again
+    if (placeholder) placeholder.style.display = '';
+
     navItems.forEach(function (btn) {
       btn.classList.remove('active');
-      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-selected', 'false');
     });
-    if (returnToPanelId) {
-      var navBtn = document.querySelector('[data-panel="' + returnToPanelId + '"]');
-      if (navBtn) navBtn.focus();
-    }
-    activePanel = null;
+
     sessionStorage.removeItem('profile-panel');
   }
 
-  // ── Nav button clicks (toggle, same as settings.js) ──────────────────────────
+  // ── Nav button clicks (toggle) ────────────────────────────────────────────────
   navItems.forEach(function (btn) {
-    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-selected', 'false');
     btn.addEventListener('click', function () {
       var panelId = btn.dataset.panel;
       if (btn.classList.contains('active')) {
-        closePanel(panelId);
+        closePanel();
       } else {
         openPanel(panelId);
       }
     });
-  });
-
-  backdrop.addEventListener('click', function () {
-    if (activePanel) closePanel(activePanel.id.replace('panel-', ''));
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && activePanel) closePanel(activePanel.id.replace('panel-', ''));
   });
 
   // Re-open the last-used panel (e.g. coming from settings quick-links)
@@ -162,17 +101,17 @@
     if (accountInited) return;
     accountInited = true;
 
-    var avatarEl    = document.getElementById('profile-avatar-initials');
+    var avatarEl     = document.getElementById('profile-avatar-initials');
     var identityName = document.getElementById('profile-identity-name');
-    var emailEl     = document.getElementById('profile-email-display');
-    var sinceEl     = document.getElementById('profile-member-since');
-    var planBadge   = document.getElementById('profile-plan-badge');
-    var planName    = document.getElementById('profile-plan-name');
-    var planDesc    = document.getElementById('profile-plan-desc');
-    var upgradeLink = document.getElementById('profile-upgrade-link');
-    var nameInput   = document.getElementById('profile-display-name');
-    var saveBtn     = document.getElementById('save-name-btn');
-    var saveMsg     = document.getElementById('save-name-msg');
+    var emailEl      = document.getElementById('profile-email-display');
+    var sinceEl      = document.getElementById('profile-member-since');
+    var planBadge    = document.getElementById('profile-plan-badge');
+    var planName     = document.getElementById('profile-plan-name');
+    var planDesc     = document.getElementById('profile-plan-desc');
+    var upgradeLink  = document.getElementById('profile-upgrade-link');
+    var nameInput    = document.getElementById('profile-display-name');
+    var saveBtn      = document.getElementById('save-name-btn');
+    var saveMsg      = document.getElementById('save-name-msg');
 
     var plan        = localStorage.getItem('ada-plan') || 'free';
     var displayName = localStorage.getItem('ada-profile-name') || '';
@@ -301,11 +240,11 @@
       else if (ua.indexOf('Safari')  > -1 && ua.indexOf('Chrome') < 0) browser = 'Safari';
 
       var os = 'Unknown OS';
-      if      (ua.indexOf('Windows') > -1)                         os = 'Windows';
-      else if (ua.indexOf('Mac')     > -1)                         os = 'macOS';
-      else if (ua.indexOf('Android') > -1)                         os = 'Android';
-      else if (ua.indexOf('iPhone')  > -1 || ua.indexOf('iPad') > -1) os = 'iOS';
-      else if (ua.indexOf('Linux')   > -1)                         os = 'Linux';
+      if      (ua.indexOf('Windows') > -1)                              os = 'Windows';
+      else if (ua.indexOf('Mac')     > -1)                              os = 'macOS';
+      else if (ua.indexOf('Android') > -1)                              os = 'Android';
+      else if (ua.indexOf('iPhone')  > -1 || ua.indexOf('iPad') > -1)  os = 'iOS';
+      else if (ua.indexOf('Linux')   > -1)                              os = 'Linux';
 
       deviceEl.textContent = browser + ' on ' + os;
     }
@@ -322,11 +261,11 @@
 
     function scorePassword(pw) {
       var score = 0;
-      if (pw.length >= 8)              score++;
-      if (pw.length >= 12)             score++;
-      if (/[A-Z]/.test(pw))            score++;
-      if (/[0-9]/.test(pw))            score++;
-      if (/[^A-Za-z0-9]/.test(pw))    score++;
+      if (pw.length >= 8)           score++;
+      if (pw.length >= 12)          score++;
+      if (/[A-Z]/.test(pw))         score++;
+      if (/[0-9]/.test(pw))         score++;
+      if (/[^A-Za-z0-9]/.test(pw))  score++;
       return score;
     }
 
