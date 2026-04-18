@@ -45,7 +45,96 @@ body[data-page="profile"] .panel-subtitle {
   margin-bottom: 1.5rem;
 }
 
-/* ── Account panel ───────────────────────────────────────────────────────────── */
+/* ── Account panel — identity card ──────────────────────────────────────────── */
+.profile-identity-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.profile-identity-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.profile-identity-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-identity-email {
+  font-size: 0.9rem;
+  color: #64748b;
+  word-break: break-all;
+}
+
+.profile-identity-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.profile-identity-since {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+/* Plan row */
+.profile-plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profile-plan-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.125rem;
+}
+
+.profile-plan-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.profile-upgrade-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4375rem 1rem;
+  border-radius: 6px;
+  background: #4f4fbf;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.profile-upgrade-btn:hover { background: #3d3daa; }
+.profile-upgrade-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+.panel-section-desc {
+  font-size: 0.8125rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  margin-top: -0.375rem;
+}
+
+/* ── Legacy account card (keep for safety) ───────────────────────────────────── */
 .profile-account-card {
   display: flex;
   align-items: center;
@@ -132,46 +221,255 @@ body[data-page="profile"] .panel-subtitle {
 }
 
 /* ── Payment history ─────────────────────────────────────────────────────────── */
+.profile-demo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(234,179,8,0.1);
+  border: 1px solid rgba(234,179,8,0.25);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: #fde68a;
+  margin-bottom: 0.875rem;
+  line-height: 1.5;
+}
+.profile-demo-banner svg { flex-shrink: 0; margin-top: 1px; color: #fbbf24; }
+
+.profile-loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.profile-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(165,180,252,0.2);
+  border-top-color: #a5b4fc;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.invoices-header {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px 70px 70px;
+  gap: 1rem;
+  padding: 0 0.75rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #475569;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 0.25rem;
+}
+
 .invoices-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .invoice-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 100px 1fr 80px 70px 70px;
   align-items: center;
   gap: 1rem;
   padding: 0.625rem 0.75rem;
-  background: rgba(255,255,255,0.04);
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  transition: background 0.12s;
 }
+.invoice-row:hover { background: rgba(255,255,255,0.04); }
 
-.invoice-date   { color: #94a3b8; }
+.invoice-date   { color: #64748b; font-size: 0.8rem; }
+.invoice-desc   { color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .invoice-amount { font-weight: 600; color: #e2e8f0; }
+.invoice-no-pdf { color: #334155; }
 
 .invoice-status {
-  font-size: 0.75rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
 }
 
-.invoice-status--paid   { background: rgba(34,197,94,0.15); color: #86efac; }
-.invoice-status--open   { background: rgba(234,179,8,0.15);  color: #fde047; }
+.invoice-status--paid   { background: rgba(34,197,94,0.15);  color: #86efac; }
+.invoice-status--open   { background: rgba(234,179,8,0.15);   color: #fde047; }
 .invoice-status--void,
 .invoice-status--uncollectible { background: rgba(100,116,139,0.2); color: #94a3b8; }
 
 .invoice-pdf-link {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #a5b4fc;
   text-decoration: none;
   white-space: nowrap;
 }
 .invoice-pdf-link:hover { text-decoration: underline; }
+
+.profile-billing-note {
+  font-size: 0.8rem;
+  color: #475569;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+/* ── Password strength ───────────────────────────────────────────────────────── */
+.password-strength-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.password-strength-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.password-strength-fill.strength-weak   { background: #ef4444; }
+.password-strength-fill.strength-fair   { background: #f59e0b; }
+.password-strength-fill.strength-strong { background: #22c55e; }
+
+.password-strength-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+.password-strength-label.strength-weak   { color: #fca5a5; }
+.password-strength-label.strength-fair   { color: #fcd34d; }
+.password-strength-label.strength-strong { color: #86efac; }
+
+/* ── Active session card ─────────────────────────────────────────────────────── */
+.session-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.session-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(79,79,191,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a5b4fc;
+  flex-shrink: 0;
+}
+
+.session-info { flex: 1; }
+
+.session-device {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.session-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.125rem;
+}
+
+.session-current-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(34,197,94,0.15);
+  color: #86efac;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Password requirements list ──────────────────────────────────────────────── */
+.security-requirement-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.security-req {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.security-req svg {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+/* ── Danger zone ─────────────────────────────────────────────────────────────── */
+.danger-zone {
+  border-color: rgba(239,68,68,0.2) !important;
+  background: rgba(239,68,68,0.04) !important;
+}
+
+.danger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.danger-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fca5a5;
+  margin-bottom: 0.2rem;
+}
+
+.danger-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.danger-btn {
+  padding: 0.4375rem 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.4);
+  background: transparent;
+  color: #fca5a5;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.danger-btn:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+.danger-btn:focus-visible { outline: 2px solid #fca5a5; outline-offset: 2px; }
+.danger-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.profile-note {
+  font-size: 0.8rem;
+  color: #475569;
+}
 
 /* ── Policy panels ───────────────────────────────────────────────────────────── */
 .policy-card {

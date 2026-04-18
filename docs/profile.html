@@ -201,48 +201,92 @@
         <!-- ACCOUNT -->
         <section class="settings-panel" id="panel-account" aria-labelledby="panel-account-title">
           <h2 class="panel-title" id="panel-account-title">Account</h2>
-          <p class="panel-subtitle">Your account information.</p>
+          <p class="panel-subtitle">Your account details and display name.</p>
 
-          <div class="settings-card profile-account-card">
+          <!-- Identity card -->
+          <div class="settings-card profile-identity-card">
             <div class="profile-avatar-circle" aria-hidden="true">
               <span id="profile-avatar-initials">?</span>
             </div>
-            <div class="profile-account-email">
-              <span class="profile-label">Email</span>
-              <span id="profile-email-display" class="profile-value"></span>
+            <div class="profile-identity-info">
+              <div class="profile-identity-name" id="profile-identity-name">—</div>
+              <div class="profile-identity-email" id="profile-email-display"></div>
+              <div class="profile-identity-meta">
+                <span class="current-plan-badge" id="profile-plan-badge">Free Plan</span>
+                <span class="profile-identity-since" id="profile-member-since"></span>
+              </div>
             </div>
           </div>
 
+          <!-- Display name editor -->
           <div class="settings-card" style="margin-top:1rem">
             <p class="panel-section-title">Display Name</p>
+            <p class="panel-section-desc">Shown in your profile. Not your login email.</p>
             <div class="form-group">
               <label for="profile-display-name" class="sr-only">Display name</label>
               <input type="text" id="profile-display-name" class="custom-rule-input" placeholder="Your name" autocomplete="name">
             </div>
             <button type="button" id="save-name-btn" class="settings-save-btn" style="margin-top:.75rem">Save Name</button>
-            <p id="save-name-msg" class="form-msg form-msg--success"></p>
+            <p id="save-name-msg" class="form-msg form-msg--success" style="display:none"></p>
+          </div>
+
+          <!-- Plan info -->
+          <div class="settings-card" style="margin-top:1rem">
+            <p class="panel-section-title">Your Plan</p>
+            <div class="profile-plan-row">
+              <div id="profile-plan-details">
+                <div class="profile-plan-name" id="profile-plan-name">Free</div>
+                <div class="profile-plan-desc" id="profile-plan-desc">10 checks every 4 hours · Basic accessibility checks</div>
+              </div>
+              <a href="pricing.html" class="profile-upgrade-btn" id="profile-upgrade-link">Upgrade</a>
+            </div>
           </div>
         </section>
 
         <!-- PAYMENT HISTORY -->
         <section class="settings-panel" id="panel-payment-history" aria-labelledby="panel-payment-title">
           <h2 class="panel-title" id="panel-payment-title">Payment History</h2>
-          <p class="panel-subtitle">Your past Stripe invoices.</p>
+          <p class="panel-subtitle">Past invoices from your Stripe subscription.</p>
+
+          <!-- Demo banner — shown when displaying sample data -->
+          <div id="invoices-demo-banner" class="profile-demo-banner" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Sample data — you don't have any paid invoices yet. This is what your history will look like once you subscribe.
+          </div>
 
           <div class="settings-card">
-            <p id="invoices-loading" class="history-empty">Loading invoices…</p>
-            <p id="invoices-empty" class="history-empty">No invoices yet. Invoices appear here after your first paid subscription.</p>
+            <div id="invoices-loading" class="profile-loading-row" aria-live="polite">
+              <div class="profile-spinner" aria-hidden="true"></div>
+              Loading invoices…
+            </div>
+            <p id="invoices-empty" class="history-empty" style="display:none">No invoices found. Invoices appear here after your first paid subscription.</p>
+
+            <!-- Column headers -->
+            <div id="invoices-header" class="invoices-header" style="display:none">
+              <span>Date</span>
+              <span>Description</span>
+              <span>Amount</span>
+              <span>Status</span>
+              <span></span>
+            </div>
             <div id="invoices-list" class="invoices-list" aria-live="polite"></div>
           </div>
+
+          <p class="profile-billing-note">
+            Billing is managed through Stripe. For refund requests or billing disputes, contact
+            <a href="mailto:billing@adachecker.io" class="policy-link">billing@adachecker.io</a>.
+          </p>
         </section>
 
         <!-- SECURITY -->
         <section class="settings-panel" id="panel-security" aria-labelledby="panel-security-title">
           <h2 class="panel-title" id="panel-security-title">Security</h2>
-          <p class="panel-subtitle">Change your password.</p>
+          <p class="panel-subtitle">Password, sessions, and account safety.</p>
 
+          <!-- Change password -->
           <div class="settings-card">
             <p class="panel-section-title">Change Password</p>
+            <p class="panel-section-desc">Choose a strong password with at least 8 characters, one uppercase letter, and one number.</p>
             <form id="change-password-form" novalidate>
               <div class="form-group">
                 <label for="current-password">Current Password</label>
@@ -251,14 +295,69 @@
               <div class="form-group" style="margin-top:.75rem">
                 <label for="new-password">New Password</label>
                 <input type="password" id="new-password" autocomplete="new-password" placeholder="Min 8 chars, 1 uppercase, 1 number" required>
+                <div id="password-strength-bar" class="password-strength-bar" aria-hidden="true">
+                  <div id="password-strength-fill" class="password-strength-fill"></div>
+                </div>
+                <span id="password-strength-label" class="password-strength-label"></span>
               </div>
               <div class="form-group" style="margin-top:.75rem">
                 <label for="confirm-password">Confirm New Password</label>
                 <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Repeat new password" required>
               </div>
-              <p id="change-password-msg" class="form-msg"></p>
+              <p id="change-password-msg" class="form-msg" style="display:none"></p>
               <button type="submit" id="change-password-btn" class="settings-save-btn" style="margin-top:1rem">Update Password</button>
             </form>
+          </div>
+
+          <!-- Active session -->
+          <div class="settings-card" style="margin-top:1rem">
+            <p class="panel-section-title">Active Session</p>
+            <div class="session-row">
+              <div class="session-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-device" id="session-device">This browser</div>
+                <div class="session-meta" id="session-meta"></div>
+              </div>
+              <span class="session-current-badge">Current</span>
+            </div>
+            <p class="profile-note" style="margin-top:.75rem">Only one session is active at a time. Signing in on a new device invalidates previous sessions.</p>
+          </div>
+
+          <!-- Password requirements -->
+          <div class="settings-card" style="margin-top:1rem">
+            <p class="panel-section-title">Password Requirements</p>
+            <ul class="security-requirement-list">
+              <li class="security-req">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                At least 8 characters
+              </li>
+              <li class="security-req">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                At least one uppercase letter (A–Z)
+              </li>
+              <li class="security-req">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                At least one number (0–9)
+              </li>
+              <li class="security-req">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Never reuse a password from another site
+              </li>
+            </ul>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="settings-card danger-zone" style="margin-top:1rem">
+            <p class="panel-section-title" style="color:#f87171">Danger Zone</p>
+            <div class="danger-row">
+              <div class="danger-info">
+                <div class="danger-title">Delete Account</div>
+                <div class="danger-desc">Permanently delete your account and all associated data. This cannot be undone.</div>
+              </div>
+              <button type="button" id="delete-account-btn" class="danger-btn">Delete Account</button>
+            </div>
           </div>
         </section>
 
