@@ -46,7 +46,8 @@
   <!-- Full stylesheets load async — don't block first paint -->
   <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <link rel="preload" href="css/settings.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/settings.css"></noscript>
+  <link rel="preload" href="css/profile.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/settings.css"><link rel="stylesheet" href="css/profile.css"></noscript>
   <link rel="preload" href="fonts/lexend-regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/lexend-bold.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/atkinson-regular.ttf" as="font" type="font/ttf" crossorigin>
@@ -68,8 +69,7 @@
     <div class="nav-links" aria-label="Main navigation">
       <a href="index.html" class="nav-link" id="desktop-nav-checker">Checker</a>
       <a href="pricing.html" class="nav-link" id="desktop-nav-pricing">Pricing</a>
-      <a href="settings.html" class="nav-link" id="desktop-nav-settings">Settings</a>
-      <a href="profile.html" class="nav-link" id="desktop-nav-profile">Profile</a>
+      <a href="settings.html" class="nav-link active" id="desktop-nav-settings">Settings</a>
     </div>
     <div class="hamburger-wrapper" id="hamburger-wrapper">
       <button class="hamburger-btn" id="hamburger-btn"
@@ -100,13 +100,6 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
           Settings
-        </a>
-        <a href="profile.html" class="hamburger-menu-item" id="nav-profile-link" role="menuitem">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          Profile
         </a>
         <hr class="dropdown-divider">
         <div class="brightness-control">
@@ -146,12 +139,32 @@
             </li>
 
             <li>
-              <button class="settings-nav-item" data-panel="profile">
+              <button class="settings-nav-item" data-panel="account">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span>Profile</span>
+                <span>Account</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="payment-history">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span>Payment History</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="security">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Security</span>
               </button>
             </li>
             <li>
@@ -207,6 +220,27 @@
                 </svg>
                 <span>Team</span>
                 <span class="nav-tier-badge">ENT</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="privacy">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Privacy Policy</span>
+              </button>
+            </li>
+
+            <li>
+              <button class="settings-nav-item" data-panel="terms">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>Terms of Use</span>
               </button>
             </li>
 
@@ -300,103 +334,136 @@
           <p class="panel-pricing-note">All plans include WCAG 2.1 compliance checks. No credit card required for Free tier.</p>
         </section>
 
-        <!-- PROFILE -->
-        <section class="settings-panel" id="panel-profile" aria-labelledby="panel-profile-title">
-          <h2 class="panel-title" id="panel-profile-title">Profile</h2>
-          <p class="panel-subtitle">Your account at a glance.</p>
+        <!-- ACCOUNT -->
+        <section class="settings-panel" id="panel-account" aria-labelledby="panel-account-title">
+          <h2 class="panel-title" id="panel-account-title">Account</h2>
+          <p class="panel-subtitle">Your account details and display name.</p>
 
-          <!-- Profile showcase — avatar, email, plan -->
-          <div class="settings-card profile-showcase">
-            <div class="profile-showcase-avatar" id="settings-profile-avatar" aria-hidden="true">
-              <span id="settings-avatar-initial">?</span>
+          <div class="settings-card profile-identity-card">
+            <div class="profile-avatar-circle" aria-hidden="true">
+              <span id="profile-avatar-initials">?</span>
             </div>
-            <div class="profile-showcase-info">
-              <div class="profile-showcase-name" id="settings-showcase-name">—</div>
-              <div class="profile-showcase-email" id="settings-showcase-email">Not signed in</div>
-              <span class="current-plan-badge" id="settings-plan-display">Free</span>
+            <div class="profile-identity-info">
+              <div class="profile-identity-name" id="profile-identity-name">—</div>
+              <div class="profile-identity-email" id="profile-email-display"></div>
+              <div class="profile-identity-meta">
+                <span class="current-plan-badge" id="profile-plan-badge">Free Plan</span>
+                <span class="profile-identity-since" id="profile-member-since"></span>
+              </div>
             </div>
-            <a href="profile.html" class="profile-showcase-open-btn" aria-label="Open full profile page">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="7" y1="17" x2="17" y2="7"></line>
-                <polyline points="7 7 17 7 17 17"></polyline>
-              </svg>
-              Open Profile
-            </a>
           </div>
 
-          <!-- Editable display name -->
           <div class="settings-card" style="margin-top:1rem">
             <p class="panel-section-title">Display Name</p>
+            <p class="panel-section-desc">Shown in your profile. Not your login email.</p>
             <div class="form-group">
-              <label for="profile-name">Shown on your profile page</label>
-              <input type="text" id="profile-name" placeholder="Your name" autocomplete="name">
+              <label for="profile-display-name" class="sr-only">Display name</label>
+              <input type="text" id="profile-display-name" class="custom-rule-input" placeholder="Your name" autocomplete="name">
             </div>
-            <button type="button" class="settings-save-btn" id="save-profile-btn">Save Name</button>
-            <p id="settings-profile-save-msg" class="profile-note" hidden style="color:#86efac">Name saved.</p>
+            <button type="button" id="save-name-btn" class="settings-save-btn" style="margin-top:.75rem">Save Name</button>
+            <p id="save-name-msg" class="form-msg form-msg--success" style="display:none"></p>
           </div>
 
-          <!-- Quick-links to full profile page sections -->
           <div class="settings-card" style="margin-top:1rem">
-            <p class="panel-section-title">More Profile Options</p>
-            <div class="profile-more-links">
+            <p class="panel-section-title">Your Plan</p>
+            <div class="profile-plan-row">
+              <div>
+                <div class="profile-plan-name" id="profile-plan-name">Free</div>
+                <div class="profile-plan-desc" id="profile-plan-desc">10 checks every 4 hours · Basic accessibility checks</div>
+              </div>
+              <a href="pricing.html" class="profile-upgrade-btn" id="profile-upgrade-link">Upgrade</a>
+            </div>
+          </div>
+        </section>
 
-              <a href="profile.html" class="profile-more-link" data-panel-target="payment-history">
-                <div class="profile-more-link-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                    <line x1="2" y1="10" x2="22" y2="10"></line>
-                  </svg>
-                </div>
-                <div class="profile-more-link-body">
-                  <span class="profile-more-link-title">Payment History</span>
-                  <span class="profile-more-link-desc">View past invoices and receipts</span>
-                </div>
-                <svg class="profile-more-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </a>
+        <!-- PAYMENT HISTORY -->
+        <section class="settings-panel" id="panel-payment-history" aria-labelledby="panel-payment-title">
+          <h2 class="panel-title" id="panel-payment-title">Payment History</h2>
+          <p class="panel-subtitle">Past invoices from your Stripe subscription.</p>
 
-              <a href="profile.html" class="profile-more-link" data-panel-target="security">
-                <div class="profile-more-link-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                </div>
-                <div class="profile-more-link-body">
-                  <span class="profile-more-link-title">Security</span>
-                  <span class="profile-more-link-desc">Change your password</span>
-                </div>
-                <svg class="profile-more-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </a>
+          <div id="invoices-demo-banner" class="profile-demo-banner" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Sample data — you don't have any paid invoices yet. This is what your history will look like once you subscribe.
+          </div>
 
-              <a href="profile.html" class="profile-more-link" data-panel-target="privacy">
-                <div class="profile-more-link-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                </div>
-                <div class="profile-more-link-body">
-                  <span class="profile-more-link-title">Privacy Policy</span>
-                  <span class="profile-more-link-desc">How we handle your data</span>
-                </div>
-                <svg class="profile-more-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </a>
+          <div class="settings-card">
+            <div id="invoices-loading" class="profile-loading-row" aria-live="polite">
+              <div class="profile-spinner" aria-hidden="true"></div>
+              Loading invoices…
+            </div>
+            <p id="invoices-empty" class="history-empty" style="display:none">No invoices found. Invoices appear here after your first paid subscription.</p>
+            <div id="invoices-header" class="invoices-header" style="display:none">
+              <span>Date</span><span>Description</span><span>Amount</span><span>Status</span><span></span>
+            </div>
+            <div id="invoices-list" class="invoices-list" aria-live="polite"></div>
+          </div>
 
-              <a href="profile.html" class="profile-more-link" data-panel-target="terms">
-                <div class="profile-more-link-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                  </svg>
-                </div>
-                <div class="profile-more-link-body">
-                  <span class="profile-more-link-title">Terms of Use</span>
-                  <span class="profile-more-link-desc">Our terms and conditions</span>
-                </div>
-                <svg class="profile-more-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </a>
+          <p class="profile-billing-note">Billing is managed through Stripe. For refund requests or billing disputes, contact <a href="mailto:billing@adachecker.io" class="policy-link">billing@adachecker.io</a>.</p>
+        </section>
 
+        <!-- SECURITY -->
+        <section class="settings-panel" id="panel-security" aria-labelledby="panel-security-title">
+          <h2 class="panel-title" id="panel-security-title">Security</h2>
+          <p class="panel-subtitle">Password, sessions, and account safety.</p>
+
+          <div class="settings-card">
+            <p class="panel-section-title">Change Password</p>
+            <p class="panel-section-desc">Choose a strong password with at least 8 characters, one uppercase letter, and one number.</p>
+            <form id="change-password-form" novalidate>
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" autocomplete="current-password" placeholder="Your current password" required>
+              </div>
+              <div class="form-group" style="margin-top:.75rem">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" autocomplete="new-password" placeholder="Min 8 chars, 1 uppercase, 1 number" required>
+                <div id="password-strength-bar" class="password-strength-bar" aria-hidden="true">
+                  <div id="password-strength-fill" class="password-strength-fill"></div>
+                </div>
+                <span id="password-strength-label" class="password-strength-label"></span>
+              </div>
+              <div class="form-group" style="margin-top:.75rem">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Repeat new password" required>
+              </div>
+              <p id="change-password-msg" class="form-msg" style="display:none"></p>
+              <button type="submit" id="change-password-btn" class="settings-save-btn" style="margin-top:1rem">Update Password</button>
+            </form>
+          </div>
+
+          <div class="settings-card" style="margin-top:1rem">
+            <p class="panel-section-title">Active Session</p>
+            <div class="session-row">
+              <div class="session-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <div class="session-info">
+                <div class="session-device" id="session-device">This browser</div>
+                <div class="session-meta" id="session-meta"></div>
+              </div>
+              <span class="session-current-badge">Current</span>
+            </div>
+            <p class="profile-note" style="margin-top:.75rem">Only one session is active at a time. Signing in on a new device invalidates previous sessions.</p>
+          </div>
+
+          <div class="settings-card" style="margin-top:1rem">
+            <p class="panel-section-title">Password Requirements</p>
+            <ul class="security-requirement-list">
+              <li class="security-req"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>At least 8 characters</li>
+              <li class="security-req"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>At least one uppercase letter (A–Z)</li>
+              <li class="security-req"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>At least one number (0–9)</li>
+              <li class="security-req"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>Never reuse a password from another site</li>
+            </ul>
+          </div>
+
+          <div class="settings-card danger-zone" style="margin-top:1rem">
+            <p class="panel-section-title" style="color:#f87171">Danger Zone</p>
+            <div class="danger-row">
+              <div>
+                <div class="danger-title">Delete Account</div>
+                <div class="danger-desc">Permanently delete your account and all associated data. This cannot be undone.</div>
+              </div>
+              <button type="button" id="delete-account-btn" class="danger-btn">Delete Account</button>
             </div>
           </div>
         </section>
@@ -608,6 +675,50 @@ Content-Type: application/json</pre>
               <li>Track remediation progress across your site</li>
             </ul>
             <a href="pricing.html" class="plan-gate-link" style="margin-top:1.5rem">View Enterprise Plan</a>
+          </div>
+        </section>
+
+        <!-- PRIVACY POLICY -->
+        <section class="settings-panel" id="panel-privacy" aria-labelledby="panel-privacy-title">
+          <h2 class="panel-title" id="panel-privacy-title">Privacy Policy</h2>
+          <p class="panel-subtitle">Last updated: January 1, 2026</p>
+          <div class="settings-card policy-card">
+            <h3>Information We Collect</h3>
+            <p>We collect your email address when you create an account, and payment information is handled securely by Stripe. We do not store your credit card details.</p>
+            <h3>How We Use Your Information</h3>
+            <p>Your email is used to authenticate your account and send important service updates. Accessibility check results may be stored to power your check history feature.</p>
+            <h3>Data Storage</h3>
+            <p>Account data is stored securely in our database. Display name and font/theme preferences are stored locally in your browser and never sent to our servers.</p>
+            <h3>Third-Party Services</h3>
+            <p>We use <strong>Stripe</strong> for payment processing and <strong>Vercel</strong> for hosting. Each operates under their own privacy policy.</p>
+            <h3>Your Rights</h3>
+            <p>You may request deletion of your account and associated data at any time by contacting us.</p>
+            <h3>Contact</h3>
+            <p>Questions? Reach us at <a href="mailto:privacy@adachecker.io" class="policy-link">privacy@adachecker.io</a>.</p>
+          </div>
+        </section>
+
+        <!-- TERMS OF USE -->
+        <section class="settings-panel" id="panel-terms" aria-labelledby="panel-terms-title">
+          <h2 class="panel-title" id="panel-terms-title">Terms of Use</h2>
+          <p class="panel-subtitle">Last updated: January 1, 2026</p>
+          <div class="settings-card policy-card">
+            <h3>Acceptance of Terms</h3>
+            <p>By using ADA Checker you agree to these terms. If you do not agree, please discontinue use.</p>
+            <h3>Use of the Service</h3>
+            <p>ADA Checker is provided to help developers and content creators identify accessibility issues. Results are informational and do not constitute legal advice or a guarantee of compliance.</p>
+            <h3>Account Responsibilities</h3>
+            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account.</p>
+            <h3>Acceptable Use</h3>
+            <p>You may not use the service to check pages you do not own or have permission to audit, to attempt to reverse-engineer the service, or for any unlawful purpose.</p>
+            <h3>Paid Plans</h3>
+            <p>Paid subscriptions are billed monthly through Stripe. You may cancel at any time; access continues until the end of the billing period. Refunds are handled on a case-by-case basis.</p>
+            <h3>Limitation of Liability</h3>
+            <p>ADA Checker is provided "as is" without warranties of any kind. We are not liable for any damages arising from use of the service.</p>
+            <h3>Changes to Terms</h3>
+            <p>We reserve the right to update these terms at any time. Continued use of the service after changes constitutes acceptance.</p>
+            <h3>Contact</h3>
+            <p>Questions? Reach us at <a href="mailto:legal@adachecker.io" class="policy-link">legal@adachecker.io</a>.</p>
           </div>
         </section>
 

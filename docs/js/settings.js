@@ -1,61 +1,15 @@
 (function () {
   'use strict';
 
-  // ─── Sidebar position → CSS custom property ──────────────────────────────
-  // Panels are position:fixed and should start right where the sidebar ends.
-  var sidebar = document.querySelector('.settings-sidebar');
-
-  function syncSidebarRight() {
-    if (!sidebar) return;
-    var r = sidebar.getBoundingClientRect();
-    document.documentElement.style.setProperty('--sidebar-right', r.right + 'px');
-  }
-
-  syncSidebarRight();
-  window.addEventListener('resize', syncSidebarRight);
-
-  // ─── Create and inject backdrop ──────────────────────────────────────────
-  var backdrop = document.createElement('div');
-  backdrop.className = 'panel-backdrop';
-  backdrop.id = 'panel-backdrop';
-  document.body.appendChild(backdrop);
-
   // ─── Element references ───────────────────────────────────────────────────
   var panels   = Array.from(document.querySelectorAll('.settings-panel'));
   var navItems = Array.from(document.querySelectorAll('.settings-nav-item'));
 
-  // ─── Inject close buttons into each panel header ─────────────────────────
-  var closeSVG =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<line x1="18" y1="6" x2="6" y2="18"></line>' +
-    '<line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
-  panels.forEach(function (panel) {
-    var heading = panel.querySelector('.panel-title');
-    if (!heading) return;
-
-    var header = document.createElement('div');
-    header.className = 'panel-header';
-    heading.parentNode.insertBefore(header, heading);
-    header.appendChild(heading);
-
-    var closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'panel-close-btn';
-    closeBtn.setAttribute('aria-label', 'Close panel');
-    closeBtn.innerHTML = closeSVG;
-    header.appendChild(closeBtn);
-
-    closeBtn.addEventListener('click', function () {
-      closePanel(panel.id.replace('panel-', ''));
-    });
-  });
-
   // ─── Inject placeholder in the content area ──────────────────────────────
   var contentArea = document.querySelector('.settings-content');
+  var placeholder;
   if (contentArea) {
-    var placeholder = document.createElement('div');
+    placeholder = document.createElement('div');
     placeholder.className = 'settings-placeholder';
     placeholder.setAttribute('aria-hidden', 'true');
     placeholder.innerHTML =
@@ -72,99 +26,55 @@
   var activePanel = null;
 
   function openPanel(panelId) {
-    syncSidebarRight(); // refresh position before opening
     var panel = document.getElementById('panel-' + panelId);
     if (!panel) return;
 
-    if (activePanel && activePanel !== panel) {
-      activePanel.classList.remove('active');
-      activePanel.removeAttribute('role');
-      activePanel.removeAttribute('aria-modal');
-    }
-
+    panels.forEach(function (p) { p.classList.remove('active'); });
     panel.classList.add('active');
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-modal', 'true');
-    backdrop.classList.add('visible');
     activePanel = panel;
+
+    if (placeholder) placeholder.style.display = 'none';
 
     navItems.forEach(function (btn) {
       var on = btn.dataset.panel === panelId;
       btn.classList.toggle('active', on);
-      btn.setAttribute('aria-expanded', String(on));
+      btn.setAttribute('aria-selected', String(on));
     });
 
-    // Refresh profile showcase when the profile panel is opened
-    if (panelId === 'profile' && typeof initProfilePanel === 'function') {
-      initProfilePanel();
-    }
-    // Re-render history when the history panel is opened
-    if (panelId === 'history' && typeof renderHistory === 'function') {
-      renderHistory();
-    }
-    // Re-apply plan gates and rate UI when relevant panels open
-    if (panelId === 'checker' && typeof updateCheckerRateUI === 'function') {
-      updateCheckerRateUI();
-    }
-    if (panelId === 'api') {
-      applyPlanGate('api-gate', 'api-content', 'enterprise');
-    }
+    // Panel-specific side effects
+    if (panelId === 'account')          initAccount();
+    if (panelId === 'payment-history')  loadInvoices();
+    if (panelId === 'security')         initSecurity();
+    if (panelId === 'history')          renderHistory();
+    if (panelId === 'checker')          updateCheckerRateUI();
+    if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'enterprise');
     if (panelId === 'custom-rules') {
       applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
       if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
     }
-
-    // Focus the close button
-    var closeBtn = panel.querySelector('.panel-close-btn');
-    if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 50);
   }
 
-  function closePanel(returnToPanelId) {
-    panels.forEach(function (p) {
-      p.classList.remove('active');
-      p.removeAttribute('role');
-      p.removeAttribute('aria-modal');
-    });
-    backdrop.classList.remove('visible');
+  function closePanel() {
+    panels.forEach(function (p) { p.classList.remove('active'); });
+    activePanel = null;
+    if (placeholder) placeholder.style.display = '';
     navItems.forEach(function (btn) {
       btn.classList.remove('active');
-      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-selected', 'false');
     });
-
-    // Return focus to the triggering nav button
-    if (returnToPanelId) {
-      var navBtn = document.querySelector('[data-panel="' + returnToPanelId + '"]');
-      if (navBtn) navBtn.focus();
-    }
-
-    activePanel = null;
   }
 
   // ─── Nav button clicks ────────────────────────────────────────────────────
   navItems.forEach(function (btn) {
-    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-selected', 'false');
     btn.addEventListener('click', function () {
       var panelId = btn.dataset.panel;
       if (btn.classList.contains('active')) {
-        closePanel(panelId);
+        closePanel();
       } else {
         openPanel(panelId);
       }
     });
-  });
-
-  // ─── Backdrop click closes panel ──────────────────────────────────────────
-  backdrop.addEventListener('click', function () {
-    if (activePanel) {
-      closePanel(activePanel.id.replace('panel-', ''));
-    }
-  });
-
-  // ─── Escape key closes panel ──────────────────────────────────────────────
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && activePanel) {
-      closePanel(activePanel.id.replace('panel-', ''));
-    }
   });
 
   // ─── Text size ────────────────────────────────────────────────────────────
@@ -210,71 +120,277 @@
     });
   }
 
-  // ─── Profile ──────────────────────────────────────────────────────────────
-  function initProfilePanel() {
+  // ─── Account panel ────────────────────────────────────────────────────────
+  var accountInited = false;
+  function initAccount() {
+    if (accountInited) return;
+    accountInited = true;
+
     var user = (function () {
       try { return JSON.parse(localStorage.getItem('ada-user')); } catch (e) { return null; }
     }());
-    var plan = localStorage.getItem('ada-plan') || 'free';
 
-    // Showcase — avatar initial, email, plan badge
-    var avatarEl    = document.getElementById('settings-profile-avatar');
-    var initialEl   = document.getElementById('settings-avatar-initial');
-    var nameEl      = document.getElementById('settings-showcase-name');
-    var emailEl     = document.getElementById('settings-showcase-email');
-    var planEl      = document.getElementById('settings-plan-display');
+    var avatarEl     = document.getElementById('profile-avatar-initials');
+    var identityName = document.getElementById('profile-identity-name');
+    var emailEl      = document.getElementById('profile-email-display');
+    var sinceEl      = document.getElementById('profile-member-since');
+    var planBadge    = document.getElementById('profile-plan-badge');
+    var planName     = document.getElementById('profile-plan-name');
+    var planDesc     = document.getElementById('profile-plan-desc');
+    var upgradeLink  = document.getElementById('profile-upgrade-link');
+    var nameInput    = document.getElementById('profile-display-name');
+    var saveBtn      = document.getElementById('save-name-btn');
+    var saveMsg      = document.getElementById('save-name-msg');
+
+    var plan        = localStorage.getItem('ada-plan') || 'free';
+    var displayName = localStorage.getItem('ada-profile-name') || '';
+
+    var planMeta = {
+      free:       { label: 'Free Plan',      desc: '10 checks every 4 hours · Basic accessibility checks' },
+      pro:        { label: 'Pro Plan',        desc: 'Unlimited checks · URL checking · PDF reports' },
+      enterprise: { label: 'Enterprise Plan', desc: 'Everything in Pro · API access · Custom rules · Team collaboration' },
+    };
+    var meta = planMeta[plan] || planMeta.free;
 
     if (user) {
       var initial = (user.email || '?')[0].toUpperCase();
-      if (initialEl) initialEl.textContent = initial;
-      if (avatarEl)  avatarEl.dataset.initial = initial;
-      var displayName = localStorage.getItem('ada-profile-name') || '';
-      if (nameEl) nameEl.textContent  = displayName || 'No display name set';
-      if (emailEl) emailEl.textContent = user.email || '';
-    } else {
-      if (initialEl) initialEl.textContent = '?';
-      if (nameEl)    nameEl.textContent    = 'Not signed in';
-      if (emailEl)   emailEl.textContent   = '';
+      if (avatarEl)     avatarEl.textContent     = initial;
+      if (emailEl)      emailEl.textContent      = user.email || '';
+      if (identityName) identityName.textContent = displayName || 'No display name set';
+      if (sinceEl && user.created_at) {
+        var d = new Date(user.created_at);
+        sinceEl.textContent = 'Member since ' + d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+      }
     }
 
-    if (planEl) {
-      var planLabel = plan === 'enterprise' ? 'Enterprise' : plan === 'pro' ? 'Pro' : 'Free';
-      planEl.textContent = planLabel + ' Plan';
-    }
+    if (planBadge) planBadge.textContent = meta.label;
+    if (planName)  planName.textContent  = meta.label;
+    if (planDesc)  planDesc.textContent  = meta.desc;
+    if (upgradeLink) upgradeLink.style.display = plan === 'enterprise' ? 'none' : '';
+    if (nameInput)   nameInput.value = displayName;
 
-    // Editable display name
-    var profileName    = document.getElementById('profile-name');
-    var saveProfileBtn = document.getElementById('save-profile-btn');
-    var saveMsg        = document.getElementById('settings-profile-save-msg');
-
-    if (profileName) profileName.value = localStorage.getItem('ada-profile-name') || '';
-
-    if (saveProfileBtn) {
-      // Remove any previous listener by replacing the node
-      var newBtn = saveProfileBtn.cloneNode(true);
-      saveProfileBtn.parentNode.replaceChild(newBtn, saveProfileBtn);
-      newBtn.addEventListener('click', function () {
-        var name = profileName ? profileName.value.trim() : '';
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        var name = nameInput ? nameInput.value.trim() : '';
         localStorage.setItem('ada-profile-name', name);
-        if (nameEl) nameEl.textContent = name || 'No display name set';
-        if (saveMsg) { saveMsg.hidden = false; }
-        setTimeout(function () { if (saveMsg) saveMsg.hidden = true; }, 3000);
+        if (identityName) identityName.textContent = name || 'No display name set';
+        if (saveMsg) { saveMsg.style.display = ''; saveMsg.textContent = 'Name saved.'; }
+        setTimeout(function () { if (saveMsg) saveMsg.style.display = 'none'; }, 3000);
       });
     }
+  }
 
-    // Quick-links: store target panel in sessionStorage before navigating
-    var moreLinks = document.querySelectorAll('.profile-more-link[data-panel-target]');
-    moreLinks.forEach(function (link) {
-      link.addEventListener('click', function () {
-        sessionStorage.setItem('profile-panel', link.dataset.panelTarget);
-      });
+  // ─── Payment History panel ────────────────────────────────────────────────
+  var invoicesLoaded = false;
+
+  var SAMPLE_INVOICES = [
+    { date: 1743465600, amount: 1900, currency: 'usd', status: 'paid', description: 'Pro Plan — Monthly', pdf: null },
+    { date: 1740873600, amount: 1900, currency: 'usd', status: 'paid', description: 'Pro Plan — Monthly', pdf: null },
+    { date: 1738195200, amount: 1900, currency: 'usd', status: 'paid', description: 'Pro Plan — Monthly', pdf: null },
+  ];
+
+  function renderInvoices(list, isSample) {
+    var listEl   = document.getElementById('invoices-list');
+    var headerEl = document.getElementById('invoices-header');
+    var loadEl   = document.getElementById('invoices-loading');
+    var emptyEl  = document.getElementById('invoices-empty');
+    var bannerEl = document.getElementById('invoices-demo-banner');
+
+    if (loadEl)  loadEl.style.display  = 'none';
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (!listEl) return;
+
+    if (!list || list.length === 0) {
+      if (emptyEl) emptyEl.style.display = '';
+      return;
+    }
+
+    if (headerEl) headerEl.style.display = '';
+    if (bannerEl) bannerEl.style.display = isSample ? '' : 'none';
+
+    listEl.innerHTML = '';
+    list.forEach(function (inv) {
+      var date   = new Date(inv.date * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      var amount = (inv.amount / 100).toLocaleString('en-US', { style: 'currency', currency: (inv.currency || 'usd').toUpperCase() });
+      var statusLabel = inv.status.charAt(0).toUpperCase() + inv.status.slice(1);
+      var desc   = inv.description || 'Subscription';
+
+      var row = document.createElement('div');
+      row.className = 'invoice-row';
+      row.innerHTML =
+        '<span class="invoice-date">'   + date        + '</span>' +
+        '<span class="invoice-desc">'   + desc        + '</span>' +
+        '<span class="invoice-amount">' + amount      + '</span>' +
+        '<span class="invoice-status invoice-status--' + inv.status + '">' + statusLabel + '</span>' +
+        (inv.pdf
+          ? '<a class="invoice-pdf-link" href="' + inv.pdf + '" target="_blank" rel="noopener noreferrer">Receipt ↗</a>'
+          : '<span class="invoice-no-pdf">—</span>');
+      listEl.appendChild(row);
     });
   }
 
-  initProfilePanel();
+  function loadInvoices() {
+    if (invoicesLoaded) return;
+    invoicesLoaded = true;
+
+    var token = localStorage.getItem('ada-token');
+    if (!token) { renderInvoices(SAMPLE_INVOICES, true); return; }
+
+    fetch('/api/billing/invoices', {
+      headers: { 'Authorization': 'Bearer ' + token },
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.invoices && data.invoices.length > 0) {
+          renderInvoices(data.invoices, false);
+        } else {
+          renderInvoices(SAMPLE_INVOICES, true);
+        }
+      })
+      .catch(function () {
+        renderInvoices(SAMPLE_INVOICES, true);
+      });
+  }
+
+  // ─── Security panel ───────────────────────────────────────────────────────
+  var securityInited = false;
+  function initSecurity() {
+    if (securityInited) return;
+    securityInited = true;
+
+    var deviceEl = document.getElementById('session-device');
+    var metaEl   = document.getElementById('session-meta');
+
+    if (deviceEl) {
+      var ua = navigator.userAgent;
+      var browser = 'Unknown browser';
+      if      (ua.indexOf('Edg')     > -1)                              browser = 'Microsoft Edge';
+      else if (ua.indexOf('OPR')     > -1)                              browser = 'Opera';
+      else if (ua.indexOf('Chrome')  > -1)                              browser = 'Chrome';
+      else if (ua.indexOf('Firefox') > -1)                              browser = 'Firefox';
+      else if (ua.indexOf('Safari')  > -1 && ua.indexOf('Chrome') < 0) browser = 'Safari';
+
+      var os = 'Unknown OS';
+      if      (ua.indexOf('Windows') > -1)                             os = 'Windows';
+      else if (ua.indexOf('Mac')     > -1)                             os = 'macOS';
+      else if (ua.indexOf('Android') > -1)                             os = 'Android';
+      else if (ua.indexOf('iPhone')  > -1 || ua.indexOf('iPad') > -1) os = 'iOS';
+      else if (ua.indexOf('Linux')   > -1)                             os = 'Linux';
+
+      deviceEl.textContent = browser + ' on ' + os;
+    }
+
+    if (metaEl) {
+      var now = new Date();
+      metaEl.textContent = 'Signed in · ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    var newPassEl   = document.getElementById('new-password');
+    var strengthBar = document.getElementById('password-strength-fill');
+    var strengthLbl = document.getElementById('password-strength-label');
+
+    function scorePassword(pw) {
+      var score = 0;
+      if (pw.length >= 8)           score++;
+      if (pw.length >= 12)          score++;
+      if (/[A-Z]/.test(pw))         score++;
+      if (/[0-9]/.test(pw))         score++;
+      if (/[^A-Za-z0-9]/.test(pw))  score++;
+      return score;
+    }
+
+    if (newPassEl && strengthBar && strengthLbl) {
+      newPassEl.addEventListener('input', function () {
+        var pw = newPassEl.value;
+        if (!pw) {
+          strengthBar.style.width = '0';
+          strengthBar.className   = 'password-strength-fill';
+          strengthLbl.textContent = '';
+          strengthLbl.className   = 'password-strength-label';
+          return;
+        }
+        var score = scorePassword(pw);
+        var pct = (score / 5) * 100;
+        var cls = score <= 1 ? 'weak' : score <= 3 ? 'fair' : 'strong';
+        var lbl = score <= 1 ? 'Weak' : score <= 3 ? 'Fair' : 'Strong';
+        strengthBar.style.width = pct + '%';
+        strengthBar.className   = 'password-strength-fill strength-' + cls;
+        strengthLbl.textContent = lbl;
+        strengthLbl.className   = 'password-strength-label strength-' + cls;
+      });
+    }
+
+    var form = document.getElementById('change-password-form');
+    var msg  = document.getElementById('change-password-msg');
+
+    if (form) {
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var token     = localStorage.getItem('ada-token');
+        var currentEl = document.getElementById('current-password');
+        var newEl     = document.getElementById('new-password');
+        var confirmEl = document.getElementById('confirm-password');
+        var submitBtn = document.getElementById('change-password-btn');
+
+        if (msg) { msg.style.display = 'none'; msg.className = 'form-msg'; }
+
+        if (newEl.value !== confirmEl.value) {
+          if (msg) { msg.textContent = 'New passwords do not match.'; msg.className = 'form-msg form-msg--error'; msg.style.display = ''; }
+          return;
+        }
+
+        if (!token) {
+          if (msg) { msg.textContent = 'You must be signed in to change your password.'; msg.className = 'form-msg form-msg--error'; msg.style.display = ''; }
+          return;
+        }
+
+        submitBtn.disabled = true; submitBtn.textContent = 'Updating…';
+
+        try {
+          var res  = await fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ currentPassword: currentEl.value, newPassword: newEl.value }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Update failed');
+          if (msg) { msg.textContent = 'Password updated successfully.'; msg.className = 'form-msg form-msg--success'; msg.style.display = ''; }
+          form.reset();
+          if (strengthBar) { strengthBar.style.width = '0'; strengthBar.className = 'password-strength-fill'; }
+          if (strengthLbl) { strengthLbl.textContent = ''; strengthLbl.className = 'password-strength-label'; }
+        } catch (err) {
+          if (msg) { msg.textContent = err.message; msg.className = 'form-msg form-msg--error'; msg.style.display = ''; }
+        } finally {
+          submitBtn.disabled = false; submitBtn.textContent = 'Update Password';
+        }
+      });
+    }
+
+    var deleteBtn = document.getElementById('delete-account-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
+        if (!window.confirm('Are you sure you want to delete your account?\n\nThis will permanently erase your account, subscription, and all data. This cannot be undone.')) return;
+        var token = localStorage.getItem('ada-token');
+        deleteBtn.disabled = true; deleteBtn.textContent = 'Deleting…';
+        fetch('/api/auth/delete-account', {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token },
+        })
+          .then(function (res) {
+            if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Delete failed'); });
+            localStorage.clear(); sessionStorage.clear();
+            window.location.replace('index.html');
+          })
+          .catch(function (err) {
+            alert('Could not delete account: ' + err.message);
+            deleteBtn.disabled = false; deleteBtn.textContent = 'Delete Account';
+          });
+      });
+    }
+  }
 
   // ─── History ──────────────────────────────────────────────────────────────
-  var historyList    = document.getElementById('history-list');
+  var historyList     = document.getElementById('history-list');
   var clearHistoryBtn = document.getElementById('clear-history-btn');
 
   function escHTML(str) {
@@ -358,14 +474,12 @@
   window.selectPlan = function (plan) {
     localStorage.setItem('ada-plan', plan);
 
-    // Update "Your Current Plan" badge
     var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
     ['free', 'pro', 'enterprise'].forEach(function (p) {
       var badge = document.getElementById(badges[p]);
       if (badge) badge.hidden = p !== plan;
     });
 
-    // Re-apply all plan gates
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
     updateCheckerRateUI();
@@ -375,7 +489,6 @@
     alert('Plan set to ' + label + '. Features are now ' + (plan === 'free' ? 'restricted' : 'unlocked') + '. (Demo only — no real payment processed.)');
   };
 
-  // Show correct "Your Current Plan" badge on load
   (function () {
     var plan = typeof getUserPlan === 'function' ? getUserPlan() : 'free';
     var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
@@ -501,9 +614,9 @@
 
   if (addRuleBtn) {
     addRuleBtn.addEventListener('click', function () {
-      var sel = (ruleSelector  && ruleSelector.value.trim())  || '';
-      var msg = (ruleMessage   && ruleMessage.value.trim())   || '';
-      var sev = (ruleSeverity  && ruleSeverity.value)         || 'moderate';
+      var sel = (ruleSelector    && ruleSelector.value.trim())    || '';
+      var msg = (ruleMessage     && ruleMessage.value.trim())     || '';
+      var sev = (ruleSeverity    && ruleSeverity.value)           || 'moderate';
       var rem = (ruleRemediation && ruleRemediation.value.trim()) || '';
 
       if (!sel || !msg) {
@@ -533,14 +646,9 @@
     });
   }
 
-  // Re-initialize settings when navigating to settings page via router
+  // ─── Re-init when SPA navigates to settings ───────────────────────────────
   window.addEventListener('ada-navigate', function (e) {
     if (e.detail.page !== 'settings') return;
-    var newSidebar = document.querySelector('.settings-sidebar');
-    if (newSidebar) {
-      sidebar = newSidebar;
-      syncSidebarRight();
-    }
     if (typeof window.renderHistory === 'function') window.renderHistory();
     if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
   });
