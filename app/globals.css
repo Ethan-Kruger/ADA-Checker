@@ -279,7 +279,13 @@ h2:focus { outline: 2px solid #4f4fbf; outline-offset: 3px; border-radius: 2px; 
   border-bottom-color: #4f4fbf;
   background: rgba(79,79,191,0.15);
 }
-[role="tab"]:focus-visible { outline: 2px solid #a5b4fc; outline-offset: -2px; }
+[role="tab"]:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 3px;
+  border-radius: 4px 4px 0 0;
+  /* Suppress the browser default so only our indicator shows */
+  box-shadow: 0 0 0 1px rgba(165,180,252,0.25);
+}
 [role="tabpanel"] { padding: 1.25rem 0 0.5rem; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
