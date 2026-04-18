@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
+import AuthGate from '@/components/AuthGate';
 
 export const metadata: Metadata = {
   title: 'ADA Accessibility Checker',
@@ -13,6 +14,8 @@ export default function CheckerPage() {
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
+
+      <AuthGate>
 
       <header className="page-header">
         <h1>ADA Accessibility Checker</h1>
@@ -372,6 +375,8 @@ export default function CheckerPage() {
           }
         }());
       `}</Script>
+
+      </AuthGate>
     </>
   );
 }
