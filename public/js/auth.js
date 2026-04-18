@@ -107,6 +107,7 @@
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Checkout failed');
+      if (!data.url) throw new Error('Could not create checkout session. Please try again.');
       window.location.href = data.url;
     } catch (e) {
       alert(e.message);

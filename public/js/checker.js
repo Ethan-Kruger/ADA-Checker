@@ -139,7 +139,7 @@ function saveCustomRules(rules) {
   try { localStorage.setItem(CUSTOM_RULES_KEY, JSON.stringify(rules)); } catch (e) {}
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+(function initCheckerUI() {
   const htmlInput   = document.getElementById('html-input');
   const checkButton = document.getElementById('check-btn');
   const resultsList = document.getElementById('results-list');
@@ -206,6 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scoreEl) { scoreEl.hidden = false; scoreEl.textContent = 'Scanning\u2026'; }
 
     const level = (levelSelect && levelAllowed(levelSelect.value)) ? levelSelect.value : 'A';
+    if (typeof window.checkAccessibilityAsync !== 'function') {
+      checkButton.disabled = false;
+      checkButton.textContent = 'Run accessibility check';
+      if (scoreEl) { scoreEl.hidden = false; scoreEl.textContent = 'Checker not ready yet — please try again.'; }
+      return;
+    }
     window.checkAccessibilityAsync(html, level).then(function (result) {
     const violations = (result && result.violations) || [];
 
@@ -224,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     addHistoryEntry(result);
+    window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
 
     // Re-render the history tab if it's on the same page (settings.html)
     if (typeof window.renderHistory === 'function') {
@@ -1110,4 +1117,4 @@ window.renderResults = renderResults;
 
 }()); // end IIFE
 
-}); // end DOMContentLoaded
+}()); // end initCheckerUI

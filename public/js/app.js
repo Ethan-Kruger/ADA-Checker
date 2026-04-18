@@ -287,6 +287,7 @@
     resultsHeading.focus();
 
     saveToHistory(result);
+    window.dispatchEvent(new CustomEvent('ada-check-history-updated'));
     updateUsageCounter();
 
     liveRegion.textContent =
@@ -417,6 +418,15 @@
     checkBtn.textContent = 'Checking\u2026';
     checkBtn.setAttribute('aria-busy', 'true');
     showSpinner();
+
+    if (typeof window.checkAccessibilityAsync !== 'function') {
+      checkBtn.disabled = false;
+      checkBtn.textContent = 'Check Accessibility';
+      checkBtn.removeAttribute('aria-busy');
+      hideSpinner();
+      if (liveRegion) liveRegion.textContent = 'Checker is still loading, please try again in a moment.';
+      return;
+    }
 
     // Run checks asynchronously — yields between batches so the page stays
     // responsive while scanning large HTML documents.
@@ -700,6 +710,14 @@
 
       // Run each page's check sequentially using the async runner so the
       // browser stays responsive even when processing many large pages.
+      if (typeof window.checkAccessibilityAsync !== 'function') {
+        batchCheckBtn.disabled = false;
+        batchCheckBtn.textContent = 'Check All Pages';
+        if (batchSpinner) { batchSpinner.hidden = true; batchSpinner.setAttribute('aria-hidden', 'true'); }
+        if (liveRegion) liveRegion.textContent = 'Checker is still loading, please try again in a moment.';
+        return;
+      }
+
       var level   = getSelectedLevel();
       var results = [];
       (function runNext(idx) {
