@@ -53,7 +53,6 @@
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s, color 0.15s;
   white-space: nowrap;
 }
 
@@ -426,11 +425,9 @@
 .profile-more-link-arrow {
   color: #475569;
   flex-shrink: 0;
-  transition: color 0.15s, transform 0.15s;
 }
 .profile-more-link:hover .profile-more-link-arrow {
   color: #a5b4fc;
-  transform: translateX(2px);
 }
 
 /* Legacy avatar (kept for safety) */
@@ -549,7 +546,6 @@
 .history-chevron {
   color: #475569;
   flex-shrink: 0;
-  transition: transform 0.2s ease, color 0.15s;
 }
 
 .history-entry[open] .history-chevron {
@@ -814,7 +810,6 @@
 
 #font-size-preview {
   color: #cbd5e1;
-  transition: font-size 0.2s;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

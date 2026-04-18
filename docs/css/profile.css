@@ -495,7 +495,6 @@
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s, color 0.15s;
   white-space: nowrap;
 }
 
