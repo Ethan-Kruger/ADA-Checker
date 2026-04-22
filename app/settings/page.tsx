@@ -124,7 +124,11 @@ export default function SettingsPage() {
                   <div className="card-header">
                     <h3 id="sp-tier-pro">Pro</h3>
                     <div className="price-display">
-                      <span className="price-amount">$19</span><span className="price-period">/month</span>
+                      <span className="price-amount">$4.75</span><span className="price-period">/month</span>
+                    </div>
+                    <div className="price-was" aria-label="Regular price $19 per month">
+                      <span className="price-was-amount">$19</span>
+                      <span className="beta-discount-badge">75% off</span>
                     </div>
                   </div>
                   <ul className="feature-list" aria-label="Pro tier features">
@@ -143,7 +147,10 @@ export default function SettingsPage() {
                   <div className="card-header">
                     <h3 id="sp-tier-enterprise">Enterprise</h3>
                     <div className="price-display">
-                      <span className="price-amount price-custom">Custom</span><span className="price-period">pricing</span>
+                      <span className="price-amount price-custom">Custom</span><span className="price-period" style={{whiteSpace:'nowrap'}}>pricing</span>
+                    </div>
+                    <div className="price-was" aria-label="Beta discount applied">
+                      <span className="beta-discount-badge">75% off at launch</span>
                     </div>
                   </div>
                   <ul className="feature-list" aria-label="Enterprise tier features">

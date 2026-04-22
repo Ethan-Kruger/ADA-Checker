@@ -1097,7 +1097,7 @@ input[aria-invalid="true"] {
   color: #fff;
   line-height: 1;
 }
-.price-custom { font-size: 1.875rem; }
+.price-custom { font-size: 1.875rem; white-space: nowrap; }
 .price-period { font-size: 0.9375rem; color: #94a3b8; }
 
 .price-was {
