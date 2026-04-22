@@ -497,12 +497,6 @@
   window.selectPlan = function (plan) {
     localStorage.setItem('ada-plan', plan);
 
-    var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
-    ['free', 'pro', 'enterprise'].forEach(function (p) {
-      var badge = document.getElementById(badges[p]);
-      if (badge) badge.hidden = p !== plan;
-    });
-
     refreshPlanBadges();
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
@@ -518,7 +512,7 @@
     var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
     ['free', 'pro', 'enterprise'].forEach(function (p) {
       var badge = document.getElementById(badges[p]);
-      if (badge) badge.hidden = p !== plan;
+      if (badge) badge.style.display = p === plan ? 'inline-block' : 'none';
     });
   }
   refreshPlanBadges();

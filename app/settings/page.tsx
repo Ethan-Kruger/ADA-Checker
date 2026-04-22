@@ -112,7 +112,7 @@ export default function SettingsPage() {
                     <li>10 checks every 4 hours</li><li>Basic 13 accessibility checks</li>
                     <li>HTML paste only</li><li>Email support</li>
                   </ul>
-                  <div className="current-plan-badge" id="free-plan-badge">Your Current Plan</div>
+                  <div className="current-plan-badge" id="free-plan-badge" style={{display:'none'}}>Your Current Plan</div>
                   <button type="button" className="pricing-btn btn-outline" id="select-free-plan"
                           onClick={() => (window as Window & typeof globalThis & { selectPlan?: (p: string) => void }).selectPlan?.('free')}>
                     Get Started
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                     <li>URL checking enabled</li><li>Batch checking (multiple pages)</li>
                     <li>Priority email support</li><li>Downloadable PDF reports</li>
                   </ul>
-                  <div className="current-plan-badge" id="pro-plan-badge" hidden>Your Current Plan</div>
+                  <div className="current-plan-badge" id="pro-plan-badge" style={{display:'none'}}>Your Current Plan</div>
                   <button type="button" className="pricing-btn btn-primary" id="select-pro-plan"
                           data-checkout="pro">
                     Start Free Trial
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                     <li>Everything in Pro</li><li>API access</li><li>Team collaboration</li>
                     <li>Custom rules</li><li>Dedicated account manager</li><li>SLA guarantee</li>
                   </ul>
-                  <div className="current-plan-badge" id="ent-plan-badge" hidden>Your Current Plan</div>
+                  <div className="current-plan-badge" id="ent-plan-badge" style={{display:'none'}}>Your Current Plan</div>
                   <button type="button" className="pricing-btn btn-outline" id="select-enterprise-plan"
                           data-checkout="enterprise">
                     Contact Sales
