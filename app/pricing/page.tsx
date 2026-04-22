@@ -16,6 +16,10 @@ export default function PricingPage() {
         <div className="pricing-hero">
           <h1>Simple, Transparent Pricing</h1>
           <p>Start for free. Upgrade when you need more.</p>
+          <div className="beta-banner" role="note">
+            <span className="beta-badge">Beta</span>
+            Early access pricing — <strong>75% off</strong> for beta users. Lock in your rate before we launch.
+          </div>
         </div>
 
         <div className="pricing-grid">
@@ -43,8 +47,12 @@ export default function PricingPage() {
             <div className="card-header">
               <h2 id="tier-pro">Pro</h2>
               <div className="price-display">
-                <span className="price-amount">$19</span>
+                <span className="price-amount">$4.75</span>
                 <span className="price-period">/month</span>
+              </div>
+              <div className="price-was" aria-label="Regular price $19 per month">
+                <span className="price-was-amount">$19</span>
+                <span className="beta-discount-badge">75% off</span>
               </div>
             </div>
             <ul className="feature-list" aria-label="Pro tier features">
@@ -68,6 +76,9 @@ export default function PricingPage() {
                 <span className="price-amount price-custom">Custom</span>
                 <span className="price-period">pricing</span>
               </div>
+              <div className="price-was" aria-label="Beta discount applied">
+                <span className="beta-discount-badge">75% off at launch</span>
+              </div>
             </div>
             <ul className="feature-list" aria-label="Enterprise tier features">
               <li>Everything in Pro</li>
@@ -84,7 +95,7 @@ export default function PricingPage() {
         </div>
 
         <div className="pricing-note">
-          <p>All plans include WCAG 2.1 compliance checks. No credit card required for Free tier.</p>
+          <p>All plans include WCAG 2.1 compliance checks. No credit card required for Free tier. Beta pricing is locked in for the lifetime of your subscription.</p>
         </div>
       </main>
 
