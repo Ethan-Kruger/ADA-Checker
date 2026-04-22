@@ -61,8 +61,8 @@ module.exports = async function handler(req, res) {
       customer:   customerId,
       mode:       'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/settings.html?upgrade=success`,
-      cancel_url:  `${appUrl}/pricing.html`,
+      success_url: `${appUrl}/settings?upgrade=success`,
+      cancel_url:  `${appUrl}/pricing`,
       metadata:    { user_id: payload.sub, plan },
       subscription_data: {
         metadata: { user_id: payload.sub, plan },
