@@ -69,7 +69,7 @@ export default function Nav() {
       <nav className="site-nav" aria-label="Site navigation">
         <Link href="/" className="nav-logo" aria-label="ADA Checker — home">
           <Image src="/images/logo.svg" alt="" aria-hidden width={32} height={32} />
-          <span className="nav-brand">ADA Checker</span>
+          <span className="nav-brand">ADA Checker<span className="nav-beta">BETA</span></span>
         </Link>
 
         <div className="nav-links" aria-label="Main navigation">

@@ -182,6 +182,14 @@ body {
   letter-spacing: -0.01em;
 }
 .nav-logo img    { flex-shrink: 0; display: block; }
+.nav-beta {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a5b4fc;
+  vertical-align: super;
+  margin-left: 3px;
+}
 .nav-logo:hover  { opacity: 0.85; }
 .nav-logo:focus-visible {
   outline: 2px solid #a5b4fc;
