@@ -19,72 +19,72 @@ export default function SettingsPage() {
               <ul className="settings-nav" role="list">
 
                 <li>
-                  <button className="settings-nav-item" data-panel="pricing">
+                  <button className="settings-nav-item" data-panel="pricing" aria-label="Pricing Plans">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
-                    <span>Pricing Plans</span>
+                    <span aria-hidden="true">Pricing Plans</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="profile">
+                  <button className="settings-nav-item" data-panel="profile" aria-label="Profile">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                     </svg>
-                    <span>Profile</span>
+                    <span aria-hidden="true">Profile</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="history">
+                  <button className="settings-nav-item" data-panel="history" aria-label="Check History">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                     </svg>
-                    <span>Check History</span>
+                    <span aria-hidden="true">Check History</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="text-font">
+                  <button className="settings-nav-item" data-panel="text-font" aria-label="Text and Font">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <polyline points="4 7 4 4 20 4 20 7" />
                       <line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" />
                     </svg>
-                    <span>Text &amp; Font</span>
+                    <span aria-hidden="true">Text &amp; Font</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="api">
+                  <button className="settings-nav-item" data-panel="api" aria-label="API Access (Enterprise)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                     </svg>
-                    <span>API Access</span>
-                    <span className="nav-tier-badge">ENT</span>
+                    <span aria-hidden="true">API Access</span>
+                    <span className="nav-tier-badge" aria-hidden="true">ENT</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="custom-rules">
+                  <button className="settings-nav-item" data-panel="custom-rules" aria-label="Custom Rules (Enterprise)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <circle cx="12" cy="12" r="3" />
                       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                     </svg>
-                    <span>Custom Rules</span>
-                    <span className="nav-tier-badge">ENT</span>
+                    <span aria-hidden="true">Custom Rules</span>
+                    <span className="nav-tier-badge" aria-hidden="true">ENT</span>
                   </button>
                 </li>
 
                 <li>
-                  <button className="settings-nav-item" data-panel="team">
+                  <button className="settings-nav-item" data-panel="team" aria-label="Team (Enterprise)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    <span>Team</span>
-                    <span className="nav-tier-badge">ENT</span>
+                    <span aria-hidden="true">Team</span>
+                    <span className="nav-tier-badge" aria-hidden="true">ENT</span>
                   </button>
                 </li>
 

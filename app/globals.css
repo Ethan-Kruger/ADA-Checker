@@ -1496,7 +1496,16 @@ input[aria-invalid="true"] {
   #score-number { font-size: 1.75rem; }
 
   .filter-bar { gap: 0.375rem; }
-  .filter-btn { padding: 0.3rem 0.625rem; font-size: 0.8125rem; }
+  .filter-btn { padding: 0.3rem 0.625rem; font-size: 0.8125rem; min-height: 44px; }
+
+  /* Touch targets: all interactive elements minimum 44px tall on mobile */
+  button, a, [role="tab"], [role="button"], input, select, textarea {
+    min-height: 44px;
+  }
+  /* Override for elements that should stay small but still be tappable */
+  .nav-link { min-height: 44px; display: inline-flex; align-items: center; }
+  .settings-nav-item { min-height: 44px; }
+  .pricing-btn { min-height: 44px; }
 }
 
 /* ── Textarea wrapper + checker switcher ───────────────────────────────────── */
