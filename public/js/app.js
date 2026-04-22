@@ -122,12 +122,14 @@
 
     if (urlTab) {
       urlTab.classList.toggle('tab-locked', locked);
-      urlTab.setAttribute('aria-disabled', String(locked));
+      if (locked) urlTab.setAttribute('disabled', '');
+      else urlTab.removeAttribute('disabled');
     }
 
     if (batchTab) {
       batchTab.classList.toggle('tab-locked', locked);
-      batchTab.setAttribute('aria-disabled', String(locked));
+      if (locked) batchTab.setAttribute('disabled', '');
+      else batchTab.removeAttribute('disabled');
     }
 
     var urlBanner    = document.getElementById('url-upgrade-banner');
@@ -159,11 +161,9 @@
     if (toast) {
       toast.textContent = msg;
       toast.hidden = false;
-      toast.removeAttribute('aria-hidden');
       clearTimeout(toast._hideTimer);
       toast._hideTimer = setTimeout(function () {
         toast.hidden = true;
-        toast.setAttribute('aria-hidden', 'true');
       }, 4000);
     }
   }
@@ -465,11 +465,9 @@
     if (toast) {
       toast.textContent = msg;
       toast.hidden = false;
-      toast.removeAttribute('aria-hidden');
       clearTimeout(toast._hideTimer);
       toast._hideTimer = setTimeout(function () {
         toast.hidden = true;
-        toast.setAttribute('aria-hidden', 'true');
       }, 4000);
     }
   }

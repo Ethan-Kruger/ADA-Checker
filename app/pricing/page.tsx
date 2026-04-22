@@ -101,7 +101,7 @@ export default function PricingPage() {
 
       <Footer />
 
-      <Script src="/js/auth.js?v=5" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=6" strategy="afterInteractive" />
     </>
   );
 }

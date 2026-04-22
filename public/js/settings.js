@@ -25,6 +25,7 @@
       var on = btn.dataset.panel === panelId;
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-selected', String(on));
+      btn.setAttribute('aria-current', on ? 'true' : 'false');
     });
 
     // Panel-specific side effects

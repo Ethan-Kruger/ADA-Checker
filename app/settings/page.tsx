@@ -287,7 +287,7 @@ export default function SettingsPage() {
                       <div id="invoices-list" className="invoices-list" aria-live="polite" />
                     </div>
                     <p className="profile-billing-note">Billing is managed through Stripe. For refund requests contact{' '}
-                      <a href="mailto:billing@adachecker.io" className="policy-link">billing@adachecker.io</a>.
+                      <a href="mailto:billing@adachecker.io" className="policy-link" aria-label="Contact billing support at billing@adachecker.io">billing@adachecker.io</a>.
                     </p>
                   </div>
 
@@ -359,7 +359,7 @@ export default function SettingsPage() {
                       <h3>Your Rights</h3>
                       <p>You may request deletion of your account at any time by contacting us.</p>
                       <h3>Contact</h3>
-                      <p>Questions? <a href="mailto:privacy@adachecker.io" className="policy-link">privacy@adachecker.io</a></p>
+                      <p>Questions? <a href="mailto:privacy@adachecker.io" className="policy-link" aria-label="Contact privacy team at privacy@adachecker.io">privacy@adachecker.io</a></p>
                     </div>
                   </div>
 
@@ -379,7 +379,7 @@ export default function SettingsPage() {
                       <h3>Limitation of Liability</h3>
                       <p>ADA Checker is provided &ldquo;as is&rdquo; without warranties. We are not liable for damages arising from use of the service.</p>
                       <h3>Contact</h3>
-                      <p>Questions? <a href="mailto:legal@adachecker.io" className="policy-link">legal@adachecker.io</a></p>
+                      <p>Questions? <a href="mailto:legal@adachecker.io" className="policy-link" aria-label="Contact legal team at legal@adachecker.io">legal@adachecker.io</a></p>
                     </div>
                   </div>
                 </div>
@@ -578,8 +578,8 @@ export default function SettingsPage() {
 
       <Footer />
 
-      <Script src="/js/auth.js?v=5" strategy="afterInteractive" />
-      <Script src="/js/settings.js?v=3" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=6" strategy="afterInteractive" />
+      <Script src="/js/settings.js?v=4" strategy="afterInteractive" />
     </>
   );
 }

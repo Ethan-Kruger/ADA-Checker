@@ -225,14 +225,16 @@
       var initial = (user.email || '?')[0].toUpperCase();
       widget.className = 'nav-profile-bubble';
       widget.setAttribute('aria-label', 'Account: ' + user.email);
-      widget.setAttribute('title', user.email);
       widget.setAttribute('role', 'button');
       widget.setAttribute('tabindex', '0');
+      widget.setAttribute('aria-haspopup', 'true');
+      widget.setAttribute('aria-expanded', 'false');
       widget.textContent = initial;
 
       // Clicking bubble shows a small dropdown — built with createElement to prevent XSS
       var menu = document.createElement('div');
       menu.className = 'nav-profile-menu';
+      menu.setAttribute('role', 'menu');
 
       var emailSpan = document.createElement('span');
       emailSpan.className = 'nav-profile-email';
@@ -241,11 +243,13 @@
       var editLink = document.createElement('a');
       editLink.href = '/settings';
       editLink.className = 'nav-profile-edit';
+      editLink.setAttribute('role', 'menuitem');
       editLink.textContent = 'Edit Profile';
 
       var signoutBtn = document.createElement('button');
       signoutBtn.className = 'nav-profile-signout';
       signoutBtn.id = 'nav-signout-btn';
+      signoutBtn.setAttribute('role', 'menuitem');
       signoutBtn.textContent = 'Sign out';
 
       menu.appendChild(emailSpan);
@@ -253,29 +257,32 @@
       menu.appendChild(signoutBtn);
       widget.appendChild(menu);
 
+      function toggleMenu(open) {
+        widget.classList.toggle('is-open', open);
+        widget.setAttribute('aria-expanded', String(open));
+      }
+
       widget.addEventListener('click', function (e) {
-        widget.classList.toggle('is-open');
+        var next = !widget.classList.contains('is-open');
+        toggleMenu(next);
         e.stopPropagation();
       });
       widget.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') widget.classList.toggle('is-open');
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(!widget.classList.contains('is-open')); }
+        if (e.key === 'Escape') toggleMenu(false);
       });
-      document.addEventListener('click', function () {
-        widget.classList.remove('is-open');
-      });
+      document.addEventListener('click', function () { toggleMenu(false); });
       menu.addEventListener('click', function (e) { e.stopPropagation(); });
       signoutBtn.addEventListener('click', logout);
     } else {
-      // Sign Up button
-      widget.className = 'nav-signup-btn';
-      widget.setAttribute('role', 'button');
-      widget.setAttribute('tabindex', '0');
-      widget.textContent = 'Sign Up';
-
-      widget.addEventListener('click', function () { showAuthModal('signup'); });
-      widget.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') showAuthModal('signup');
-      });
+      // Sign Up button — real <button> element for proper semantics
+      var btn = document.createElement('button');
+      btn.className = 'nav-signup-btn';
+      btn.type = 'button';
+      btn.textContent = 'Sign Up';
+      btn.addEventListener('click', function () { showAuthModal('signup'); });
+      widget.appendChild(btn);
+      // widget itself is just a wrapper — no role needed
     }
 
     // Insert inside the hamburger wrapper, after the hamburger button
@@ -305,7 +312,7 @@
       // Small notification
       var note = document.createElement('div');
       note.className = 'upgrade-success-toast';
-      note.textContent = '🎉 Upgrade successful! Your plan has been activated.';
+      note.textContent = 'Upgrade successful! Your plan has been activated.';
       document.body.appendChild(note);
       setTimeout(function () { note.remove(); }, 5000);
     });
