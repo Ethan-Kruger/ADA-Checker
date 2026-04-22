@@ -45,12 +45,16 @@ export default function Nav() {
     };
   }, []);
 
-  function logout() {
-    localStorage.removeItem('ada-token');
+  async function logout() {
     localStorage.removeItem('ada-user');
     localStorage.setItem('ada-plan', 'free');
     setUser(null);
     setProfileOpen(false);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      // Best-effort — reload regardless
+    }
     window.location.reload();
   }
 

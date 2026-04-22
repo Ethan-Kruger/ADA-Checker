@@ -54,12 +54,13 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
     try {
       const res = await fetch(`/api/auth/${mode === 'signup' ? 'signup' : 'login'}`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `${mode === 'signup' ? 'Signup' : 'Login'} failed`);
-      localStorage.setItem('ada-token', data.token);
+      // Token is set as an httpOnly cookie by the server — do not store in JS.
       localStorage.setItem('ada-user', JSON.stringify(data.user));
       localStorage.setItem('ada-plan', data.plan || 'free');
       sessionStorage.setItem('ada-just-authed', '1');

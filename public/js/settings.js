@@ -258,11 +258,10 @@
     if (invoicesLoaded) return;
     invoicesLoaded = true;
 
-    var token = localStorage.getItem('ada-token');
-    if (!token) { renderInvoices(SAMPLE_INVOICES, true); return; }
+    if (!localStorage.getItem('ada-user')) { renderInvoices(SAMPLE_INVOICES, true); return; }
 
     fetch('/api/billing/invoices', {
-      headers: { 'Authorization': 'Bearer ' + token },
+      credentials: 'include',
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
@@ -351,7 +350,6 @@
     if (form) {
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        var token     = localStorage.getItem('ada-token');
         var currentEl = document.getElementById('current-password');
         var newEl     = document.getElementById('new-password');
         var confirmEl = document.getElementById('confirm-password');
@@ -364,7 +362,7 @@
           return;
         }
 
-        if (!token) {
+        if (!localStorage.getItem('ada-user')) {
           if (msg) { msg.textContent = 'You must be signed in to change your password.'; msg.className = 'form-msg form-msg--error'; msg.style.display = ''; }
           return;
         }
@@ -373,9 +371,10 @@
 
         try {
           var res  = await fetch('/api/auth/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ currentPassword: currentEl.value, newPassword: newEl.value }),
+            method:      'POST',
+            credentials: 'include',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ currentPassword: currentEl.value, newPassword: newEl.value }),
           });
           var data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Update failed');
@@ -395,11 +394,10 @@
     if (deleteBtn) {
       deleteBtn.addEventListener('click', function () {
         if (!window.confirm('Are you sure you want to delete your account?\n\nThis will permanently erase your account, subscription, and all data. This cannot be undone.')) return;
-        var token = localStorage.getItem('ada-token');
         deleteBtn.disabled = true; deleteBtn.textContent = 'Deleting…';
         fetch('/api/auth/delete-account', {
-          method: 'DELETE',
-          headers: { 'Authorization': 'Bearer ' + token },
+          method:      'DELETE',
+          credentials: 'include',
         })
           .then(function (res) {
             if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Delete failed'); });

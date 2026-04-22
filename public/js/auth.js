@@ -1,21 +1,15 @@
 // ── ADA Checker — frontend auth & plan management ────────────────────────────
 //
-// Replaces the localStorage-only plan check with real JWT + API calls.
-// Stores the JWT in localStorage under 'ada-token'.
+// JWT is stored in an httpOnly cookie (set by the API, never readable by JS).
+// User profile and plan are still cached in localStorage for fast UI rendering.
 // Fetches the real plan from /api/auth/me on page load and caches it.
 
 (function () {
   'use strict';
 
   var API = '/api';
-  var TOKEN_KEY = 'ada-token';
   var PLAN_KEY  = 'ada-plan';   // still written so existing code keeps working
   var USER_KEY  = 'ada-user';
-
-  // ── Token helpers ────────────────────────────────────────────────────────────
-  function getToken()       { return localStorage.getItem(TOKEN_KEY); }
-  function setToken(t)      { localStorage.setItem(TOKEN_KEY, t); }
-  function clearToken()     { localStorage.removeItem(TOKEN_KEY); }
 
   function getUser()        { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
   function setUser(u)       { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
@@ -24,13 +18,14 @@
   // ── Auth API calls ───────────────────────────────────────────────────────────
   async function signup(email, password) {
     const res  = await fetch(API + '/auth/signup', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+      method:      'POST',
+      credentials: 'include',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Signup failed');
-    setToken(data.token);
+    // Token is stored in the httpOnly cookie set by the server — not in JS.
     setUser(data.user);
     localStorage.setItem(PLAN_KEY, data.plan || 'free');
     return data;
@@ -38,22 +33,27 @@
 
   async function login(email, password) {
     const res  = await fetch(API + '/auth/login', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+      method:      'POST',
+      credentials: 'include',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
-    setToken(data.token);
+    // Token is stored in the httpOnly cookie set by the server — not in JS.
     setUser(data.user);
     localStorage.setItem(PLAN_KEY, data.plan || 'free');
     return data;
   }
 
-  function logout() {
-    clearToken();
+  async function logout() {
     clearUser();
     localStorage.setItem(PLAN_KEY, 'free');
+    try {
+      await fetch(API + '/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      // Best-effort — reload regardless
+    }
     window.location.reload();
   }
 
@@ -64,8 +64,8 @@
   // Skips the network call if the plan was synced less than 5 minutes ago,
   // unless ?upgrade=success is in the URL (forces a fresh fetch after Stripe).
   async function syncPlan() {
-    const token = getToken();
-    if (!token) return;
+    // If no user profile is cached, we have no session — skip the request.
+    if (!getUser()) return;
 
     const forceRefresh = new URLSearchParams(window.location.search).get('upgrade') === 'success';
     const lastSynced   = parseInt(localStorage.getItem(PLAN_CACHE_KEY) || '0', 10);
@@ -74,9 +74,7 @@
     if (!forceRefresh && age < PLAN_CACHE_TTL) return; // still fresh — skip network call
 
     try {
-      const res  = await fetch(API + '/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token },
-      });
+      const res  = await fetch(API + '/auth/me', { credentials: 'include' });
       if (res.status === 401) { logout(); return; }
       const data = await res.json();
       if (data.plan) {
@@ -91,19 +89,16 @@
 
   // ── Stripe checkout ──────────────────────────────────────────────────────────
   async function startCheckout(plan) {
-    const token = getToken();
-    if (!token) {
+    if (!getUser()) {
       showAuthModal('login');
       return;
     }
     try {
       const res  = await fetch(API + '/stripe/checkout', {
-        method:  'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'Authorization': 'Bearer ' + token,
-        },
-        body: JSON.stringify({ plan }),
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify({ plan }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Checkout failed');
@@ -290,7 +285,7 @@
 
   // ── Init ─────────────────────────────────────────────────────────────────────
   // Expose to other scripts
-  window.adaAuth = { signup, login, logout, startCheckout, showAuthModal, syncPlan, getUser, getToken };
+  window.adaAuth = { signup, login, logout, startCheckout, showAuthModal, syncPlan, getUser };
 
   // Sync plan from API — nav is handled by the React Nav component, skip updateNav()
   syncPlan();

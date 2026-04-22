@@ -1,6 +1,6 @@
 const bcrypt      = require('bcryptjs');
 const supabase    = require('../_lib/supabase');
-const { signToken } = require('../_lib/auth');
+const { signToken, buildTokenCookie } = require('../_lib/auth');
 const { applyHeaders } = require('../_lib/cors');
 const { rateLimit }    = require('../_lib/rateLimit');
 
@@ -63,5 +63,6 @@ module.exports = async function handler(req, res) {
 
   const token = signToken({ sub: user.id, email: user.email });
 
-  return res.status(201).json({ token, user: { id: user.id, email: user.email }, plan: 'free' });
+  res.setHeader('Set-Cookie', buildTokenCookie(token));
+  return res.status(201).json({ user: { id: user.id, email: user.email }, plan: 'free' });
 };
