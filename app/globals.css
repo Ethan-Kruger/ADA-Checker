@@ -3977,3 +3977,19 @@ body[data-page="profile"] .panel-header {
   .welcome-cta-primary,
   .welcome-cta-secondary { text-align: center; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REDUCED MOTION (WCAG 2.3.3)
+   Respects prefers-reduced-motion: reduce — disables all animations and
+   transitions for users who experience motion sickness or vestibular disorders.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

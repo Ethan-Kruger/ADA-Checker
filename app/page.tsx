@@ -64,7 +64,7 @@ export default function CheckerPage() {
                   <span id="main-wcag-hint" className="sr-only">Level AA requires Pro plan. Level AAA requires Enterprise plan.</span>
                 </div>
               </div>
-              <div id="wcag-upgrade-toast" className="wcag-upgrade-toast" hidden aria-hidden="true" aria-live="assertive" role="alert" />
+              <div id="wcag-upgrade-toast" className="wcag-upgrade-toast" hidden aria-live="assertive" role="alert" />
               <p id="html-input-error" className="input-error-msg" hidden role="alert" />
               <div className="textarea-wrapper">
                 <textarea
@@ -343,7 +343,7 @@ export default function CheckerPage() {
       <Footer />
 
       {/* Load auth script first, then lazily load checker */}
-      <Script src="/js/auth.js?v=6" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=7" strategy="afterInteractive" />
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
           var loaded = false;
@@ -354,7 +354,7 @@ export default function CheckerPage() {
             s1.src = '/js/checker.js?v=5';
             s1.onload = function () {
               var s2 = document.createElement('script');
-              s2.src = '/js/app.js?v=5';
+              s2.src = '/js/app.js?v=6';
               document.head.appendChild(s2);
             };
             document.head.appendChild(s1);

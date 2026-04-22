@@ -105,7 +105,20 @@
       if (!data.url) throw new Error('Could not create checkout session. Please try again.');
       window.location.href = data.url;
     } catch (e) {
-      alert(e.message);
+      // Show accessible error via live region instead of alert()
+      var errEl = document.getElementById('ada-checkout-error');
+      if (!errEl) {
+        errEl = document.createElement('div');
+        errEl.id = 'ada-checkout-error';
+        errEl.setAttribute('role', 'alert');
+        errEl.setAttribute('aria-live', 'assertive');
+        errEl.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.9375rem;z-index:9999;max-width:90vw;text-align:center;';
+        document.body.appendChild(errEl);
+      }
+      errEl.textContent = e.message;
+      errEl.hidden = false;
+      clearTimeout(errEl._t);
+      errEl._t = setTimeout(function () { errEl.hidden = true; }, 6000);
     }
   }
 

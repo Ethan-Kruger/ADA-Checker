@@ -48,12 +48,12 @@
       usageCounter.textContent = 'Limit reached — resets in ' + formatResetTime();
       usageCounter.classList.add('limit-reached');
       checkBtn.disabled = true;
-      checkBtn.setAttribute('title', 'Check limit reached. Resets in ' + formatResetTime());
+      checkBtn.setAttribute('aria-label', 'Check limit reached. Resets in ' + formatResetTime());
     } else {
       usageCounter.textContent = remaining + '\u202f/\u202f' + FREE_CHECK_LIMIT + ' checks remaining (resets every 4 hours)';
       usageCounter.classList.remove('limit-reached');
       checkBtn.disabled = false;
-      checkBtn.removeAttribute('title');
+      checkBtn.removeAttribute('aria-label');
     }
   }
 
@@ -122,14 +122,14 @@
 
     if (urlTab) {
       urlTab.classList.toggle('tab-locked', locked);
-      if (locked) urlTab.setAttribute('disabled', '');
-      else urlTab.removeAttribute('disabled');
+      // Use aria-disabled (not disabled) so locked tabs stay focusable
+      // and screen readers can announce they require an upgrade
+      urlTab.setAttribute('aria-disabled', String(locked));
     }
 
     if (batchTab) {
       batchTab.classList.toggle('tab-locked', locked);
-      if (locked) batchTab.setAttribute('disabled', '');
-      else batchTab.removeAttribute('disabled');
+      batchTab.setAttribute('aria-disabled', String(locked));
     }
 
     var urlBanner    = document.getElementById('url-upgrade-banner');
@@ -918,8 +918,8 @@
     var fg = hexToRgb(fgHex.value.trim());
     var bg = hexToRgb(bgHex.value.trim());
 
-    fgHex.setAttribute('aria-invalid', fg ? 'false' : 'true');
-    bgHex.setAttribute('aria-invalid', bg ? 'false' : 'true');
+    if (fg) fgHex.removeAttribute('aria-invalid'); else fgHex.setAttribute('aria-invalid', 'true');
+    if (bg) bgHex.removeAttribute('aria-invalid'); else bgHex.setAttribute('aria-invalid', 'true');
 
     if (!fg || !bg) {
       ratioVal.textContent = '—';
