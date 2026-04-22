@@ -503,6 +503,7 @@
       if (badge) badge.hidden = p !== plan;
     });
 
+    refreshPlanBadges();
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
     updateCheckerRateUI();
@@ -512,14 +513,28 @@
     alert('Plan set to ' + label + '. Features are now ' + (plan === 'free' ? 'restricted' : 'unlocked') + '. (Demo only — no real payment processed.)');
   };
 
-  (function () {
-    var plan = typeof getUserPlan === 'function' ? getUserPlan() : 'free';
+  function refreshPlanBadges() {
+    var plan = localStorage.getItem('ada-plan') || 'free';
     var badges = { free: 'free-plan-badge', pro: 'pro-plan-badge', enterprise: 'ent-plan-badge' };
     ['free', 'pro', 'enterprise'].forEach(function (p) {
       var badge = document.getElementById(badges[p]);
       if (badge) badge.hidden = p !== plan;
     });
-  }());
+  }
+  refreshPlanBadges();
+
+  // Sync real plan from API, then re-render badges
+  if (localStorage.getItem('ada-user')) {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.plan) {
+          localStorage.setItem('ada-plan', data.plan);
+          refreshPlanBadges();
+        }
+      })
+      .catch(function () {});
+  }
 
   // ─── Checker panel rate-limit overlay ────────────────────────────────────
   function updateCheckerRateUI() {
