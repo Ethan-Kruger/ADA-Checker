@@ -56,10 +56,13 @@ module.exports = async function handler(req, res) {
     }
 
     if (customerId) {
+      // Fetch all non-canceled subscriptions (active, trialing, past_due)
       const subscriptions = await stripe.subscriptions.list({
         customer: customerId,
-        status:   'active',
-        limit:    5,
+        limit:    10,
+      });
+      subscriptions.data = subscriptions.data.filter(function(s) {
+        return s.status === 'active' || s.status === 'trialing' || s.status === 'past_due';
       });
 
       if (subscriptions.data.length) {
@@ -88,7 +91,7 @@ module.exports = async function handler(req, res) {
           plan = stripePlan;
         }
       } else if (plan !== 'free') {
-        // No active Stripe subscriptions but Supabase says paid — downgrade
+        // No active/trialing subscriptions but Supabase says paid — downgrade
         await supabase
           .from('subscriptions')
           .update({ plan: 'free', status: 'canceled' })
