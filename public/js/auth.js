@@ -85,10 +85,10 @@
         localStorage.setItem(PLAN_CACHE_KEY, String(Date.now()));
         if (data.user) setUser(data.user);
 
-        // Notify other scripts to re-evaluate plan gates
-        if (data.plan !== oldPlan) {
-          window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: data.plan } }));
-        }
+        // Always notify other scripts — even if plan didn't change.
+        // app.js may have missed the event if it loaded after syncPlan completed,
+        // so the event fires on every sync so all listeners can re-evaluate.
+        window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: data.plan } }));
       }
     } catch (e) {
       // Network error — keep cached plan

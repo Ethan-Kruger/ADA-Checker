@@ -156,8 +156,14 @@
   }
   applyTabLocks();
 
-  // Re-apply locks when auth.js syncs a new plan from the API
+  // Re-apply locks when auth.js syncs a new plan from the API.
+  // auth.js now always dispatches this after every syncPlan fetch.
   window.addEventListener('ada:plan-updated', function () { applyTabLocks(); });
+
+  // Fallback: if the event fired before this listener registered (race condition
+  // where syncPlan resolved before app.js finished loading), re-read localStorage
+  // directly so the lock state is always correct.
+  setTimeout(applyTabLocks, 800);
 
   function showUrlUpgradeTooltip(tab) {
     var toast = document.getElementById('wcag-upgrade-toast');

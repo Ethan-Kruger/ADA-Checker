@@ -343,14 +343,14 @@ export default function CheckerPage() {
       <Footer />
 
       {/* Load auth first, then checker, then app (order matters) */}
-      <Script src="/js/auth.js?v=9" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=10" strategy="afterInteractive" />
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
           var s1 = document.createElement('script');
           s1.src = '/js/checker.js?v=5';
           s1.onload = function () {
             var s2 = document.createElement('script');
-            s2.src = '/js/app.js?v=8';
+            s2.src = '/js/app.js?v=9';
             document.head.appendChild(s2);
           };
           document.head.appendChild(s1);
