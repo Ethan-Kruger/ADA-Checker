@@ -122,14 +122,16 @@
 
     if (urlTab) {
       urlTab.classList.toggle('tab-locked', locked);
-      // Use aria-disabled (not disabled) so locked tabs stay focusable
-      // and screen readers can announce they require an upgrade
       urlTab.setAttribute('aria-disabled', String(locked));
+      var urlSrOnly = urlTab.querySelector('.sr-only');
+      if (urlSrOnly) urlSrOnly.hidden = !locked;
     }
 
     if (batchTab) {
       batchTab.classList.toggle('tab-locked', locked);
       batchTab.setAttribute('aria-disabled', String(locked));
+      var batchSrOnly = batchTab.querySelector('.sr-only');
+      if (batchSrOnly) batchSrOnly.hidden = !locked;
     }
 
     var urlBanner    = document.getElementById('url-upgrade-banner');
