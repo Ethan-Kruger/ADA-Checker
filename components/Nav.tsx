@@ -72,12 +72,13 @@ export default function Nav() {
           <span className="nav-brand">ADA Checker<span className="nav-beta">BETA</span></span>
         </Link>
 
-        <div className="nav-links" aria-label="Main navigation">
+        <div className="nav-links">
           {navLinks.map((l) => (
             <Link
               key={l.key}
               href={l.href}
               className={`nav-link${page === l.key ? ' active' : ''}`}
+              aria-current={page === l.key ? 'page' : undefined}
             >
               {l.label}
             </Link>
@@ -90,7 +91,7 @@ export default function Nav() {
               className={`nav-profile-bubble${profileOpen ? ' is-open' : ''}`}
               ref={profileRef}
               aria-label={`Account: ${user.email}`}
-              aria-haspopup="true"
+              aria-haspopup="menu"
               aria-expanded={profileOpen}
               role="button"
               tabIndex={0}
@@ -98,12 +99,12 @@ export default function Nav() {
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setProfileOpen((o) => !o); }}
             >
               {user.email[0].toUpperCase()}
-              <div className="nav-profile-menu" onClick={(e) => e.stopPropagation()}>
+              <div className="nav-profile-menu" role="menu" onClick={(e) => e.stopPropagation()}>
                 <span className="nav-profile-email">{user.email}</span>
-                <Link href="/settings" className="nav-profile-edit" onClick={() => setProfileOpen(false)}>
+                <Link href="/settings" className="nav-profile-edit" role="menuitem" onClick={() => setProfileOpen(false)}>
                   Edit Profile
                 </Link>
-                <button className="nav-profile-signout" onClick={logout}>Sign out</button>
+                <button className="nav-profile-signout" role="menuitem" onClick={logout}>Sign out</button>
               </div>
             </div>
           ) : (

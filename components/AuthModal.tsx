@@ -21,7 +21,8 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Focus the first input when the modal opens
+    // autoFocus prop handles initial focus on iOS Safari; this is a fallback for
+    // browsers that don't honour autoFocus inside a modal (rare).
     document.getElementById('ada-email')?.focus();
 
     // Trap focus inside the modal and handle Escape
@@ -95,8 +96,10 @@ export default function AuthModal({ initialMode, onClose, onSuccess }: AuthModal
             id="ada-email"
             type="email"
             autoComplete="email"
+            inputMode="email"
             placeholder="you@example.com"
             required
+            autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />

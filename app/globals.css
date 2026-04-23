@@ -118,6 +118,8 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 1.5rem 3rem;
+  /* Account for iPhone home bar / bottom safe area */
+  padding-bottom: calc(3rem + env(safe-area-inset-bottom));
   min-height: 100vh;
   line-height: 1.6;
 }
@@ -125,18 +127,32 @@ body {
 /* ── Skip link ─────────────────────────────────────────────────────────────── */
 .skip-link {
   position: absolute;
-  top: -100%;
+  /* Use clip pattern — works with VoiceOver touch (not just keyboard :focus) */
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
   left: 0;
+  top: 0;
   background: #4f4fbf;
   color: #fff;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0 0 6px 0;
   font-weight: 600;
   text-decoration: none;
   z-index: 9999;
-  transition: top 0.1s;
 }
-.skip-link:focus { top: 0; }
+.skip-link:focus,
+.skip-link:focus-visible {
+  /* Reveal on keyboard focus or VoiceOver activation */
+  width: auto; height: auto;
+  padding: 0.5rem 1.25rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border-radius: 0 0 6px 0;
+}
 
 /* ── Utilities ─────────────────────────────────────────────────────────────── */
 .sr-only {
@@ -164,6 +180,9 @@ body {
   margin-left: -1.5rem;
   margin-right: -1.5rem;
   padding: 0 1.5rem;
+  /* Shift down by notch/status bar height on iPhone X+ */
+  padding-top: env(safe-area-inset-top);
+  height: calc(60px + env(safe-area-inset-top));
   background: #060e1a;
   border-bottom: 1px solid rgba(255,255,255,0.07);
   box-shadow: 0 2px 16px rgba(0,0,0,0.5);
@@ -4082,6 +4101,11 @@ body[data-page="profile"] .panel-header {
   /* Panel close button: fix both dimensions to 44×44 */
   .panel-close-btn {
     width: 44px;
+    height: 44px;
+  }
+
+  /* Nav sign-up button: bump to 44px tall (overrides base 36px) */
+  .nav-signup-btn {
     height: 44px;
   }
 }
