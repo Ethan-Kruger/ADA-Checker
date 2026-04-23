@@ -64,23 +64,31 @@
   // Skips the network call if the plan was synced less than 5 minutes ago,
   // unless ?upgrade=success is in the URL (forces a fresh fetch after Stripe).
   async function syncPlan() {
-    // If no user profile is cached, we have no session — skip the request.
     if (!getUser()) return;
 
-    const forceRefresh = new URLSearchParams(window.location.search).get('upgrade') === 'success';
-    const lastSynced   = parseInt(localStorage.getItem(PLAN_CACHE_KEY) || '0', 10);
-    const age          = Date.now() - lastSynced;
+    const forceRefresh  = new URLSearchParams(window.location.search).get('upgrade') === 'success';
+    const currentPlan   = localStorage.getItem(PLAN_KEY) || 'free';
+    const lastSynced    = parseInt(localStorage.getItem(PLAN_CACHE_KEY) || '0', 10);
+    const age           = Date.now() - lastSynced;
 
-    if (!forceRefresh && age < PLAN_CACHE_TTL) return; // still fresh — skip network call
+    // Always re-fetch if current plan is free (may have just paid) or cache expired
+    const cacheValid = age < PLAN_CACHE_TTL && currentPlan !== 'free';
+    if (!forceRefresh && cacheValid) return;
 
     try {
       const res  = await fetch(API + '/auth/me', { credentials: 'include' });
       if (res.status === 401) { logout(); return; }
       const data = await res.json();
       if (data.plan) {
+        const oldPlan = localStorage.getItem(PLAN_KEY);
         localStorage.setItem(PLAN_KEY, data.plan);
         localStorage.setItem(PLAN_CACHE_KEY, String(Date.now()));
         if (data.user) setUser(data.user);
+
+        // Notify other scripts to re-evaluate plan gates
+        if (data.plan !== oldPlan) {
+          window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: data.plan } }));
+        }
       }
     } catch (e) {
       // Network error — keep cached plan

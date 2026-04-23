@@ -581,7 +581,7 @@ export default function SettingsPage() {
       <Footer />
 
       <Script src="/js/auth.js?v=9" strategy="afterInteractive" />
-      <Script src="/js/settings.js?v=4" strategy="afterInteractive" />
+      <Script src="/js/settings.js?v=5" strategy="afterInteractive" />
     </>
   );
 }

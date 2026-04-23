@@ -156,6 +156,9 @@
   }
   applyTabLocks();
 
+  // Re-apply locks when auth.js syncs a new plan from the API
+  window.addEventListener('ada:plan-updated', function () { applyTabLocks(); });
+
   function showUrlUpgradeTooltip(tab) {
     var toast = document.getElementById('wcag-upgrade-toast');
     var label = tab.id === 'tab-batch' ? 'Batch checking' : 'URL checking';

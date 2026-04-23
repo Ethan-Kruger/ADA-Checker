@@ -518,18 +518,13 @@
   }
   refreshPlanBadges();
 
-  // Sync real plan from API, then re-render badges
-  if (localStorage.getItem('ada-user')) {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        if (data && data.plan) {
-          localStorage.setItem('ada-plan', data.plan);
-          refreshPlanBadges();
-        }
-      })
-      .catch(function () {});
-  }
+  // Re-apply everything when auth.js syncs a new plan from the API
+  window.addEventListener('ada:plan-updated', function () {
+    refreshPlanBadges();
+    applyPlanGate('api-gate', 'api-content', 'enterprise');
+    applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+    updateCheckerRateUI();
+  });
 
   // ─── Checker panel rate-limit overlay ────────────────────────────────────
   function updateCheckerRateUI() {
