@@ -37,12 +37,27 @@ module.exports = async function handler(req, res) {
 
   let plan = sub?.plan || 'free';
 
-  // If the user has a Stripe customer, verify the real plan directly from Stripe.
-  // This makes the system self-healing — no webhook required.
-  if (sub?.stripe_customer_id) {
-    try {
+  // Verify the real plan directly from Stripe — self-healing, no webhook needed.
+  // If no stripe_customer_id in Supabase, fall back to looking up by email.
+  try {
+    let customerId = sub?.stripe_customer_id;
+
+    if (!customerId) {
+      // Try to find customer by email in Stripe
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length) {
+        customerId = customers.data[0].id;
+        // Save it so future calls skip this lookup
+        await supabase
+          .from('subscriptions')
+          .update({ stripe_customer_id: customerId })
+          .eq('user_id', user.id);
+      }
+    }
+
+    if (customerId) {
       const subscriptions = await stripe.subscriptions.list({
-        customer: sub.stripe_customer_id,
+        customer: customerId,
         status:   'active',
         limit:    5,
       });
@@ -80,10 +95,10 @@ module.exports = async function handler(req, res) {
           .eq('user_id', user.id);
         plan = 'free';
       }
-    } catch (err) {
-      // Stripe unavailable — fall back to Supabase value
-      console.error('Stripe lookup error in /api/auth/me:', err.message);
     }
+  } catch (err) {
+    // Stripe unavailable — fall back to Supabase value
+    console.error('Stripe lookup error in /api/auth/me:', err.message);
   }
 
   return res.status(200).json({
