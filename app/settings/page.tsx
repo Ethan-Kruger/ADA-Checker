@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import Script from 'next/script';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 
 export default function SettingsPage() {
+  useEffect(() => { document.title = 'Settings – ADA Accessibility Checker'; }, []);
   return (
     <>
       <Nav />
@@ -578,7 +580,7 @@ export default function SettingsPage() {
 
       <Footer />
 
-      <Script src="/js/auth.js?v=7" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=9" strategy="afterInteractive" />
       <Script src="/js/settings.js?v=4" strategy="afterInteractive" />
     </>
   );

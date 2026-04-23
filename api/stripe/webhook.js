@@ -35,6 +35,25 @@ module.exports = async function handler(req, res) {
 
   switch (event.type) {
 
+    // Fires immediately when checkout completes — update plan right away
+    case 'checkout.session.completed': {
+      if (obj.mode !== 'subscription') break;
+      const userId = obj.metadata?.user_id;
+      const plan   = obj.metadata?.plan;
+      if (!userId || !plan) break;
+
+      await supabase
+        .from('subscriptions')
+        .update({
+          plan,
+          status:                 'active',
+          stripe_subscription_id: obj.subscription,
+          stripe_customer_id:     obj.customer,
+        })
+        .eq('user_id', userId);
+      break;
+    }
+
     case 'invoice.payment_succeeded': {
       const subscription = await stripe.subscriptions.retrieve(obj.subscription);
       const priceId      = subscription.items?.data?.[0]?.price?.id;

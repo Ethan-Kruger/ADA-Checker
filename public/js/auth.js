@@ -319,16 +319,55 @@
     }
   });
 
-  // Handle ?upgrade=success — re-sync the plan after Stripe redirects back
+  // Handle ?upgrade=success — ask Stripe directly what plan the user is on.
+  // This bypasses the webhook entirely so it works even if webhooks aren't wired up.
   if (new URLSearchParams(window.location.search).get('upgrade') === 'success') {
-    syncPlan().then(function () {
-      // Small notification
-      var note = document.createElement('div');
-      note.className = 'upgrade-success-toast';
-      note.textContent = 'Upgrade successful! Your plan has been activated.';
-      document.body.appendChild(note);
-      setTimeout(function () { note.remove(); }, 5000);
-    });
+    var upgradeAttempts = 0;
+    var maxAttempts = 8;
+
+    function pollUntilUpgraded() {
+      upgradeAttempts++;
+
+      // Call sync-plan: hits Stripe directly and updates Supabase in one shot
+      fetch(API + '/stripe/sync-plan', { method: 'POST', credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          var resolvedPlan = (data && data.plan) ? data.plan : 'free';
+
+          if (resolvedPlan !== 'free') {
+            // Write confirmed plan to localStorage
+            localStorage.setItem(PLAN_KEY, resolvedPlan);
+            localStorage.removeItem(PLAN_CACHE_KEY);
+
+            var note = document.createElement('div');
+            note.className = 'upgrade-success-toast';
+            note.setAttribute('role', 'status');
+            note.textContent = 'Upgrade successful! Your plan has been activated.';
+            document.body.appendChild(note);
+
+            // Reload clean (no query string) so all plan gates re-evaluate
+            setTimeout(function () {
+              window.location.href = window.location.pathname;
+            }, 1500);
+          } else if (upgradeAttempts < maxAttempts) {
+            // Stripe may not have finalised yet — retry in 2 s
+            setTimeout(pollUntilUpgraded, 2000);
+          } else {
+            var note = document.createElement('div');
+            note.className = 'upgrade-success-toast';
+            note.setAttribute('role', 'alert');
+            note.style.background = '#b45309';
+            note.textContent = 'Payment received! Refresh in a moment if features are not yet unlocked.';
+            document.body.appendChild(note);
+            setTimeout(function () { note.remove(); }, 8000);
+          }
+        })
+        .catch(function () {
+          if (upgradeAttempts < maxAttempts) setTimeout(pollUntilUpgraded, 2000);
+        });
+    }
+
+    pollUntilUpgraded();
   }
 
 }());

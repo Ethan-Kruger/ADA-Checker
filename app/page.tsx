@@ -343,7 +343,7 @@ export default function CheckerPage() {
       <Footer />
 
       {/* Load auth script first, then lazily load checker */}
-      <Script src="/js/auth.js?v=7" strategy="afterInteractive" />
+      <Script src="/js/auth.js?v=9" strategy="afterInteractive" />
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
           var loaded = false;
