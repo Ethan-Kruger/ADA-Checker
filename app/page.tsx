@@ -342,42 +342,18 @@ export default function CheckerPage() {
 
       <Footer />
 
-      {/* Load auth script first, then lazily load checker */}
+      {/* Load auth first, then checker, then app (order matters) */}
       <Script src="/js/auth.js?v=9" strategy="afterInteractive" />
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
-          var loaded = false;
-          function loadChecker() {
-            if (loaded) return;
-            loaded = true;
-            var s1 = document.createElement('script');
-            s1.src = '/js/checker.js?v=5';
-            s1.onload = function () {
-              var s2 = document.createElement('script');
-              s2.src = '/js/app.js?v=8';
-              document.head.appendChild(s2);
-            };
-            document.head.appendChild(s1);
-          }
-          // Use event delegation so we catch clicks even if AuthGate hasn't
-          // rendered the checker elements yet when this script first runs.
-          document.addEventListener('click', function onCheckerClick(e) {
-            if (e.target.closest('#check-btn, #tab-paste, #tab-url, #tab-batch, #html-input, #batch-check-btn')) {
-              document.removeEventListener('click', onCheckerClick);
-              loadChecker();
-            }
-          });
-          document.addEventListener('focus', function onCheckerFocus(e) {
-            if (e.target.closest('#html-input, #url-input')) {
-              document.removeEventListener('focus', onCheckerFocus, true);
-              loadChecker();
-            }
-          }, true);
-          if (window.requestIdleCallback) {
-            requestIdleCallback(loadChecker, { timeout: 8000 });
-          } else {
-            setTimeout(loadChecker, 5000);
-          }
+          var s1 = document.createElement('script');
+          s1.src = '/js/checker.js?v=5';
+          s1.onload = function () {
+            var s2 = document.createElement('script');
+            s2.src = '/js/app.js?v=8';
+            document.head.appendChild(s2);
+          };
+          document.head.appendChild(s1);
         }());
       `}</Script>
     </>
