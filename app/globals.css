@@ -176,13 +176,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
+  /* height grows to absorb the iOS status bar / notch via safe-area-inset-top */
+  height: calc(60px + env(safe-area-inset-top));
   margin-left: -1.5rem;
   margin-right: -1.5rem;
-  padding: 0 1.5rem;
-  /* Shift down by notch/status bar height on iPhone X+ */
-  padding-top: env(safe-area-inset-top);
-  height: calc(60px + env(safe-area-inset-top));
+  /* horizontal padding + top padding for notch devices */
+  padding: env(safe-area-inset-top) 1.5rem 0;
   background: #060e1a;
   border-bottom: 1px solid rgba(255,255,255,0.07);
   box-shadow: 0 2px 16px rgba(0,0,0,0.5);
@@ -1288,7 +1287,8 @@ input[aria-invalid="true"] {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  /* Minimum vertical tap target via padding (keeps inline layout) */
+  padding: 0.5rem 0;
   font-family: inherit;
 }
 .footer-links a:hover,
@@ -1528,12 +1528,19 @@ input[aria-invalid="true"] {
 }
 
 @media (max-width: 600px) {
-  body { padding: 0 1rem 2rem; }
+  body {
+    padding: 0 1rem 2rem;
+    /* Restore safe-area-inset-bottom overridden by shorthand above */
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
 
   .site-nav {
     margin-left: -1rem;
     margin-right: -1rem;
-    padding: 0 1rem;
+    /* Preserve notch padding-top; only override horizontal + bottom */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 0;
   }
 
   .page-header h1 { font-size: 1.375rem; }
@@ -1550,14 +1557,23 @@ input[aria-invalid="true"] {
   .filter-bar { gap: 0.375rem; }
   .filter-btn { padding: 0.3rem 0.625rem; font-size: 0.8125rem; min-height: 44px; }
 
-  /* Touch targets: all interactive elements minimum 44px tall on mobile */
-  button, a, [role="tab"], [role="button"], input, select, textarea {
+  /* Touch targets: discrete interactive controls minimum 44px (WCAG 2.5.5)
+     Intentionally NOT including textarea (grows naturally) or inline <a> (would
+     push line-height in body text). Target specific interactive controls only. */
+  button,
+  [role="button"],
+  [role="tab"],
+  input:not([type="color"]),
+  select {
     min-height: 44px;
   }
-  /* Override for elements that should stay small but still be tappable */
-  .nav-link { min-height: 44px; display: inline-flex; align-items: center; }
+  /* Named elements that need explicit overrides */
+  .nav-link       { min-height: 44px; display: inline-flex; align-items: center; }
   .settings-nav-item { min-height: 44px; }
-  .pricing-btn { min-height: 44px; }
+  .pricing-btn    { min-height: 44px; }
+
+  /* Make primary check button full-width so it's easy to tap */
+  #check-btn { width: 100%; }
 }
 
 /* ── Textarea wrapper + checker switcher ───────────────────────────────────── */
@@ -1998,9 +2014,10 @@ input[type="color"]:focus-visible {
   padding: 1.5rem 0.75rem 2rem;
   border-right: 1px solid rgba(255,255,255,0.08);
   position: sticky;
-  top: 60px;
+  /* Offset by actual nav height including notch safe area */
+  top: calc(60px + env(safe-area-inset-top));
   align-self: flex-start;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px - env(safe-area-inset-top));
   overflow-y: auto;
 }
 
@@ -2058,6 +2075,9 @@ input[type="color"]:focus-visible {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+}
+@media (max-width: 520px) {
+  .settings-content { padding: 1.25rem 0; }
 }
 
 .settings-placeholder {
@@ -3531,6 +3551,26 @@ input[type="color"]:focus-visible {
 }
 .invoice-row:hover { background: rgba(255,255,255,0.04); }
 
+/* Collapse 5-column invoice table to stacked cards on mobile */
+@media (max-width: 520px) {
+  .invoices-header { display: none; }
+  .invoice-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.25rem 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    margin-bottom: 0.375rem;
+  }
+  .invoice-date   { grid-column: 1; grid-row: 1; font-size: 0.75rem; }
+  .invoice-desc   { grid-column: 1; grid-row: 2; white-space: normal; }
+  .invoice-amount { grid-column: 2; grid-row: 1; text-align: right; }
+  .invoice-status { grid-column: 2; grid-row: 2; justify-self: end; }
+  .invoice-pdf-link { grid-column: 1 / -1; grid-row: 3; }
+  .invoice-no-pdf { display: none; }
+}
+
 .invoice-date   { color: #64748b; font-size: 0.8rem; }
 .invoice-desc   { color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .invoice-amount { font-weight: 600; color: #e2e8f0; }
@@ -3804,6 +3844,19 @@ input[type="color"]:focus-visible {
   overflow-y: auto;
 }
 
+@media (max-width: 520px) {
+  .profile-sub-layout { flex-direction: column; }
+  .profile-sub-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0.5rem;
+  }
+  .profile-sub-nav { flex-direction: row; flex-wrap: wrap; gap: 0.375rem; }
+  .profile-sub-nav-item { width: auto; }
+  .profile-sub-content { padding: 1rem 0.75rem; }
+}
+
 .profile-sub-panel {
   display: none;
 }
@@ -4068,6 +4121,8 @@ body[data-page="profile"] .panel-header {
     max-width: calc(100% - 2rem);
     margin: 0 1rem;
     box-sizing: border-box;
+    /* Reduce internal padding so inputs have more breathing room */
+    padding: 1.25rem;
   }
 
   /* Auth modal close button: expand touch target to 44×44 */
