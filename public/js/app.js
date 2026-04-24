@@ -18,7 +18,8 @@
   }
   function hideSpinner() {
     if (scanSpinner) { scanSpinner.hidden = true; scanSpinner.setAttribute('aria-hidden', 'true'); }
-    if (liveRegion) { liveRegion.textContent = ''; }
+    // Do NOT clear liveRegion here — displayResults() overwrites it immediately after,
+    // and clearing first can cause some AT to miss the result announcement.
   }
 
   // ─── Element references ──────────────────────────────────────────────────────
@@ -389,13 +390,20 @@
     var exportSection = document.getElementById('export-section');
     if (exportSection) exportSection.hidden = false;
 
-    // Announce result count BEFORE moving focus so the live region message
-    // is queued and read after the heading announcement, not missed.
+    // Announce result summary via the ARIA live region (WCAG 4.1.3 Status Messages).
+    // Set content BEFORE moving focus so AT reads the live region update, then the heading.
     if (liveRegion) {
+      var s = result.summary;
+      var parts = [];
+      if (s.critical) parts.push(s.critical + ' critical');
+      if (s.serious)  parts.push(s.serious  + ' serious');
+      if (s.moderate) parts.push(s.moderate + ' moderate');
+      if (s.minor)    parts.push(s.minor    + ' minor');
+      var breakdown = parts.length ? ': ' + parts.join(', ') : '';
       liveRegion.textContent =
-        'Check complete. Found ' + result.summary.total +
-        ' violation' + (result.summary.total !== 1 ? 's' : '') +
-        '. Score: ' + result.score + ' out of 100. WCAG Level ' + (result.level || 'A') + '.';
+        'Check complete. Score ' + result.score + ' out of 100. ' +
+        'Found ' + s.total + ' violation' + (s.total !== 1 ? 's' : '') + breakdown +
+        '. WCAG Level ' + (result.level || 'A') + '.';
     }
 
     resultsSection.hidden = false;
