@@ -3,10 +3,9 @@ name: Accessibility check
 on:
   pull_request:
     branches: [main, master]
-    paths:
-      - 'docs/**/*.html'
-      - 'public/js/checker.js'
-      - 'scripts/ci-check.mjs'
+  push:
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   a11y:
