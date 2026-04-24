@@ -12,6 +12,7 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 export interface JwtPayload {
   sub: string;
   email: string;
+  ver: number; // token_version — incremented on password change to invalidate old tokens
   iat?: number;
   exp?: number;
 }

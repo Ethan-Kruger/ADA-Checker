@@ -10,17 +10,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Fetch user and verify token_version to reject sessions from before a
+  // password change on other devices/browsers.
   const { data: user } = await supabase
     .from('users')
-    .select('id, email, created_at')
+    .select('id, email, created_at, token_version')
     .eq('id', payload.sub)
     .single();
 
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
+  if ((payload.ver ?? 0) !== (user.token_version ?? 0)) {
+    return NextResponse.json({ error: 'Session expired. Please log in again.' }, { status: 401 });
+  }
+
   const { data: sub } = await supabase
     .from('subscriptions')
-    .select('plan, status, current_period_end, stripe_customer_id')
+    .select('plan, status, current_period_end')
     .eq('user_id', user.id)
     .single();
 

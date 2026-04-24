@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     .from('subscriptions')
     .insert({ user_id: user.id, plan: 'free', status: 'active' });
 
-  const token = signToken({ sub: user.id, email: user.email });
+  const token = signToken({ sub: user.id, email: user.email, ver: 0 });
 
   // Token goes in httpOnly cookie only — never exposed in response body
   const res = NextResponse.json(

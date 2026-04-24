@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import supabase from '@/lib/supabase';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, signToken, buildTokenCookie } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
   const { data: user } = await supabase
     .from('users')
-    .select('id, password_hash')
+    .select('id, password_hash, token_version')
     .eq('id', payload.sub)
     .single();
 
@@ -65,18 +65,29 @@ export async function POST(req: NextRequest) {
   }
 
   const password_hash = await bcrypt.hash(newPassword, 12);
+  const newVersion = (user.token_version ?? 0) + 1;
 
   const { error: updateErr } = await supabase
     .from('users')
-    .update({ password_hash })
+    .update({
+      password_hash,
+      token_version: newVersion,
+      password_changed_at: new Date().toISOString(),
+    })
     .eq('id', user.id);
 
   if (updateErr) {
-    console.error('change-password update error:', updateErr.message);
+    console.error('change-password update error:', updateErr.code);
     return NextResponse.json({ error: 'Failed to update password' }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  // Issue a fresh token with the incremented version so this session stays valid
+  // while all other sessions (other devices/browsers) with old ver values are rejected
+  // by any endpoint that verifies the token version against the DB.
+  const newToken = signToken({ sub: user.id, email: payload.email, ver: newVersion });
+  const res = NextResponse.json({ ok: true });
+  res.headers.set('Set-Cookie', buildTokenCookie(newToken));
+  return res;
 }
 
 export async function OPTIONS() {
