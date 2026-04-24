@@ -332,11 +332,11 @@ describe('skip-link-missing', () => {
 
 describe('iframe-no-title', () => {
   it('flags iframe with no title', () => {
-    expect(has(page('<iframe src="/map"></iframe>'), 'iframe-no-title')).toBe(true)
+    expect(has(page('<iframe></iframe>'), 'iframe-no-title')).toBe(true)
   })
 
   it('passes iframe with title', () => {
-    expect(has(page('<iframe src="/map" title="Interactive map"></iframe>'), 'iframe-no-title')).toBe(false)
+    expect(has(page('<iframe title="Interactive map"></iframe>'), 'iframe-no-title')).toBe(false)
   })
 })
 
