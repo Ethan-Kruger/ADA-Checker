@@ -497,6 +497,12 @@
           'for example: <img src="photo.png"> or your full page source.');
         return;
       }
+      // 5 MB limit — prevents DOMParser from consuming excessive memory on huge pastes
+      if (html.length > 5 * 1024 * 1024) {
+        showInputError(htmlInput, htmlErrorEl,
+          'HTML is too large (max 5\u00a0MB). Trim the document and try again.');
+        return;
+      }
       clearInputError(htmlInput, htmlErrorEl);
     }
 

@@ -4,6 +4,8 @@ import supabase from '@/lib/supabase';
 import { signToken, buildTokenCookie } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
 
+const MAX_PASSWORD_LENGTH = 128;
+
 export async function POST(req: NextRequest) {
   const { limited } = await rateLimit(req, 'rl:signup', 5, 10 * 60 * 1000);
   if (limited) {
@@ -25,6 +27,12 @@ export async function POST(req: NextRequest) {
   if (password.length < 8) {
     return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
   }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return NextResponse.json(
+      { error: `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer` },
+      { status: 400 }
+    );
+  }
   if (!/[A-Z]/.test(password)) {
     return NextResponse.json(
       { error: 'Password must contain at least one uppercase letter' },
@@ -38,6 +46,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Hash password BEFORE checking email existence so both code paths take the
+  // same amount of time — prevents timing-based account enumeration via signup.
+  const password_hash = await bcrypt.hash(password, 12);
+
   const { data: existing } = await supabase
     .from('users')
     .select('id')
@@ -50,8 +62,6 @@ export async function POST(req: NextRequest) {
       { status: 409 }
     );
   }
-
-  const password_hash = await bcrypt.hash(password, 12);
 
   const { data: user, error: userErr } = await supabase
     .from('users')

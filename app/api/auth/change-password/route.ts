@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  if (newPassword.length > 128) {
+    return NextResponse.json(
+      { error: 'Password must be 128 characters or fewer' },
+      { status: 400 }
+    );
+  }
   if (!/[A-Z]/.test(newPassword)) {
     return NextResponse.json(
       { error: 'New password must contain at least one uppercase letter' },

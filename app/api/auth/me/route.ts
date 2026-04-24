@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import supabase from '@/lib/supabase';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, buildClearCookie } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   let payload;
@@ -21,7 +21,14 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   if ((payload.ver ?? 0) !== (user.token_version ?? 0)) {
-    return NextResponse.json({ error: 'Session expired. Please log in again.' }, { status: 401 });
+    // Token is from before a password change — clear the stale cookie so the
+    // browser doesn't keep sending it on every request.
+    const res = NextResponse.json(
+      { error: 'Session expired. Please log in again.' },
+      { status: 401 }
+    );
+    res.headers.set('Set-Cookie', buildClearCookie());
+    return res;
   }
 
   const { data: sub } = await supabase
