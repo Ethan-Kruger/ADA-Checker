@@ -12,6 +12,10 @@ jobs:
     name: WCAG scan
     runs-on: ubuntu-latest
 
+    permissions:
+      issues: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,11 +28,25 @@ jobs:
         run: npm ci
 
       - name: Run accessibility gate
+        id: a11y
+        continue-on-error: true
         run: |
           node scripts/ci-check.mjs \
             --threshold 80 \
             --level AA \
+            --json a11y-violations.json \
             docs/index.html \
             docs/pricing.html \
             docs/settings.html \
             docs/profile.html
+
+      - name: Create issues for violations
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/create-a11y-issues.mjs a11y-violations.json
+
+      - name: Fail if accessibility gate failed
+        if: steps.a11y.outcome == 'failure'
+        run: exit 1

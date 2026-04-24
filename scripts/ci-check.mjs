@@ -3,18 +3,19 @@
  * ADA Checker — CI accessibility gate
  *
  * Usage:
- *   node scripts/ci-check.mjs [--threshold 80] [--level A] file1.html file2.html ...
+ *   node scripts/ci-check.mjs [--threshold 80] [--level A] [--json out.json] file1.html ...
  *
  * Options:
- *   --threshold N   Minimum passing score 0–100 (default: 80)
- *   --level A|AA|AAA  WCAG level to check against (default: A)
+ *   --threshold N      Minimum passing score 0–100 (default: 80)
+ *   --level A|AA|AAA   WCAG level to check against (default: A)
+ *   --json <path>      Write violations as JSON to this path (used by CI issue creation)
  *
  * Exit codes:
  *   0  All files meet the threshold
  *   1  One or more files are below the threshold
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { Window } from 'happy-dom'
 
@@ -32,8 +33,12 @@ function flag(name, fallback) {
 
 const threshold = Number(flag('--threshold', '80'))
 const level     = (flag('--level', 'A')).toUpperCase()
+const jsonOut   = flag('--json', null)
 const files     = args.filter((a, i) =>
-  !a.startsWith('--') && args[i - 1] !== '--threshold' && args[i - 1] !== '--level'
+  !a.startsWith('--') &&
+  args[i - 1] !== '--threshold' &&
+  args[i - 1] !== '--level' &&
+  args[i - 1] !== '--json'
 )
 
 if (!files.length) {
@@ -80,6 +85,7 @@ const GREEN = '\x1b[32m'
 const RED   = '\x1b[31m'
 
 let anyFailed = false
+const allViolations = []  // collected for --json output
 
 out.log(`\n${BOLD}ADA Accessibility CI Check${RESET}`)
 out.log(`Level: WCAG ${level}   Threshold: ${threshold}/100\n`)
@@ -92,6 +98,11 @@ for (const file of files) {
   const passed = score >= threshold
 
   if (!passed) anyFailed = true
+
+  // Collect violations with file context for --json output
+  for (const v of violations) {
+    allViolations.push({ file, score, ...v })
+  }
 
   const scoreColor = passed ? GREEN : RED
   const label      = passed ? 'PASS' : 'FAIL'
@@ -118,6 +129,15 @@ for (const file of files) {
 }
 
 out.log('\n' + '─'.repeat(72))
+
+// Write JSON output if requested
+if (jsonOut) {
+  writeFileSync(
+    resolve(process.cwd(), jsonOut),
+    JSON.stringify({ level, threshold, passed: !anyFailed, violations: allViolations }, null, 2)
+  )
+  out.log(`\nViolations written to ${jsonOut}`)
+}
 
 if (anyFailed) {
   out.error(`\n${RED}${BOLD}FAILED${RESET} — one or more pages scored below ${threshold}.\n`)
