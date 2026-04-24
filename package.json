@@ -14,7 +14,6 @@
     "@supabase/supabase-js": "^2.103.2",
     "@upstash/redis": "^1.37.0",
     "@vercel/analytics": "^2.0.1",
-    "@vercel/flags": "^3.1.1",
     "@vercel/kv": "^3.0.0",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^2.4.3",
@@ -31,6 +30,16 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.3",
-    "vercel": "^34.0.0"
+    "vercel": "^34.4.0"
+  },
+  "overrides": {
+    "tar": ">=7.5.11",
+    "@tootallnate/once": ">=3.0.1",
+    "undici": ">=6.24.0",
+    "esbuild": ">=0.25.0",
+    "ajv": ">=8.18.0",
+    "debug": ">=4.3.1",
+    "path-to-regexp": ">=6.3.0",
+    "semver": ">=7.5.2"
   }
 }
