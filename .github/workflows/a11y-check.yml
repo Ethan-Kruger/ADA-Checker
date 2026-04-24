@@ -1,0 +1,35 @@
+name: Accessibility check
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docs/**/*.html'
+      - 'public/js/checker.js'
+      - 'scripts/ci-check.mjs'
+
+jobs:
+  a11y:
+    name: WCAG scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run accessibility gate
+        run: |
+          node scripts/ci-check.mjs \
+            --threshold 80 \
+            --level A \
+            docs/index.html \
+            docs/pricing.html \
+            docs/settings.html \
+            docs/profile.html
