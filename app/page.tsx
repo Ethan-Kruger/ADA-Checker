@@ -150,8 +150,8 @@ export default function CheckerPage() {
                 </div>
                 <div id="batch-items" style={{ marginTop: '1rem' }}>
                   <div className="batch-item">
-                    <div className="batch-item-header"><label>Page 1</label></div>
-                    <textarea className="batch-textarea" rows={6} placeholder="Paste HTML for page 1…" spellCheck={false} />
+                    <div className="batch-item-header"><label htmlFor="batch-textarea-1">Page 1</label></div>
+                    <textarea id="batch-textarea-1" className="batch-textarea" rows={6} placeholder="Paste HTML for page 1…" spellCheck={false} />
                   </div>
                 </div>
                 <p id="batch-input-error" className="input-error-msg" hidden role="alert" />
@@ -253,7 +253,7 @@ export default function CheckerPage() {
         <section id="results" aria-labelledby="results-heading" hidden>
           <div className="results-title-row">
             <h2 id="results-heading" tabIndex={-1}>Results</h2>
-            <span id="results-wcag-level" className="results-wcag-badge" hidden aria-label="Checked against WCAG level" />
+            <span id="results-wcag-level" className="results-wcag-badge" hidden />
           </div>
 
           <div className="score-container">

@@ -781,16 +781,17 @@
         return;
       }
       batchPageCount++;
+      var taId = 'batch-textarea-' + batchPageCount;
       var wrap = document.createElement('div');
       wrap.className = 'batch-item';
       wrap.innerHTML =
         '<div class="batch-item-header">' +
-          '<label>Page ' + batchPageCount + '</label>' +
+          '<label for="' + taId + '">Page ' + batchPageCount + '</label>' +
           '<button type="button" class="batch-remove-btn" aria-label="Remove page ' + batchPageCount + '">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
           '</button>' +
         '</div>' +
-        '<textarea class="batch-textarea" rows="6" placeholder="Paste HTML for page ' + batchPageCount + '…" spellcheck="false"></textarea>';
+        '<textarea id="' + taId + '" class="batch-textarea" rows="6" placeholder="Paste HTML for page ' + batchPageCount + '…" spellcheck="false"></textarea>';
       wrap.querySelector('.batch-remove-btn').addEventListener('click', function () {
         wrap.remove();
         batchPageCount--;
@@ -803,10 +804,14 @@
 
   function renumberBatchItems() {
     Array.from(batchItems.querySelectorAll('.batch-item')).forEach(function (item, i) {
-      var lbl = item.querySelector('label');
-      var btn = item.querySelector('.batch-remove-btn');
-      if (lbl) lbl.textContent = 'Page ' + (i + 1);
-      if (btn) btn.setAttribute('aria-label', 'Remove page ' + (i + 1));
+      var num  = i + 1;
+      var taId = 'batch-textarea-' + num;
+      var lbl  = item.querySelector('label');
+      var btn  = item.querySelector('.batch-remove-btn');
+      var ta   = item.querySelector('.batch-textarea');
+      if (lbl) { lbl.textContent = 'Page ' + num; lbl.setAttribute('for', taId); }
+      if (btn) btn.setAttribute('aria-label', 'Remove page ' + num);
+      if (ta)  ta.id = taId;
     });
     batchPageCount = batchItems.querySelectorAll('.batch-item').length;
   }
