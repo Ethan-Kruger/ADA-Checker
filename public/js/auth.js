@@ -73,25 +73,28 @@
 
     // Always re-fetch if current plan is free (may have just paid) or cache expired
     const cacheValid = age < PLAN_CACHE_TTL && currentPlan !== 'free';
-    if (!forceRefresh && cacheValid) return;
+
+    // On cache hit, still notify so app.js can apply locks on first load.
+    if (!forceRefresh && cacheValid) {
+      window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: currentPlan } }));
+      return;
+    }
 
     try {
       const res  = await fetch(API + '/auth/me', { credentials: 'include' });
       if (res.status === 401) { logout(); return; }
       const data = await res.json();
       if (data.plan) {
-        const oldPlan = localStorage.getItem(PLAN_KEY);
         localStorage.setItem(PLAN_KEY, data.plan);
         localStorage.setItem(PLAN_CACHE_KEY, String(Date.now()));
         if (data.user) setUser(data.user);
 
         // Always notify other scripts — even if plan didn't change.
-        // app.js may have missed the event if it loaded after syncPlan completed,
-        // so the event fires on every sync so all listeners can re-evaluate.
         window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: data.plan } }));
       }
     } catch (e) {
-      // Network error — keep cached plan
+      // Network error — keep cached plan, still notify with whatever we have
+      window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: currentPlan } }));
     }
   }
 

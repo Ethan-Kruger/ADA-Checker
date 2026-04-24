@@ -191,12 +191,14 @@
     var urlContent   = document.getElementById('url-content');
     var batchContent = document.getElementById('batch-content');
 
-    if (urlBanner)    urlBanner.hidden    = !locked;
-    if (batchBanner)  batchBanner.hidden  = !locked;
+    // Use style.display instead of hidden attribute so CSS (display:flex on
+    // .tab-paywall) cannot override the visibility decision.
+    if (urlBanner)    urlBanner.style.display    = locked ? '' : 'none';
+    if (batchBanner)  batchBanner.style.display  = locked ? '' : 'none';
 
     // Hide/show the content areas entirely — no graying, just gone
-    if (urlContent)   urlContent.hidden   = locked;
-    if (batchContent) batchContent.hidden = locked;
+    if (urlContent)   urlContent.style.display   = locked ? 'none' : '';
+    if (batchContent) batchContent.style.display = locked ? 'none' : '';
 
     // Enable/disable the URL input and batch check button based on plan.
     // url-input is disabled in the server HTML by default; remove it for pro+.
