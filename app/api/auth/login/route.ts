@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import supabase from '@/lib/supabase';
-import { signToken } from '@/lib/auth';
+import { signToken, buildTokenCookie } from '@/lib/auth';
 import { rateLimit, recordFailedLogin, isLockedOut, clearLockout } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
@@ -58,7 +58,10 @@ export async function POST(req: NextRequest) {
   const plan = sub?.plan || 'free';
   const token = signToken({ sub: user.id, email: user.email });
 
-  return NextResponse.json({ token, user: { id: user.id, email: user.email }, plan });
+  // Token goes in httpOnly cookie only — never exposed in response body
+  const res = NextResponse.json({ user: { id: user.id, email: user.email }, plan });
+  res.headers.set('Set-Cookie', buildTokenCookie(token));
+  return res;
 }
 
 export async function OPTIONS() {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/lib/stripe';
 import supabase from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 
 const PRICE_IDS: Record<string, string | undefined> = {
   pro: process.env.STRIPE_PRO_PRICE_ID,
@@ -9,6 +10,14 @@ const PRICE_IDS: Record<string, string | undefined> = {
 };
 
 export async function POST(req: NextRequest) {
+  const { limited } = await rateLimit(req, 'rl:checkout', 5, 60 * 1000);
+  if (limited) {
+    return NextResponse.json(
+      { error: 'Too many checkout attempts. Please wait a minute.' },
+      { status: 429 }
+    );
+  }
+
   let payload;
   try {
     payload = requireAuth(req);

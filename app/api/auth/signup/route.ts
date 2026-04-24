@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import supabase from '@/lib/supabase';
-import { signToken } from '@/lib/auth';
+import { signToken, buildTokenCookie } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (userErr || !user) {
-    console.error('signup user error:', userErr?.message);
+    console.error('signup user error:', userErr?.code ?? 'UNKNOWN');
     return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
   }
 
@@ -70,10 +70,13 @@ export async function POST(req: NextRequest) {
 
   const token = signToken({ sub: user.id, email: user.email });
 
-  return NextResponse.json(
-    { token, user: { id: user.id, email: user.email }, plan: 'free' },
+  // Token goes in httpOnly cookie only — never exposed in response body
+  const res = NextResponse.json(
+    { user: { id: user.id, email: user.email }, plan: 'free' },
     { status: 201 }
   );
+  res.headers.set('Set-Cookie', buildTokenCookie(token));
+  return res;
 }
 
 export async function OPTIONS() {
