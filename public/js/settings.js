@@ -33,6 +33,7 @@
     if (panelId === 'history')          renderHistory();
     if (panelId === 'checker')          updateCheckerRateUI();
     if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'enterprise');
+    if (panelId === 'integrations')     applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     if (panelId === 'custom-rules') {
       applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
       if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
@@ -501,6 +502,7 @@
     refreshPlanBadges();
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+    applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     updateCheckerRateUI();
     if (typeof window.renderCustomRules === 'function') window.renderCustomRules();
 
@@ -523,6 +525,7 @@
     refreshPlanBadges();
     applyPlanGate('api-gate', 'api-content', 'enterprise');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
+    applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     updateCheckerRateUI();
   });
 

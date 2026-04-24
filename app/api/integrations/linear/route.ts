@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import supabase from '@/lib/supabase';
+import { requireAuth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
+  // Require enterprise plan
+  let payload;
+  try { payload = requireAuth(req); } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const { data: sub } = await supabase
+    .from('subscriptions')
+    .select('plan')
+    .eq('user_id', payload.sub)
+    .single();
+  if (sub?.plan !== 'enterprise') {
+    return NextResponse.json({ error: 'Enterprise plan required' }, { status: 403 });
+  }
+
   const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { apiKey, teamId, title, description } = body as {
     apiKey?: string; teamId?: string; title?: string; description?: string;

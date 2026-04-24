@@ -322,6 +322,9 @@
   // ─── Issue tracker helpers ────────────────────────────────────────────────────
 
   function getConfiguredTracker() {
+    // Enterprise-only feature
+    if ((localStorage.getItem('ada-plan') || 'free') !== 'enterprise') return null;
+
     var linearKey  = localStorage.getItem('ada-linear-key');
     var linearTeam = localStorage.getItem('ada-linear-team-id');
     if (linearKey && linearTeam) return { name: 'Linear', type: 'linear' };
