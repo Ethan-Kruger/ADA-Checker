@@ -3,21 +3,41 @@
  * ADA Checker — CI accessibility gate
  *
  * Usage:
- *   node scripts/ci-check.mjs [--threshold 80] [--level A] [--json out.json] file1.html ...
+ *   node scripts/ci-check.mjs [--threshold 80] [--level AA] [--json out.json] [file1.html ...]
+ *   node scripts/ci-check.mjs --all   ← auto-discover every HTML file in the project
  *
  * Options:
  *   --threshold N      Minimum passing score 0–100 (default: 80)
- *   --level A|AA|AAA   WCAG level to check against (default: A)
+ *   --level A|AA|AAA   WCAG level to check against (default: AA)
  *   --json <path>      Write violations as JSON to this path (used by CI issue creation)
+ *   --all              Auto-discover all HTML files (excludes node_modules, .next, etc.)
  *
  * Exit codes:
  *   0  All files meet the threshold
  *   1  One or more files are below the threshold
  */
 
-import { readFileSync, writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
+import { resolve, join, relative } from 'path'
 import { Window } from 'happy-dom'
+
+// ── HTML file discovery ───────────────────────────────────────────────────────
+
+const SKIP_DIRS = new Set([
+  'node_modules', '.next', '.git', 'coverage', 'out', '.vercel', '.claude',
+])
+
+function findHtmlFiles(dir, root = dir) {
+  const results = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (!SKIP_DIRS.has(entry.name)) results.push(...findHtmlFiles(join(dir, entry.name), root))
+    } else if (entry.isFile() && entry.name.endsWith('.html')) {
+      results.push(relative(root, join(dir, entry.name)).replace(/\\/g, '/'))
+    }
+  }
+  return results
+}
 
 // Save before any globalThis.console override — used for all script output below
 const out = { log: console.log.bind(console), error: console.error.bind(console) }
@@ -32,17 +52,21 @@ function flag(name, fallback) {
 }
 
 const threshold = Number(flag('--threshold', '80'))
-const level     = (flag('--level', 'A')).toUpperCase()
+const level     = (flag('--level', 'AA')).toUpperCase()
 const jsonOut   = flag('--json', null)
-const files     = args.filter((a, i) =>
+const scanAll   = args.includes('--all')
+
+const explicitFiles = args.filter((a, i) =>
   !a.startsWith('--') &&
   args[i - 1] !== '--threshold' &&
   args[i - 1] !== '--level' &&
   args[i - 1] !== '--json'
 )
 
+const files = scanAll ? findHtmlFiles(process.cwd()) : explicitFiles
+
 if (!files.length) {
-  out.error('Usage: node scripts/ci-check.mjs [--threshold 80] [--level A] file1.html ...')
+  out.error('Usage: node scripts/ci-check.mjs [--all] [--threshold 80] [--level AA] [file1.html ...]')
   process.exit(1)
 }
 
