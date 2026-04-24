@@ -27,7 +27,7 @@ jobs:
         run: |
           node scripts/ci-check.mjs \
             --threshold 80 \
-            --level A \
+            --level AA \
             docs/index.html \
             docs/pricing.html \
             docs/settings.html \
