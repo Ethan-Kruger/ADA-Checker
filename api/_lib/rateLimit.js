@@ -1,11 +1,11 @@
-// Persistent rate limiter backed by Vercel KV (Redis).
+// Persistent rate limiter backed by Upstash Redis.
 // Falls back to in-memory if KV env vars are not configured (local dev).
 
 let kv = null;
 try {
-  // Only import if KV_REST_API_URL is set — avoids errors in local dev without KV
-  if (process.env.KV_REST_API_URL) {
-    kv = require('@vercel/kv').kv;
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    const { Redis } = require('@upstash/redis');
+    kv = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });
   }
 } catch (_) {}
 

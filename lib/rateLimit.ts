@@ -1,9 +1,13 @@
 import { NextRequest } from 'next/server';
+import { Redis } from '@upstash/redis';
 
-let kv: typeof import('@vercel/kv').kv | null = null;
+let kv: Redis | null = null;
 try {
-  if (process.env.KV_REST_API_URL) {
-    kv = require('@vercel/kv').kv;
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    kv = new Redis({
+      url: process.env.KV_REST_API_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
   }
 } catch (_) {}
 
