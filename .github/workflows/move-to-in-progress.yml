@@ -21,7 +21,7 @@ jobs:
             const body = context.payload.pull_request.body || '';
 
             // Match: fix #50, fixes #50, fixed #50, closes #50, close #50, closed #50, resolves #50, resolve #50, resolved #50
-            const pattern = /(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\s+#(\d+)/gi;
+            const pattern = /(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?|do?)\s+#(\d+)/gi;
             const matches = [...body.matchAll(pattern)];
             const issueNumbers = [...new Set(matches.map(m => parseInt(m[1])))];
 
