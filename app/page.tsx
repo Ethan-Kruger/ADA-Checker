@@ -350,7 +350,7 @@ export default function CheckerPage() {
           s1.src = '/js/checker.js?v=5';
           s1.onload = function () {
             var s2 = document.createElement('script');
-            s2.src = '/js/app.js?v=11';
+            s2.src = '/js/app.js?v=12';
             document.head.appendChild(s2);
           };
           document.head.appendChild(s1);

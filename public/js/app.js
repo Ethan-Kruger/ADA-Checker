@@ -198,6 +198,34 @@
     if (urlContent)   urlContent.hidden   = locked;
     if (batchContent) batchContent.hidden = locked;
 
+    // Enable/disable the URL input and batch check button based on plan.
+    // url-input is disabled in the server HTML by default; remove it for pro+.
+    var urlInputEl      = document.getElementById('url-input');
+    var batchCheckBtnEl = document.getElementById('batch-check-btn');
+    if (urlInputEl)      urlInputEl.disabled      = locked;
+    if (batchCheckBtnEl) batchCheckBtnEl.disabled = locked;
+
+    // Update WCAG dropdown option labels to drop "(locked)" for users whose
+    // plan actually allows those levels.
+    var plan = getUserPlan();
+    var wcagSel = document.getElementById('main-wcag-level');
+    if (wcagSel) {
+      var aaOpt  = wcagSel.querySelector('option[value="AA"]');
+      var aaaOpt = wcagSel.querySelector('option[value="AAA"]');
+      if (aaOpt)  aaOpt.textContent  = plan === 'pro' || plan === 'enterprise' ? 'AA \u2014 Pro' : 'AA \u2014 Pro (locked)';
+      if (aaaOpt) aaaOpt.textContent = plan === 'enterprise' ? 'AAA \u2014 Enterprise' : 'AAA \u2014 Enterprise (locked)';
+    }
+    var wcagHint = document.getElementById('main-wcag-hint');
+    if (wcagHint) {
+      if (plan === 'enterprise') {
+        wcagHint.textContent = 'All WCAG levels are available on your Enterprise plan.';
+      } else if (plan === 'pro') {
+        wcagHint.textContent = 'Level AAA requires the Enterprise plan.';
+      } else {
+        wcagHint.textContent = 'Level AA requires Pro plan. Level AAA requires Enterprise plan.';
+      }
+    }
+
     // Hide the main check button when:
     //   - batch tab is active (it has its own button), OR
     //   - URL tab is active and user is locked (no input to submit)
