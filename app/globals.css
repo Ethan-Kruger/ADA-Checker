@@ -599,6 +599,7 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   transition: background 0.15s, border-color 0.15s;
 }
 .batch-add-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+.batch-add-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
 
 .batch-check-btn {
   background: #4f4fbf;
@@ -612,6 +613,7 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   transition: background 0.15s;
 }
 .batch-check-btn:hover:not(:disabled) { background: #3d3daa; }
+.batch-check-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 3px; }
 .batch-check-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Batch results */
