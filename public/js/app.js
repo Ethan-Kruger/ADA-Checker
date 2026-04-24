@@ -38,17 +38,69 @@
   var tabs           = Array.from(document.querySelectorAll('[role="tab"]'));
   var filterBtns     = Array.from(document.querySelectorAll('.filter-btn'));
 
+  // ─── Server-side gate ────────────────────────────────────────────────────────
+  // Last server response — used to keep the counter accurate without extra fetches.
+  var serverRemaining = null; // number | null (null = pro/enterprise or unknown)
+  var serverResetAt   = null; // ISO string
+
+  /**
+   * POST /api/check/run — authoritative plan + rate-limit check.
+   * Returns true when the check may proceed, false when it should be blocked.
+   * Side-effects: updates serverRemaining/serverResetAt, updates usage counter.
+   */
+  async function requestServerGate() {
+    try {
+      var res = await fetch('/api/check/run', { method: 'POST', credentials: 'include' });
+      if (res.status === 401) {
+        if (window.adaAuth && window.adaAuth.showAuthModal) window.adaAuth.showAuthModal('login');
+        return false;
+      }
+      var data = await res.json();
+      if (res.status === 402) {
+        serverRemaining = 0;
+        if (data.resetAt) serverResetAt = data.resetAt;
+        updateUsageCounter();
+        return false;
+      }
+      if (!res.ok) return false;
+      // 200 — allowed
+      serverRemaining = typeof data.remaining === 'number' ? data.remaining : null;
+      if (data.resetAt) serverResetAt = data.resetAt;
+      updateUsageCounter();
+      return true;
+    } catch (e) {
+      // Network error — fall through to client-side check rather than hard-blocking
+      console.warn('Check gate unavailable, using client-side limit:', e);
+      return canRunCheck();
+    }
+  }
+
+  function serverResetMs() {
+    if (!serverResetAt) return null;
+    return Math.max(0, new Date(serverResetAt).getTime() - Date.now());
+  }
+
+  function serverFormatReset() {
+    var ms = serverResetMs();
+    if (ms === null) return formatResetTime();
+    var h = Math.floor(ms / 3600000);
+    var m = Math.floor((ms % 3600000) / 60000);
+    if (h > 0) return h + 'h ' + m + 'm';
+    return (m + 1) + 'm';
+  }
+
   // ─── Usage counter display ───────────────────────────────────────────────────
   function updateUsageCounter() {
     if (!usageCounter) return;
     if (getUserPlan() !== 'free') { usageCounter.hidden = true; return; }
-    var remaining = getRemainingChecks();
+    // Prefer server data when available, fall back to client-side estimate
+    var remaining = serverRemaining !== null ? serverRemaining : getRemainingChecks();
     usageCounter.hidden = false;
     if (remaining <= 0) {
-      usageCounter.textContent = 'Limit reached — resets in ' + formatResetTime();
+      usageCounter.textContent = 'Limit reached \u2014 resets in ' + serverFormatReset();
       usageCounter.classList.add('limit-reached');
       checkBtn.disabled = true;
-      checkBtn.setAttribute('aria-label', 'Check limit reached. Resets in ' + formatResetTime());
+      checkBtn.setAttribute('aria-label', 'Check limit reached. Resets in ' + serverFormatReset());
     } else {
       usageCounter.textContent = remaining + '\u202f/\u202f' + FREE_CHECK_LIMIT + ' checks remaining (resets every 4 hours)';
       usageCounter.classList.remove('limit-reached');
@@ -358,10 +410,16 @@
   checkBtn.addEventListener('click', handleCheck);
 
   async function handleCheck() {
-    if (!canRunCheck()) {
+    // Server is authoritative — always gate through the API before running.
+    // canRunCheck() is a fast-path UX check only (avoids a fetch when we
+    // already know from the last server response that the limit is reached).
+    if (serverRemaining === 0) {
       updateUsageCounter();
       return;
     }
+
+    var allowed = await requestServerGate();
+    if (!allowed) return;
 
     var activeTab = tabs.find(function (t) {
       return t.getAttribute('aria-selected') === 'true';
@@ -459,7 +517,12 @@
     // Run checks asynchronously — yields between batches so the page stays
     // responsive while scanning large HTML documents.
     window.checkAccessibilityAsync(html, getSelectedLevel()).then(function (result) {
-      incrementCheckCount();
+      // Server already incremented the count; sync client-side counter to match.
+      if (serverRemaining !== null) {
+        // serverRemaining was already decremented by requestServerGate response
+      } else {
+        incrementCheckCount(); // fallback: server was unreachable
+      }
 
       checkBtn.disabled = false;
       checkBtn.textContent = 'Check Accessibility';
@@ -707,12 +770,17 @@
   var batchErrorEl = document.getElementById('batch-input-error');
 
   if (batchCheckBtn) {
-    batchCheckBtn.addEventListener('click', function () {
+    batchCheckBtn.addEventListener('click', async function () {
       if (!planAtLeast('pro')) {
         showToast('Batch checking requires the Pro plan. Upgrade in Pricing Plans.');
         return;
       }
-      if (!canRunCheck()) { updateUsageCounter(); return; }
+      // Fast-path: skip fetch if we already know limit is reached
+      if (serverRemaining === 0) { updateUsageCounter(); return; }
+
+      // Server gate — authoritative plan + rate limit check
+      var allowed = await requestServerGate();
+      if (!allowed) return;
 
       var textareas = Array.from(batchItems.querySelectorAll('.batch-textarea'));
       var pages     = textareas.map(function (ta) { return ta.value.trim(); }).filter(Boolean);
@@ -748,7 +816,8 @@
       var results = [];
       (function runNext(idx) {
         if (idx >= pages.length) {
-          incrementCheckCount();
+          // Server already counted this; only use client fallback if server was unreachable
+          if (serverRemaining === null) incrementCheckCount();
           updateUsageCounter();
           batchCheckBtn.disabled = false;
           batchCheckBtn.textContent = 'Check All Pages';
