@@ -1,50 +1,40 @@
 # ADA Checker
 
-A browser-based accessibility checker that audits HTML against WCAG 2.1 rules — no server, no uploads, no dependencies.
+A Next.js web app that audits HTML against WCAG 2.1 rules and returns an instant accessibility report.
 
 ## What it does
 
-Paste any HTML (or enter a URL) and get an instant accessibility report with:
+Paste HTML, enter a URL, or run a batch scan and get:
 
 - **Score out of 100** — weighted by violation severity
 - **Violation breakdown** — Critical / Serious / Moderate / Minor counts
-- **Filterable violation cards** — each with the element, fix guidance, and WCAG reference
-- **Check history** — every run is saved locally so you can track improvement over time
-- **Loading spinner** — visible feedback while a scan runs, announced to screen readers via `role="status"`
-- **Screen reader live region** — announces scan start and end so assistive technology users get the same feedback
-- **Color contrast checker** — test foreground/background color pairs against WCAG AA and AAA thresholds, with a live preview and swap button
-- **Checker switcher** — dropdown in the editor corner to switch between the ADA scanner and the Color Contrast Checker
-- **Export results** *(Pro+)* — download or copy results as PDF, HTML, CSV, TXT, or clipboard copy
+- **Filterable violation cards** — element, fix guidance, and WCAG reference
+- **Check history** — runs saved locally, track improvement over time
+- **Color contrast checker** — test foreground/background pairs against WCAG AA/AAA thresholds
+- **Export results** *(Pro+)* — PDF, HTML, CSV, TXT, or clipboard
+- **Screen reader live region** — scan start/end announced to assistive technology
 
-## Pages
+## Stack
 
-| Page | Purpose |
+| Layer | Tech |
 |---|---|
-| `index.html` | Main checker — paste HTML or enter a URL |
-| `pricing.html` | Plan comparison (Free / Pro / Enterprise) |
-| `settings.html` | Appearance, profile, WCAG level, check history, and an embedded checker |
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript (strict) |
+| Database | Supabase (Postgres + Auth) |
+| Payments | Stripe |
+| ORM | Prisma |
+| Tests | Vitest + happy-dom |
+| Deploy | Vercel |
 
-## Checks (17 rules, WCAG 2.1)
+## Rules
 
-| # | Rule | Severity |
+30 WCAG 2.1 rules across three levels. See [RULES.md](RULES.md) for the full reference.
+
+| Level | Rules | Plan required |
 |---|---|---|
-| 1 | Image missing `alt` text | Critical |
-| 2 | Generic / filename alt text | Moderate |
-| 3 | Form input missing label | Critical |
-| 4 | Input uses placeholder only (no label) | Serious |
-| 5 | Link has no text | Critical |
-| 6 | Vague link text ("click here", "read more", …) | Serious |
-| 7 | Page missing `<title>` | Moderate |
-| 8 | Missing `<h1>` or skipped heading levels | Moderate |
-| 9 | `<html>` missing `lang` attribute | Moderate |
-| 10 | Invalid ARIA role / broken `aria-labelledby` reference | Serious |
-| 11 | Focusable element hidden with `aria-hidden="true"` | Critical |
-| 12 | Table missing `<th>`, `scope`, or `<caption>` | Serious / Moderate |
-| 13 | Duplicate IDs on the page | Serious |
-| 14 | Button has no accessible name | Critical |
-| 15 | No skip-navigation link | Minor |
-| 16 | `<iframe>` missing `title` | Serious |
-| 17 | `<input type="image">` missing `alt` | Critical |
+| A | 22 | Free |
+| AA | 5 | Pro |
+| AAA | 3 | Enterprise |
 
 ## Scoring
 
@@ -59,9 +49,58 @@ Score = 100 − (critical × 20) − (serious × 10) − (moderate × 5) − (mi
 | 50 – 79 | Fair |
 | 0 – 49 | Poor |
 
+## File structure
+
+```
+app/
+├── page.tsx              — Main checker UI
+├── pricing/              — Pricing page
+├── settings/             — Settings page
+├── profile/              — Profile page
+├── api/                  — Next.js API routes (auth, billing, check, stripe)
+├── layout.tsx
+└── globals.css
+components/
+├── Nav.tsx               — Site navigation (keyboard accessible, ARIA menu)
+├── AuthModal.tsx         — Login / signup modal
+├── Banner.tsx            — Pro plan banner
+└── Footer.tsx
+public/js/
+├── checker.js            — WCAG rule engine + checkAccessibility()
+├── app.js                — Checker page UI (tabs, gauge, filter, results, export)
+├── auth.js               — Auth helpers
+├── router.js             — Client-side routing
+└── settings.js           — Settings panel logic
+tests/
+├── setup.ts              — Vitest setup (happy-dom, localStorage, checker.js loader)
+├── level-a.test.ts       — 22 Level A rules (58 tests)
+├── level-aa.test.ts      — 5 Level AA rules (19 tests)
+└── level-aaa.test.ts     — 3 Level AAA rules (13 tests)
+lib/                      — Shared server utilities
+migrations/               — Prisma migrations
+```
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+Copy `.env.example` to `.env.local` and fill in your Supabase and Stripe keys.
+
+## Tests
+
+```bash
+npm test          # run once
+npm run test:watch  # watch mode
+```
+
 ## Settings
 
-All preferences are stored in `localStorage` — nothing is ever sent to a server.
+All preferences stored in `localStorage`.
 
 | Setting | Key | Options |
 |---|---|---|
@@ -70,50 +109,6 @@ All preferences are stored in `localStorage` — nothing is ever sent to a serve
 | Font type | `ada-font` | `system` / `lexend` / `atkinson` / `arial` / `verdana` / `comic-sans` |
 | WCAG level | `ada-wcag` | `A` / `AA` / `AAA` |
 | Check history | `ada-history` | Up to 20 most recent runs |
-| Profile name | `ada-profile-name` | Free text |
-| Profile email | `ada-profile-email` | Free text |
-
-## File structure
-
-```
-docs/
-├── index.html          — Checker page
-├── pricing.html        — Pricing page
-├── settings.html       — Settings page
-├── css/
-│   ├── styles.css      — Global styles (themes, nav, checker UI)
-│   └── settings.css    — Settings page styles
-├── js/
-│   ├── checker.js      — WCAG checks + checkAccessibility() + history save
-│   ├── app.js          — Checker page UI (tabs, gauge, filter, results, export, contrast checker, switcher)
-│   ├── settings.js     — Settings panel logic + history rendering
-│   └── nav.js          — Hamburger menu + brightness slider
-└── images/
-    └── logo.svg
-```
-
-## Running locally
-
-No build step needed — open any HTML file directly in a browser, or serve the `docs/` folder with any static server:
-
-```bash
-# Python
-python3 -m http.server 8080 --directory docs
-
-# Node (npx)
-npx serve docs
-```
-
-Then open `http://localhost:8080`.
-
-## Roadmap
-
-See [docs/ada-roadmap.md](docs/ada-roadmap.md) for the planned rule phases:
-
-- **Phase 1** — Core semantics and text *(done)*
-- **Phase 2** — Forms and focus
-- **Phase 3** — Color contrast
-- **Phase 4** — ARIA and advanced patterns
 
 ## License
 
