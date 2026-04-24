@@ -80,6 +80,17 @@ export default function SettingsPage() {
                 </li>
 
                 <li>
+                  <button className="settings-nav-item" data-panel="integrations" aria-label="Integrations (Enterprise)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/>
+                      <rect x="2" y="13" width="9" height="9" rx="1"/><path d="M17.5 13v3m0 3v.5M13 17.5h3m3 0h.5"/>
+                    </svg>
+                    <span aria-hidden="true">Integrations</span>
+                    <span className="nav-tier-badge" aria-hidden="true">ENT</span>
+                  </button>
+                </li>
+
+                <li>
                   <button className="settings-nav-item" data-panel="team" aria-label="Team (Enterprise)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
@@ -555,6 +566,70 @@ export default function SettingsPage() {
             </section>
 
             {/* TEAM */}
+            {/* INTEGRATIONS */}
+            <section className="settings-panel" id="panel-integrations" aria-labelledby="panel-integrations-title">
+              <h2 className="panel-title" id="panel-integrations-title">Integrations</h2>
+              <p className="panel-subtitle">Push accessibility violations directly to your issue tracker.</p>
+              <div id="integrations-gate" className="plan-gate" hidden>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <h3>Enterprise Feature</h3>
+                <p>Issue tracker integrations require the Enterprise plan.</p>
+                <a href="/pricing" className="plan-gate-link">Upgrade to Enterprise</a>
+              </div>
+              <div id="integrations-content">
+
+                {/* Linear */}
+                <div className="settings-card">
+                  <p className="panel-section-title">Linear</p>
+                  <p className="panel-subtitle" style={{ marginBottom: '1rem' }}>
+                    Create Linear issues from violation cards. Find your API key in Linear → Settings → API.
+                  </p>
+                  <div className="settings-field-row">
+                    <label htmlFor="linear-api-key" className="settings-field-label">API Key</label>
+                    <input type="password" id="linear-api-key" className="settings-input" placeholder="lin_api_…" autoComplete="off" />
+                  </div>
+                  <div className="settings-field-row" style={{ marginTop: '0.75rem' }}>
+                    <label htmlFor="linear-team-id" className="settings-field-label">Team ID</label>
+                    <input type="text" id="linear-team-id" className="settings-input" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autoComplete="off" />
+                  </div>
+                  <p className="api-key-note" style={{ marginTop: '0.5rem' }}>
+                    Team ID: Linear → Settings → Members → copy the ID from the URL.
+                  </p>
+                  <button type="button" id="linear-save-btn" className="settings-save-btn" style={{ marginTop: '1rem' }}>Save Linear</button>
+                  <span id="linear-save-status" className="settings-save-status" aria-live="polite"></span>
+                </div>
+
+                {/* Jira */}
+                <div className="settings-card" style={{ marginTop: '1rem' }}>
+                  <p className="panel-section-title">Jira</p>
+                  <p className="panel-subtitle" style={{ marginBottom: '1rem' }}>
+                    Create Jira bugs from violation cards. Generate an API token at id.atlassian.com → Security.
+                  </p>
+                  <div className="settings-field-row">
+                    <label htmlFor="jira-site-url" className="settings-field-label">Site URL</label>
+                    <input type="text" id="jira-site-url" className="settings-input" placeholder="yourcompany.atlassian.net" autoComplete="off" />
+                  </div>
+                  <div className="settings-field-row" style={{ marginTop: '0.75rem' }}>
+                    <label htmlFor="jira-email" className="settings-field-label">Email</label>
+                    <input type="email" id="jira-email" className="settings-input" placeholder="you@company.com" autoComplete="off" />
+                  </div>
+                  <div className="settings-field-row" style={{ marginTop: '0.75rem' }}>
+                    <label htmlFor="jira-token" className="settings-field-label">API Token</label>
+                    <input type="password" id="jira-token" className="settings-input" placeholder="ATATT3x…" autoComplete="off" />
+                  </div>
+                  <div className="settings-field-row" style={{ marginTop: '0.75rem' }}>
+                    <label htmlFor="jira-project" className="settings-field-label">Project Key</label>
+                    <input type="text" id="jira-project" className="settings-input" placeholder="ACC" autoComplete="off" />
+                  </div>
+                  <button type="button" id="jira-save-btn" className="settings-save-btn" style={{ marginTop: '1rem' }}>Save Jira</button>
+                  <span id="jira-save-status" className="settings-save-status" aria-live="polite"></span>
+                </div>
+
+              </div>
+            </section>
+
             <section className="settings-panel" id="panel-team" aria-labelledby="panel-team-title">
               <h2 className="panel-title" id="panel-team-title">Team Collaboration</h2>
               <p className="panel-subtitle">Share checks and manage accessibility across your organization.</p>

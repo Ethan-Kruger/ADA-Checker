@@ -1027,6 +1027,57 @@ input[aria-invalid="true"] { border-color: #dc2626; outline: 2px solid #dc2626; 
   border-radius: 2px;
 }
 
+/* ── Push-to-tracker ────────────────────────────────────────────────────── */
+.push-tracker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.push-tracker-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.push-tracker-btn:hover:not(:disabled) { border-color: #818cf8; color: #c7d2fe; }
+.push-tracker-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.push-tracker-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+.push-tracker-link {
+  font-size: 0.75rem;
+  color: #818cf8;
+  text-decoration: none;
+}
+.push-tracker-link:hover { color: #a5b4fc; text-decoration: underline; }
+.push-tracker-status {
+  font-size: 0.72rem;
+  color: #ef4444;
+}
+
+/* ── Integration settings fields ────────────────────────────────────────── */
+.settings-field-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.settings-field-label { font-size: 0.8rem; color: #9ca3af; font-weight: 500; }
+.settings-input {
+  background: #1a1a2e;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.settings-input:focus { outline: 2px solid #a5b4fc; outline-offset: 0; border-color: transparent; }
+.settings-save-status { font-size: 0.8rem; color: #4ade80; margin-left: 0.5rem; }
+
 /* ── Inline input error messages ────────────────────────────────────────── */
 .input-error-msg {
   display: block;

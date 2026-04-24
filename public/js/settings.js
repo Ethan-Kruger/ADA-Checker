@@ -691,6 +691,40 @@
     });
   }
 
+  // ─── Integrations ─────────────────────────────────────────────────────────
+
+  function setupIntegrationSave(saveId, statusId, keys) {
+    var btn    = document.getElementById(saveId);
+    var status = document.getElementById(statusId);
+    if (!btn) return;
+    keys.forEach(function (k) {
+      var el = document.getElementById(k.id);
+      if (el) el.value = localStorage.getItem(k.storageKey) || '';
+    });
+    btn.addEventListener('click', function () {
+      keys.forEach(function (k) {
+        var el = document.getElementById(k.id);
+        if (el) localStorage.setItem(k.storageKey, el.value.trim());
+      });
+      if (status) {
+        status.textContent = 'Saved';
+        setTimeout(function () { status.textContent = ''; }, 2000);
+      }
+    });
+  }
+
+  setupIntegrationSave('linear-save-btn', 'linear-save-status', [
+    { id: 'linear-api-key', storageKey: 'ada-linear-key' },
+    { id: 'linear-team-id', storageKey: 'ada-linear-team-id' },
+  ]);
+
+  setupIntegrationSave('jira-save-btn', 'jira-save-status', [
+    { id: 'jira-site-url', storageKey: 'ada-jira-url' },
+    { id: 'jira-email',    storageKey: 'ada-jira-email' },
+    { id: 'jira-token',    storageKey: 'ada-jira-token' },
+    { id: 'jira-project',  storageKey: 'ada-jira-project' },
+  ]);
+
   // ─── Re-init when SPA navigates to settings ───────────────────────────────
   window.addEventListener('ada-navigate', function (e) {
     if (e.detail.page !== 'settings') return;

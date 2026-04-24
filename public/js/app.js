@@ -319,6 +319,86 @@
     btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
   });
 
+  // ─── Issue tracker helpers ────────────────────────────────────────────────────
+
+  function getConfiguredTracker() {
+    var linearKey  = localStorage.getItem('ada-linear-key');
+    var linearTeam = localStorage.getItem('ada-linear-team-id');
+    if (linearKey && linearTeam) return { name: 'Linear', type: 'linear' };
+
+    var jiraUrl     = localStorage.getItem('ada-jira-url');
+    var jiraEmail   = localStorage.getItem('ada-jira-email');
+    var jiraToken   = localStorage.getItem('ada-jira-token');
+    var jiraProject = localStorage.getItem('ada-jira-project');
+    if (jiraUrl && jiraEmail && jiraToken && jiraProject) return { name: 'Jira', type: 'jira' };
+
+    return null;
+  }
+
+  function pushViolationToTracker(v, tracker, btn, statusEl) {
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+    statusEl.textContent = '';
+
+    var title = '[A11y] ' + v.severity + ': ' + v.message;
+    var description =
+      'Severity: ' + v.severity + '\n' +
+      'WCAG: ' + v.wcag + '\n\n' +
+      'Element:\n' + v.element + '\n\n' +
+      'How to fix:\n' + v.remediation + '\n\n' +
+      'Detected by ADA Checker.';
+
+    var payload;
+    var endpoint;
+
+    if (tracker.type === 'linear') {
+      endpoint = '/api/integrations/linear';
+      payload = {
+        apiKey:      localStorage.getItem('ada-linear-key'),
+        teamId:      localStorage.getItem('ada-linear-team-id'),
+        title:       title,
+        description: description,
+      };
+    } else {
+      endpoint = '/api/integrations/jira';
+      payload = {
+        siteUrl:     localStorage.getItem('ada-jira-url'),
+        email:       localStorage.getItem('ada-jira-email'),
+        token:       localStorage.getItem('ada-jira-token'),
+        projectKey:  localStorage.getItem('ada-jira-project'),
+        title:       title,
+        description: description,
+      };
+    }
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include',
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.error) throw new Error(data.error);
+        // Replace button with a link to the created issue
+        var link = document.createElement('a');
+        link.href = data.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.className = 'push-tracker-link';
+        link.textContent = 'View in ' + tracker.name + (data.identifier ? ' (' + data.identifier + ')' : data.key ? ' (' + data.key + ')' : '');
+        btn.parentNode.replaceChild(link, btn);
+        statusEl.textContent = '';
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.innerHTML =
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>' +
+          'Push to ' + tracker.name;
+        statusEl.textContent = 'Failed: ' + err.message;
+      });
+  }
+
   // ─── Render violation cards ───────────────────────────────────────────────────
   function renderViolations(violations) {
     violationList.innerHTML = '';
@@ -341,8 +421,34 @@
         '<p><strong>Element:</strong><br><code>' + escapeHTML(v.element) + '</code></p>' +
         '<p><strong>How to fix:</strong> ' + escapeHTML(v.remediation) + '</p>' +
         '<p><strong>WCAG:</strong> ' + escapeHTML(v.wcag) + '</p>';
-      details.appendChild(body);
 
+      // ── Push-to-tracker button ──────────────────────────────────────────────
+      var tracker = getConfiguredTracker();
+      if (tracker) {
+        var pushBtn = document.createElement('button');
+        pushBtn.type = 'button';
+        pushBtn.className = 'push-tracker-btn';
+        pushBtn.setAttribute('aria-label', 'Create issue in ' + tracker.name);
+        pushBtn.innerHTML =
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>' +
+          'Push to ' + escapeHTML(tracker.name);
+        var pushStatus = document.createElement('span');
+        pushStatus.className = 'push-tracker-status';
+        pushStatus.setAttribute('aria-live', 'polite');
+
+        pushBtn.addEventListener('click', function () {
+          pushViolationToTracker(v, tracker, pushBtn, pushStatus);
+        });
+
+        var pushRow = document.createElement('div');
+        pushRow.className = 'push-tracker-row';
+        pushRow.appendChild(pushBtn);
+        pushRow.appendChild(pushStatus);
+        body.appendChild(pushRow);
+      }
+      // ───────────────────────────────────────────────────────────────────────
+
+      details.appendChild(body);
       violationList.appendChild(details);
     });
 
