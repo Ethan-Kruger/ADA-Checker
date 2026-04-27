@@ -89,12 +89,12 @@ export async function POST(req: NextRequest) {
   const result = runCheck(html, level);
 
   // Update last_used_at (fire and forget)
-  supabase
-    .from('api_keys')
-    .update({ last_used_at: new Date().toISOString() })
-    .eq('id', keyId)
-    .then(() => {})
-    .catch((err: unknown) => console.error('Failed to update key last_used_at:', err));
+  Promise.resolve(
+    supabase
+      .from('api_keys')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('id', keyId)
+  ).catch((err: unknown) => console.error('Failed to update key last_used_at:', err));
 
   return NextResponse.json({
     score:      result.score,
