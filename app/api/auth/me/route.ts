@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   // password change on other devices/browsers.
   const { data: user } = await supabase
     .from('users')
-    .select('id, email, created_at, token_version')
+    .select('id, email, created_at, token_version, email_verified')
     .eq('id', payload.sub)
     .single();
 
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     .single();
 
   return NextResponse.json({
-    user: { id: user.id, email: user.email, created_at: user.created_at },
+    user: { id: user.id, email: user.email, created_at: user.created_at, email_verified: user.email_verified ?? false },
     plan: sub?.plan || 'free',
     status: sub?.status || 'active',
     current_period_end: sub?.current_period_end || null,

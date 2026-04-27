@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import supabase from '@/lib/supabase';
 import { signToken, buildTokenCookie } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
+import { sendVerificationEmail } from '@/lib/email';
 
 const MAX_PASSWORD_LENGTH = 128;
+const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function POST(req: NextRequest) {
   const { limited } = await rateLimit(req, 'rl:signup', 5, 10 * 60 * 1000);
@@ -63,9 +66,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  const verificationTokenExpiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS).toISOString();
+
   const { data: user, error: userErr } = await supabase
     .from('users')
-    .insert({ email: email.toLowerCase().trim(), password_hash })
+    .insert({
+      email: email.toLowerCase().trim(),
+      password_hash,
+      email_verified: false,
+      verification_token: verificationToken,
+      verification_token_expires_at: verificationTokenExpiresAt,
+    })
     .select('id, email, created_at')
     .single();
 
@@ -78,11 +90,15 @@ export async function POST(req: NextRequest) {
     .from('subscriptions')
     .insert({ user_id: user.id, plan: 'free', status: 'active' });
 
+  // Fire-and-forget — don't block signup on email delivery
+  sendVerificationEmail(user.email, verificationToken).catch((err: unknown) => {
+    console.error('Failed to send verification email:', err);
+  });
+
   const token = signToken({ sub: user.id, email: user.email, ver: 0 });
 
-  // Token goes in httpOnly cookie only — never exposed in response body
   const res = NextResponse.json(
-    { user: { id: user.id, email: user.email }, plan: 'free' },
+    { user: { id: user.id, email: user.email }, plan: 'free', email_verified: false },
     { status: 201 }
   );
   res.headers.set('Set-Cookie', buildTokenCookie(token));

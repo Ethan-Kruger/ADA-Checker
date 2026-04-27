@@ -28,6 +28,8 @@
     // Token is stored in the httpOnly cookie set by the server — not in JS.
     setUser(data.user);
     localStorage.setItem(PLAN_KEY, data.plan || 'free');
+    // New accounts always need verification — show banner right away.
+    updateVerificationBanner(false);
     return data;
   }
 
@@ -88,6 +90,9 @@
         localStorage.setItem(PLAN_KEY, data.plan);
         localStorage.setItem(PLAN_CACHE_KEY, String(Date.now()));
         if (data.user) setUser(data.user);
+
+        // Show/hide email verification banner.
+        updateVerificationBanner(data.user && data.user.email_verified === true);
 
         // Always notify other scripts — even if plan didn't change.
         window.dispatchEvent(new CustomEvent('ada:plan-updated', { detail: { plan: data.plan } }));
@@ -313,6 +318,75 @@
     var hamburger = document.getElementById('hamburger-wrapper');
     hamburger.appendChild(widget);
   }
+
+  // ── Email verification banner ────────────────────────────────────────────────
+  var BANNER_ID = 'ada-verify-banner';
+
+  function updateVerificationBanner(verified) {
+    var existing = document.getElementById(BANNER_ID);
+    if (verified) {
+      if (existing) existing.remove();
+      return;
+    }
+    if (existing) return; // already shown
+
+    var banner = document.createElement('div');
+    banner.id = BANNER_ID;
+    banner.setAttribute('role', 'alert');
+    banner.style.cssText = [
+      'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9999',
+      'background:#92400e', 'color:#fff', 'font-size:14px',
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'gap:12px', 'padding:10px 16px', 'text-align:center',
+    ].join(';');
+
+    var msg = document.createElement('span');
+    msg.textContent = 'Please verify your email address. Check your inbox for a verification link.';
+
+    var resendBtn = document.createElement('button');
+    resendBtn.textContent = 'Resend email';
+    resendBtn.style.cssText = 'background:#fff;color:#92400e;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:13px;font-weight:600;flex-shrink:0;';
+    resendBtn.addEventListener('click', function () {
+      resendBtn.disabled = true;
+      resendBtn.textContent = 'Sending…';
+      fetch(API + '/auth/resend-verification', { method: 'POST', credentials: 'include' })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          resendBtn.textContent = 'Sent!';
+          setTimeout(function () { resendBtn.textContent = 'Resend email'; resendBtn.disabled = false; }, 4000);
+        })
+        .catch(function () {
+          resendBtn.textContent = 'Failed — try again';
+          resendBtn.disabled = false;
+        });
+    });
+
+    var dismissBtn = document.createElement('button');
+    dismissBtn.textContent = '✕';
+    dismissBtn.setAttribute('aria-label', 'Dismiss banner');
+    dismissBtn.style.cssText = 'background:none;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0;';
+    dismissBtn.addEventListener('click', function () { banner.remove(); });
+
+    banner.appendChild(msg);
+    banner.appendChild(resendBtn);
+    banner.appendChild(dismissBtn);
+    document.body.prepend(banner);
+  }
+
+  // Show banner if ?verified=true (just clicked the email link).
+  (function handleVerifiedParam() {
+    var p = new URLSearchParams(window.location.search).get('verified');
+    if (p === 'true') {
+      var toast = document.createElement('div');
+      toast.className = 'upgrade-success-toast';
+      toast.setAttribute('role', 'status');
+      toast.textContent = 'Email verified! Your account is fully active.';
+      document.body.appendChild(toast);
+      setTimeout(function () { toast.remove(); }, 5000);
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }());
 
   // ── Init ─────────────────────────────────────────────────────────────────────
   // Expose to other scripts

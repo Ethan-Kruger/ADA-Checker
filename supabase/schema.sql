@@ -1,9 +1,12 @@
 -- ── Users ────────────────────────────────────────────────────────────────────
 create table if not exists users (
-  id               uuid primary key default gen_random_uuid(),
-  email            text unique not null,
-  password_hash    text not null,
-  created_at       timestamptz default now()
+  id                            uuid primary key default gen_random_uuid(),
+  email                         text unique not null,
+  password_hash                 text not null,
+  email_verified                boolean not null default false,
+  verification_token            text,
+  verification_token_expires_at timestamptz,
+  created_at                    timestamptz default now()
 );
 
 -- ── Subscriptions ─────────────────────────────────────────────────────────────
