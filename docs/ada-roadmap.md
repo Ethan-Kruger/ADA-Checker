@@ -38,45 +38,54 @@ The core product is live. All WCAG 2.1 rules are implemented across Level A, AA,
 - Screen reader tested
 
 ### Tests
-- Vitest + happy-dom
-- 90 unit tests covering all 30 rule IDs
+- Vitest + happy-dom — 90 unit tests covering all 30 rule IDs
+- Playwright E2E — auth flow, checker smoke tests, billing (opt-in)
+- CI creates GitHub issues automatically for test failures
+
+### CI/CD
+- GitHub Action: WCAG scan on every push — fails if score < 80, auto-creates issues for violations
+- GitHub Action: E2E smoke tests on every push, auto-creates issues for failures
+- GitHub Action: moves referenced issues to In Progress on every push
+
+### Developer integrations
+- **GitHub Action** — scan HTML in CI, fail if score below threshold (#83)
+- **REST API** — `POST /api/v1/check` with Bearer key, plan-aware rate limiting (#84)
+  - API key management in Settings (generate, list, revoke)
+  - Pro: 60 req/hr · Enterprise: 1000 req/hr
+  - Full reference in [docs/api.md](api.md)
+- **Jira integration** *(Enterprise)* — push violations to Jira as Bug issues (#96)
+- **Linear integration** *(Enterprise)* — push violations to Linear (#96)
 
 ---
 
 ## Up next — v1.0 Stable
 
-- Remove BETA label
-- Stabilize public API surface
+- Remove BETA label (#81)
+- Stabilize public API surface (#79)
 - Finalize pricing and plan limits
-- End-to-end smoke tests for auth and billing flows
 
 ---
 
 ## Planned
 
-### Developer integrations
-- **GitHub Action** — scan HTML in CI, fail PR if score drops below threshold
-- **REST API** — authenticated endpoint for external tools to call the rule engine
-- **CLI tool** — `npx ada-checker <url>` for local development
-
 ### Scanning improvements
-- **Authenticated URL scans** — pass cookies/headers to scan pages behind login
-- **Sitemap scan** — crawl and check all pages from an XML sitemap
-- **Scan scheduling** — run weekly checks on a URL and email the diff
+- **Authenticated URL scans** — pass cookies/headers to scan pages behind login (#85)
+- **Sitemap scan** — crawl and check all pages from an XML sitemap (#86)
+- **Scan scheduling** — run weekly checks on a URL and email the diff (#87)
 
 ### Reporting
-- **Shareable report links** — permalink to a scan result
-- **Team dashboards** — aggregate scores across multiple URLs
-- **Trend charts** — score over time per URL
+- **Shareable report links** — permalink to a scan result (#88)
+- **Team dashboards** — aggregate scores across multiple URLs (#89)
+- **Trend charts** — score over time per URL (#90)
 
 ### Rules
-- **WCAG 2.2** — new criteria added in the 2023 update (focus appearance, dragging, target size)
-- **Color contrast for non-text** — UI components, icons, focus indicators
-- **Motion / animation** — flag `prefers-reduced-motion` violations
+- **WCAG 2.2** — new criteria added in the 2023 update (#91)
+- **Color contrast for non-text** — UI components, icons, focus indicators (#92)
+- **Motion / animation** — flag `prefers-reduced-motion` violations (#93)
 
 ### Integrations
-- **Slack / email alerts** — notify when a scheduled scan finds regressions
-- **Jira / Linear** — create issues directly from violation cards
+- **Slack / email alerts** — notify when a scheduled scan finds regressions (#94)
+- **CLI tool** — `npx ada-checker <url>` for local development (#95)
 
 ---
 
