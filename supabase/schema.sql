@@ -22,12 +22,18 @@ create table if not exists subscriptions (
 
 -- Auto-update updated_at on subscriptions
 create or replace function update_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql
+security invoker  -- runs as the calling user, not the function owner
+as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
+
+-- Trigger functions are invoked by the DB, not by users.
+-- Revoke any API-level execute access granted by default.
+revoke execute on function update_updated_at() from anon, authenticated;
 
 create trigger subscriptions_updated_at
   before update on subscriptions
