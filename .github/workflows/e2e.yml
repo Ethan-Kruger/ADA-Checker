@@ -10,6 +10,9 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
     env:
       PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -34,7 +37,16 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E tests
+        id: e2e
+        continue-on-error: true
         run: npm run test:e2e
+
+      - name: Create issues for failing tests
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/create-e2e-issues.mjs e2e-results.json
 
       - name: Upload report
         if: always()
@@ -43,3 +55,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+      - name: Fail if tests failed
+        if: steps.e2e.outcome == 'failure'
+        run: exit 1
