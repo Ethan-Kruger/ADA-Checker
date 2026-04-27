@@ -2,7 +2,15 @@ name: Move referenced issues to In Progress
 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, edited]
+  issues:
+    types: [assigned]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to move to In Progress'
+        required: true
+        type: number
 
 permissions: {}
 
@@ -13,40 +21,32 @@ jobs:
       issues: write
 
     steps:
-      - name: Move referenced issues to In Progress
+      - name: Move issues to In Progress
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
-            const body = context.payload.pull_request.body || '';
+            const projectId        = 'PVT_kwHOBcIEls4BTdr7';
+            const statusFieldId    = 'PVTSSF_lAHOBcIEls4BTdr7zhAspmY';
+            const inProgressOption = '47fc9ee4';
 
-            // Match: fix #50, fixes #50, fixed #50, closes #50, close #50, closed #50, resolves #50, resolve #50, resolved #50
-            const pattern = /(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?|do?)\s+#(\d+)/gi;
-            const matches = [...body.matchAll(pattern)];
-            const issueNumbers = [...new Set(matches.map(m => parseInt(m[1])))];
+            async function moveToInProgress(issueNumber) {
+              console.log(`Moving issue #${issueNumber} to In Progress...`);
 
-            if (issueNumbers.length === 0) {
-              console.log('No referenced issues found in PR body.');
-              return;
-            }
+              let issueNodeId;
+              try {
+                const issue = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo:  context.repo.repo,
+                  issue_number: issueNumber,
+                });
+                issueNodeId = issue.data.node_id;
+              } catch (e) {
+                console.error(`Could not fetch issue #${issueNumber}:`, e.message);
+                return;
+              }
 
-            console.log('Referenced issues:', issueNumbers);
-
-            const projectId = 'PVT_kwHOBcIEls4BTdr7';
-            const statusFieldId = 'PVTSSF_lAHOBcIEls4BTdr7zhAspmY';
-            const inProgressOptionId = '47fc9ee4';
-
-            for (const issueNumber of issueNumbers) {
-              // Get the issue node ID
-              const issue = await github.rest.issues.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber
-              });
-              const issueNodeId = issue.data.node_id;
-              console.log(`Processing issue #${issueNumber} (${issueNodeId})`);
-
-              // Add issue to project (or get existing item ID)
+              // Add to project (idempotent — returns existing item if already added)
               const addResult = await github.graphql(`
                 mutation($projectId: ID!, $contentId: ID!) {
                   addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
@@ -57,19 +57,47 @@ jobs:
 
               const itemId = addResult.addProjectV2ItemById.item.id;
 
-              // Set status to In Progress
+              // Set status field to In Progress
               await github.graphql(`
                 mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
                   updateProjectV2ItemFieldValue(input: {
                     projectId: $projectId,
-                    itemId: $itemId,
-                    fieldId: $fieldId,
-                    value: { singleSelectOptionId: $optionId }
+                    itemId:    $itemId,
+                    fieldId:   $fieldId,
+                    value:     { singleSelectOptionId: $optionId }
                   }) {
                     projectV2Item { id }
                   }
                 }
-              `, { projectId, itemId, fieldId: statusFieldId, optionId: inProgressOptionId });
+              `, { projectId, itemId, fieldId: statusFieldId, optionId: inProgressOption });
 
-              console.log(`Issue #${issueNumber} moved to In Progress.`);
+              console.log(`✓ Issue #${issueNumber} moved to In Progress.`);
             }
+
+            // ── Manual trigger ────────────────────────────────────────────────
+            if (context.eventName === 'workflow_dispatch') {
+              await moveToInProgress(Number(context.payload.inputs.issue_number));
+              return;
+            }
+
+            // ── Issue assigned ────────────────────────────────────────────────
+            if (context.eventName === 'issues') {
+              await moveToInProgress(context.payload.issue.number);
+              return;
+            }
+
+            // ── Pull request opened / reopened / edited ───────────────────────
+            const pr = context.payload.pull_request;
+            const text = `${pr.title}\n${pr.body || ''}`;
+
+            // Match: fixes #50, closes #50, resolves #50 (and past/present tense)
+            const pattern = /(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\s+#(\d+)/gi;
+            const numbers = [...new Set([...text.matchAll(pattern)].map(m => parseInt(m[1])))];
+
+            if (numbers.length === 0) {
+              console.log('No referenced issues found in PR title or body.');
+              return;
+            }
+
+            console.log('Found referenced issues:', numbers);
+            for (const n of numbers) await moveToInProgress(n);
