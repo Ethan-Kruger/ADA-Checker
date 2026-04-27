@@ -2,7 +2,7 @@
 
 ## Stack
 
-- Node 20, TypeScript strict, Prisma ORM
+- Node 24, TypeScript strict, Prisma ORM
 
 - Tests: Vitest, no Jest
 

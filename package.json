@@ -1,8 +1,9 @@
 {
   "name": "ada-checker",
   "version": "1.0.0",
+  "engines": { "node": ">=24" },
   "bin": {
-    "ada-checker": "./bin/ada-checker.mjs"
+    "ada-checker": "bin/ada-checker.mjs"
   },
   "files": [
     "bin/",
