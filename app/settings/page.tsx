@@ -489,29 +489,50 @@ export default function SettingsPage() {
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
-                <h3>Enterprise Feature</h3>
-                <p>API access requires the Enterprise plan.</p>
-                <a href="/pricing" className="plan-gate-link">Upgrade to Enterprise</a>
+                <h3>Pro Feature</h3>
+                <p>API access requires the Pro plan or above.</p>
+                <a href="/pricing" className="plan-gate-link">Upgrade to Pro</a>
               </div>
               <div id="api-content">
-                <div className="settings-card">
-                  <p className="panel-section-title">Your API Key</p>
+                {/* New key revealed after generation */}
+                <div id="api-new-key-banner" className="settings-card api-new-key-banner" hidden>
+                  <p className="panel-section-title">New API Key — copy it now</p>
+                  <p className="api-key-note" style={{ color: 'var(--color-warning, #f59e0b)', marginBottom: '.5rem' }}>
+                    This key will not be shown again.
+                  </p>
                   <div className="api-key-row">
-                    <input type="text" id="api-key-display" className="api-key-input" readOnly aria-label="API key" spellCheck={false} />
-                    <button type="button" id="api-key-copy-btn" className="settings-save-btn">Copy</button>
+                    <input type="text" id="api-new-key-display" className="api-key-input" readOnly aria-label="New API key" spellCheck={false} />
+                    <button type="button" id="api-new-key-copy-btn" className="settings-save-btn">Copy</button>
                   </div>
-                  <p className="api-key-note">Keep your API key secret. It grants full access to your account&rsquo;s checker.</p>
                 </div>
+
+                {/* Generate form */}
+                <div className="settings-card">
+                  <p className="panel-section-title">Generate API Key</p>
+                  <div className="api-key-row" style={{ marginBottom: '.75rem' }}>
+                    <input type="text" id="api-key-name" className="api-key-input" placeholder="Key name (e.g. CI pipeline)" maxLength={50} aria-label="API key name" />
+                    <button type="button" id="api-generate-btn" className="settings-save-btn">Generate</button>
+                  </div>
+                  <p id="api-generate-status" className="api-key-note" />
+                </div>
+
+                {/* Existing keys list */}
+                <div className="settings-card" style={{ marginTop: '1rem' }}>
+                  <p className="panel-section-title">Your Keys</p>
+                  <div id="api-keys-list"><p className="api-key-note">Loading…</p></div>
+                </div>
+
+                {/* Docs */}
                 <div className="settings-card" style={{ marginTop: '1rem' }}>
                   <p className="panel-section-title">Endpoint</p>
-                  <code className="api-endpoint">POST https://api.adachecker.io/v1/check</code>
+                  <code className="api-endpoint">POST /api/v1/check</code>
                   <div className="api-docs">
                     <p className="panel-section-title" style={{ marginTop: '1rem' }}>Request</p>
-                    <pre className="api-code">{`{\n  "html": "<!DOCTYPE html>...",\n  "level": "AA"\n}`}</pre>
+                    <pre className="api-code">{`{\n  "html": "<!DOCTYPE html>...",\n  "level": "AA",\n  "threshold": 80\n}`}</pre>
                     <p className="panel-section-title" style={{ marginTop: '1rem' }}>Headers</p>
-                    <pre className="api-code">{`Authorization: Bearer <YOUR_API_KEY>\nContent-Type: application/json`}</pre>
+                    <pre className="api-code">{`Authorization: Bearer ada_sk_…\nContent-Type: application/json`}</pre>
                     <p className="panel-section-title" style={{ marginTop: '1rem' }}>Response</p>
-                    <pre className="api-code">{`{\n  "score": 82,\n  "level": "AA",\n  "summary": { "total": 3, "critical": 1, "serious": 1, "moderate": 1, "minor": 0 },\n  "violations": [\n    {\n      "ruleId": "img-alt-missing",\n      "severity": "critical",\n      "element": "<img src=\\"banner.png\\">",\n      "message": "Image missing alt text",\n      "remediation": "Add descriptive alt text...",\n      "wcag": "1.1.1 Non-text Content (Level A)"\n    }\n  ]\n}`}</pre>
+                    <pre className="api-code">{`{\n  "score": 82,\n  "level": "AA",\n  "passed": true,\n  "threshold": 80,\n  "summary": { "total": 3, "critical": 1, "serious": 1, "moderate": 1, "minor": 0 },\n  "violations": [\n    {\n      "ruleId": "img-alt-missing",\n      "severity": "critical",\n      "message": "Image missing alt text",\n      "wcag": "1.1.1 Non-text Content (Level A)"\n    }\n  ]\n}`}</pre>
                   </div>
                 </div>
               </div>

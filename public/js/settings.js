@@ -1,6 +1,12 @@
 (function () {
   'use strict';
 
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   // ─── Element references ───────────────────────────────────────────────────
   var panels   = Array.from(document.querySelectorAll('.settings-panel'));
   var navItems = Array.from(document.querySelectorAll('.settings-nav-item'));
@@ -32,7 +38,7 @@
     if (panelId === 'profile')          initProfilePanel();
     if (panelId === 'history')          renderHistory();
     if (panelId === 'checker')          updateCheckerRateUI();
-    if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'enterprise');
+    if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'pro');
     if (panelId === 'integrations')     applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     if (panelId === 'custom-rules') {
       applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
@@ -500,7 +506,7 @@
     localStorage.setItem('ada-plan', plan);
 
     refreshPlanBadges();
-    applyPlanGate('api-gate', 'api-content', 'enterprise');
+    applyPlanGate('api-gate', 'api-content', 'pro');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
     applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     updateCheckerRateUI();
@@ -523,7 +529,7 @@
   // Re-apply everything when auth.js syncs a new plan from the API
   window.addEventListener('ada:plan-updated', function () {
     refreshPlanBadges();
-    applyPlanGate('api-gate', 'api-content', 'enterprise');
+    applyPlanGate('api-gate', 'api-content', 'pro');
     applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
     applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     updateCheckerRateUI();
@@ -557,43 +563,132 @@
   }
 
   // ─── API Access panel ─────────────────────────────────────────────────────
-  applyPlanGate('api-gate', 'api-content', 'enterprise');
+  applyPlanGate('api-gate', 'api-content', 'pro');
 
-  function getOrCreateApiKey() {
-    var key = localStorage.getItem('ada-api-key');
-    if (!key) {
-      var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      key = 'ada_ent_';
-      for (var i = 0; i < 32; i++) {
-        key += chars[Math.floor(Math.random() * chars.length)];
-      }
-      localStorage.setItem('ada-api-key', key);
+  function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'Copied!';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+    }).catch(function () {
+      btn.textContent = 'Copied!';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+    });
+  }
+
+  function renderApiKeys(keys) {
+    var list = document.getElementById('api-keys-list');
+    if (!list) return;
+    if (!keys || keys.length === 0) {
+      list.innerHTML = '<p class="api-key-note">No keys yet. Generate one above.</p>';
+      return;
     }
-    return key;
-  }
+    list.innerHTML = keys.map(function (k) {
+      var used = k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never';
+      return '<div class="api-key-item">' +
+        '<div class="api-key-item-info">' +
+          '<span class="api-key-item-name">' + escapeHTML(k.name) + '</span>' +
+          '<span class="api-key-item-prefix">' + escapeHTML(k.key_prefix) + '…</span>' +
+          '<span class="api-key-item-meta">Last used: ' + used + '</span>' +
+        '</div>' +
+        '<button class="api-revoke-btn" data-id="' + escapeHTML(k.id) + '" aria-label="Revoke ' + escapeHTML(k.name) + '">Revoke</button>' +
+      '</div>';
+    }).join('');
 
-  var apiKeyDisplay = document.getElementById('api-key-display');
-  var apiKeyCopyBtn = document.getElementById('api-key-copy-btn');
-
-  if (apiKeyDisplay) {
-    apiKeyDisplay.value = getOrCreateApiKey();
-  }
-
-  if (apiKeyCopyBtn) {
-    apiKeyCopyBtn.addEventListener('click', function () {
-      var key = getOrCreateApiKey();
-      navigator.clipboard.writeText(key).then(function () {
-        apiKeyCopyBtn.textContent = 'Copied!';
-        setTimeout(function () { apiKeyCopyBtn.textContent = 'Copy'; }, 2000);
-      }).catch(function () {
-        if (apiKeyDisplay) {
-          apiKeyDisplay.select();
-          document.execCommand('copy');
-          apiKeyCopyBtn.textContent = 'Copied!';
-          setTimeout(function () { apiKeyCopyBtn.textContent = 'Copy'; }, 2000);
+    list.querySelectorAll('.api-revoke-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Revoke this API key? Any integrations using it will stop working.')) return;
+        btn.disabled = true;
+        btn.textContent = 'Revoking…';
+        try {
+          var res = await fetch('/api/v1/keys/' + btn.dataset.id, {
+            method: 'DELETE', credentials: 'include',
+          });
+          if (res.ok || res.status === 204) {
+            btn.closest('.api-key-item').remove();
+            if (!document.querySelectorAll('.api-key-item').length) {
+              renderApiKeys([]);
+            }
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'Revoke';
+          }
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = 'Revoke';
         }
       });
     });
+  }
+
+  async function loadApiKeys() {
+    try {
+      var res  = await fetch('/api/v1/keys', { credentials: 'include' });
+      var data = await res.json();
+      renderApiKeys(data.keys || []);
+    } catch (e) {
+      var list = document.getElementById('api-keys-list');
+      if (list) list.innerHTML = '<p class="api-key-note">Failed to load keys.</p>';
+    }
+  }
+
+  var apiGenerateBtn    = document.getElementById('api-generate-btn');
+  var apiKeyNameInput   = document.getElementById('api-key-name');
+  var apiGenerateStatus = document.getElementById('api-generate-status');
+  var apiNewKeyBanner   = document.getElementById('api-new-key-banner');
+  var apiNewKeyDisplay  = document.getElementById('api-new-key-display');
+  var apiNewKeyCopyBtn  = document.getElementById('api-new-key-copy-btn');
+
+  if (apiGenerateBtn) {
+    apiGenerateBtn.addEventListener('click', async function () {
+      apiGenerateBtn.disabled = true;
+      apiGenerateBtn.textContent = 'Generating…';
+      if (apiGenerateStatus) { apiGenerateStatus.textContent = ''; }
+
+      var name = apiKeyNameInput ? apiKeyNameInput.value.trim() || 'Default' : 'Default';
+
+      try {
+        var res  = await fetch('/api/v1/keys', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name }),
+        });
+        var data = await res.json();
+        if (!res.ok) {
+          if (apiGenerateStatus) apiGenerateStatus.textContent = data.error || 'Failed to generate key.';
+        } else {
+          // Show the full key once
+          if (apiNewKeyBanner)  apiNewKeyBanner.hidden = false;
+          if (apiNewKeyDisplay) apiNewKeyDisplay.value = data.key;
+          if (apiKeyNameInput)  apiKeyNameInput.value  = '';
+          loadApiKeys();
+        }
+      } catch (e) {
+        if (apiGenerateStatus) apiGenerateStatus.textContent = 'Network error. Try again.';
+      } finally {
+        apiGenerateBtn.disabled = false;
+        apiGenerateBtn.textContent = 'Generate';
+      }
+    });
+  }
+
+  if (apiNewKeyCopyBtn && apiNewKeyDisplay) {
+    apiNewKeyCopyBtn.addEventListener('click', function () {
+      copyToClipboard(apiNewKeyDisplay.value, apiNewKeyCopyBtn);
+    });
+  }
+
+  // Load keys whenever the API panel is opened
+  var origPanelOpen = window.__adaPanelOpen;
+  window.__adaPanelOpen = function (panelId) {
+    if (typeof origPanelOpen === 'function') origPanelOpen(panelId);
+    if (panelId === 'api') loadApiKeys();
+  };
+
+  // Load immediately if the API panel is already active
+  if (document.getElementById('panel-api') &&
+      !document.getElementById('panel-api').hidden) {
+    loadApiKeys();
   }
 
   // ─── Custom Rules panel ───────────────────────────────────────────────────
