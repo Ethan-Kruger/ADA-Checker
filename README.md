@@ -50,6 +50,24 @@ Score = 100 − (critical × 20) − (serious × 10) − (moderate × 5) − (mi
 | 50 – 79 | Fair |
 | 0 – 49 | Poor |
 
+## CLI
+
+Run accessibility checks from the terminal without opening a browser:
+
+```bash
+npx ada-checker https://example.com
+npx ada-checker ./dist/index.html --level AA --threshold 90
+npx ada-checker https://example.com --json report.json
+```
+
+| Flag | Default | Description |
+|---|---|---|
+| `--level` | `AA` | WCAG level: A, AA, or AAA |
+| `--threshold` | `80` | Minimum passing score (0–100) |
+| `--json <path>` | — | Write results JSON to file |
+
+Exits `1` if any target scores below the threshold — CI friendly.
+
 ## REST API
 
 Pro and Enterprise plans can call the checker programmatically:

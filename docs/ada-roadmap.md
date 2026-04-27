@@ -50,6 +50,7 @@ The core product is live. All WCAG 2.1 rules are implemented across Level A, AA,
 ### Developer integrations
 - **GitHub Action** — scan HTML in CI, fail if score below threshold (#83)
 - **REST API** — `POST /api/v1/check` with Bearer key, plan-aware rate limiting (#84)
+- **CLI tool** — `npx ada-checker <url|file>` with `--level`, `--threshold`, `--json` flags (#85)
   - API key management in Settings (generate, list, revoke)
   - Pro: 60 req/hr · Enterprise: 1000 req/hr
   - Full reference in [docs/api.md](api.md)
@@ -85,7 +86,7 @@ The core product is live. All WCAG 2.1 rules are implemented across Level A, AA,
 
 ### Integrations
 - **Slack / email alerts** — notify when a scheduled scan finds regressions (#94)
-- **CLI tool** — `npx ada-checker <url>` for local development (#95)
+- ~~**CLI tool** — `npx ada-checker <url>` for local development~~ ✅ Done (#85)
 
 ---
 
