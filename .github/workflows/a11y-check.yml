@@ -1,10 +1,9 @@
 name: Accessibility check
 
 on:
-  pull_request:
-    branches: [main, master]
   push:
-    branches: [main, master]
+    branches: ['**']
+  pull_request:
   workflow_dispatch:
 
 jobs:
