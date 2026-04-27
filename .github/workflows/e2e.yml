@@ -39,7 +39,7 @@ jobs:
       - name: Run E2E tests
         id: e2e
         continue-on-error: true
-        run: npm run test:e2e
+        run: mkdir -p playwright-report && npm run test:e2e
 
       - name: Create issues for failing tests
         if: always()
