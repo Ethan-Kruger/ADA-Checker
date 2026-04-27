@@ -1,45 +1,50 @@
 import { test, expect } from '@playwright/test';
 
-// Unique email per run so tests are idempotent
 const email = `e2e+${Date.now()}@example.com`;
 const password = 'TestPass1';
 
 test.describe('Auth flow', () => {
-  test('sign up creates account and lands on checker', async ({ page }) => {
+  test('sign up creates account and shows checker', async ({ page }) => {
     await page.goto('/');
 
-    // Open auth modal → sign up tab
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.getByRole('tab', { name: /sign up/i }).click();
+    // Welcome gate shows "Create Free Account"
+    await page.getByRole('button', { name: /create free account/i }).click();
 
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
+    await page.locator('#ada-email').fill(email);
+    await page.locator('#ada-password').fill(password);
     await page.getByRole('button', { name: /create account/i }).click();
 
-    // Modal closes; user is now logged in
-    await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 8_000 });
+    // After success, checker is visible (profile bubble in nav)
+    await expect(page.locator('.nav-profile-bubble')).toBeVisible({ timeout: 10_000 });
   });
 
   test('log out clears session', async ({ page }) => {
-    // Log in first
     await page.goto('/');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
-    await page.getByRole('button', { name: /sign in/i }).last().click();
-    await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 8_000 });
 
-    // Log out
-    await page.getByRole('button', { name: /sign out/i }).click();
-    await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 5_000 });
+    // Sign in via welcome gate
+    await page.getByRole('button', { name: /^sign in$/i }).click();
+    await page.locator('#ada-email').fill(email);
+    await page.locator('#ada-password').fill(password);
+    await page.getByRole('button', { name: /^sign in$/i }).last().click();
+
+    await expect(page.locator('.nav-profile-bubble')).toBeVisible({ timeout: 10_000 });
+
+    // Open profile menu → sign out
+    await page.locator('.nav-profile-bubble').click();
+    await page.locator('.nav-profile-signout').click();
+
+    // Welcome gate returns
+    await expect(page.getByRole('button', { name: /create free account/i })).toBeVisible({ timeout: 5_000 });
   });
 
-  test('wrong password returns error', async ({ page }) => {
+  test('wrong password shows error', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill('WrongPass9');
-    await page.getByRole('button', { name: /sign in/i }).last().click();
-    await expect(page.getByText(/invalid email or password/i)).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('button', { name: /^sign in$/i }).click();
+
+    await page.locator('#ada-email').fill(email);
+    await page.locator('#ada-password').fill('WrongPass9');
+    await page.getByRole('button', { name: /^sign in$/i }).last().click();
+
+    await expect(page.locator('.ada-auth-error')).toBeVisible({ timeout: 5_000 });
   });
 });
