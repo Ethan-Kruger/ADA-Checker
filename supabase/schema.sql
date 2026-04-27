@@ -24,6 +24,7 @@ create table if not exists subscriptions (
 create or replace function update_updated_at()
 returns trigger language plpgsql
 security invoker  -- runs as the calling user, not the function owner
+set search_path = ''  -- prevent search_path injection
 as $$
 begin
   new.updated_at = now();
