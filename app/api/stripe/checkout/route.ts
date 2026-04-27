@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const { limited } = await rateLimit(req, 'rl:checkout', 5, 60 * 1000);
   if (limited) {
     return NextResponse.json(
-      { error: 'Too many checkout attempts. Please wait a minute.' },
+      { error: 'Too many checkout attempts. Please wait a minute.', code: 'RATE_LIMITED' },
       { status: 429 }
     );
   }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   try {
     payload = requireAuth(req);
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   if (!priceId) {
     return NextResponse.json(
-      { error: 'Invalid plan. Must be "pro" or "enterprise"' },
+      { error: 'Invalid plan. Must be "pro" or "enterprise"', code: 'BAD_REQUEST' },
       { status: 400 }
     );
   }
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Stripe checkout error:', message);
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create checkout session', code: 'SERVER_ERROR' }, { status: 500 });
   }
 }
 

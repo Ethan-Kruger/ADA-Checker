@@ -38,7 +38,7 @@
     if (panelId === 'profile')          initProfilePanel();
     if (panelId === 'history')          renderHistory();
     if (panelId === 'checker')          updateCheckerRateUI();
-    if (panelId === 'api')              applyPlanGate('api-gate', 'api-content', 'pro');
+    if (panelId === 'api')              { applyPlanGate('api-gate', 'api-content', 'pro'); loadApiKeys(); }
     if (panelId === 'integrations')     applyPlanGate('integrations-gate', 'integrations-content', 'enterprise');
     if (panelId === 'custom-rules') {
       applyPlanGate('custom-rules-gate', 'custom-rules-content', 'enterprise');
@@ -678,16 +678,10 @@
     });
   }
 
-  // Load keys whenever the API panel is opened
-  var origPanelOpen = window.__adaPanelOpen;
-  window.__adaPanelOpen = function (panelId) {
-    if (typeof origPanelOpen === 'function') origPanelOpen(panelId);
-    if (panelId === 'api') loadApiKeys();
-  };
-
-  // Load immediately if the API panel is already active
+  // Load keys immediately if the API panel is already the active panel on page load
+  // (openPanel handles it for subsequent navigations via the side effect block above)
   if (document.getElementById('panel-api') &&
-      !document.getElementById('panel-api').hidden) {
+      document.getElementById('panel-api').classList.contains('active')) {
     loadApiKeys();
   }
 

@@ -3,12 +3,7 @@ import bcrypt from 'bcryptjs';
 import supabase from '@/lib/supabase';
 import { rateLimit } from '@/lib/rateLimit';
 import { runCheck } from '@/lib/checker-node';
-
-// Rate limits per plan (requests per hour)
-const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
-  pro:        { max: 60,   windowMs: 60 * 60 * 1000 },
-  enterprise: { max: 1000, windowMs: 60 * 60 * 1000 },
-};
+import { PLAN_CONFIG, type Plan } from '@/lib/plans';
 
 const VALID_LEVELS = new Set(['A', 'AA', 'AAA']);
 
@@ -19,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   if (!rawKey.startsWith('ada_sk_')) {
     return NextResponse.json(
-      { error: 'Missing or invalid API key. Set Authorization: Bearer ada_sk_...' },
+      { error: 'Missing or invalid API key. Set Authorization: Bearer ada_sk_...', code: 'UNAUTHORIZED' },
       { status: 401 }
     );
   }
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!keyId || !userId) {
-    return NextResponse.json({ error: 'Invalid API key' }, { status: 401 });
+    return NextResponse.json({ error: 'Invalid API key', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   // ── Check plan ─────────────────────────────────────────────────────────────
@@ -53,21 +48,22 @@ export async function POST(req: NextRequest) {
     .eq('user_id', userId)
     .single();
 
-  const plan = sub?.plan ?? 'free';
-  const limits = RATE_LIMITS[plan];
+  const plan = (sub?.plan ?? 'free') as Plan;
+  const planCfg = PLAN_CONFIG[plan];
+  const apiLimit = planCfg?.apiRequestsPerHour ?? null;
 
-  if (!limits) {
+  if (apiLimit === null) {
     return NextResponse.json(
-      { error: 'API access requires Pro or Enterprise plan' },
+      { error: 'API access requires Pro or Enterprise plan', code: 'FORBIDDEN' },
       { status: 403 }
     );
   }
 
   // ── Rate limit per key ─────────────────────────────────────────────────────
-  const { limited } = await rateLimit(req, `rl:v1:${keyId}`, limits.max, limits.windowMs);
+  const { limited } = await rateLimit(req, `rl:v1:${keyId}`, apiLimit, 60 * 60 * 1000);
   if (limited) {
     return NextResponse.json(
-      { error: `Rate limit exceeded. ${plan} plan allows ${limits.max} requests/hour.` },
+      { error: `Rate limit exceeded. ${plan} plan allows ${apiLimit} requests/hour.`, code: 'RATE_LIMITED' },
       { status: 429 }
     );
   }
@@ -80,13 +76,13 @@ export async function POST(req: NextRequest) {
   const threshold = typeof body.threshold === 'number' ? body.threshold : 80;
 
   if (!html) {
-    return NextResponse.json({ error: '"html" field is required' }, { status: 400 });
+    return NextResponse.json({ error: '"html" field is required', code: 'BAD_REQUEST' }, { status: 400 });
   }
   if (html.length > 5 * 1024 * 1024) {
-    return NextResponse.json({ error: 'HTML must be under 5 MB' }, { status: 400 });
+    return NextResponse.json({ error: 'HTML must be under 5 MB', code: 'BAD_REQUEST' }, { status: 400 });
   }
   if (!VALID_LEVELS.has(level)) {
-    return NextResponse.json({ error: 'level must be "A", "AA", or "AAA"' }, { status: 400 });
+    return NextResponse.json({ error: 'level must be "A", "AA", or "AAA"', code: 'BAD_REQUEST' }, { status: 400 });
   }
 
   // ── Run check ─────────────────────────────────────────────────────────────
@@ -97,7 +93,8 @@ export async function POST(req: NextRequest) {
     .from('api_keys')
     .update({ last_used_at: new Date().toISOString() })
     .eq('id', keyId)
-    .then(() => {});
+    .then(() => {})
+    .catch((err: unknown) => console.error('Failed to update key last_used_at:', err));
 
   return NextResponse.json({
     score:      result.score,

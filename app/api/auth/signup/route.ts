@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const { limited } = await rateLimit(req, 'rl:signup', 5, 10 * 60 * 1000);
   if (limited) {
     return NextResponse.json(
-      { error: 'Too many signup attempts. Please wait and try again.' },
+      { error: 'Too many signup attempts. Please wait and try again.', code: 'RATE_LIMITED' },
       { status: 429 }
     );
   }
@@ -19,29 +19,29 @@ export async function POST(req: NextRequest) {
   const { email, password } = body as { email?: string; password?: string };
 
   if (!email || !password) {
-    return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    return NextResponse.json({ error: 'Email and password are required', code: 'BAD_REQUEST' }, { status: 400 });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid email address', code: 'BAD_REQUEST' }, { status: 400 });
   }
   if (password.length < 8) {
-    return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
+    return NextResponse.json({ error: 'Password must be at least 8 characters', code: 'BAD_REQUEST' }, { status: 400 });
   }
   if (password.length > MAX_PASSWORD_LENGTH) {
     return NextResponse.json(
-      { error: `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer` },
+      { error: `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer`, code: 'BAD_REQUEST' },
       { status: 400 }
     );
   }
   if (!/[A-Z]/.test(password)) {
     return NextResponse.json(
-      { error: 'Password must contain at least one uppercase letter' },
+      { error: 'Password must contain at least one uppercase letter', code: 'BAD_REQUEST' },
       { status: 400 }
     );
   }
   if (!/[0-9]/.test(password)) {
     return NextResponse.json(
-      { error: 'Password must contain at least one number' },
+      { error: 'Password must contain at least one number', code: 'BAD_REQUEST' },
       { status: 400 }
     );
   }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
   if (existing) {
     return NextResponse.json(
-      { error: 'An account with this email already exists' },
+      { error: 'An account with this email already exists', code: 'CONFLICT' },
       { status: 409 }
     );
   }
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   if (userErr || !user) {
     console.error('signup user error:', userErr?.code ?? 'UNKNOWN');
-    return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create account', code: 'SERVER_ERROR' }, { status: 500 });
   }
 
   await supabase

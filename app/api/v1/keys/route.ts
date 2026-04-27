@@ -19,11 +19,11 @@ async function getPlan(userId: string): Promise<string> {
 export async function GET(req: NextRequest) {
   let payload;
   try { payload = requireAuth(req); } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   if (!ALLOWED_PLANS.has(await getPlan(payload.sub))) {
-    return NextResponse.json({ error: 'Pro or Enterprise plan required' }, { status: 403 });
+    return NextResponse.json({ error: 'Pro or Enterprise plan required', code: 'FORBIDDEN' }, { status: 403 });
   }
 
   const { data: keys } = await supabase
@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   let payload;
   try { payload = requireAuth(req); } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   if (!ALLOWED_PLANS.has(await getPlan(payload.sub))) {
-    return NextResponse.json({ error: 'Pro or Enterprise plan required' }, { status: 403 });
+    return NextResponse.json({ error: 'Pro or Enterprise plan required', code: 'FORBIDDEN' }, { status: 403 });
   }
 
   const { count } = await supabase
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   if ((count ?? 0) >= MAX_KEYS) {
     return NextResponse.json(
-      { error: `Maximum ${MAX_KEYS} API keys allowed. Revoke an existing key first.` },
+      { error: `Maximum ${MAX_KEYS} API keys allowed. Revoke an existing key first.`, code: 'KEY_LIMIT_REACHED' },
       { status: 400 }
     );
   }
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error || !newKey) {
-    return NextResponse.json({ error: 'Failed to create API key' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create API key', code: 'SERVER_ERROR' }, { status: 500 });
   }
 
   // Return the full key exactly once — not stored, cannot be retrieved again

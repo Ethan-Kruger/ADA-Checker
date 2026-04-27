@@ -14,7 +14,42 @@ Generate keys in **Settings → API Access** (requires Pro or Enterprise plan).
 
 ---
 
-## Endpoints
+## Error envelope
+
+All error responses share the same shape:
+
+```json
+{ "error": "Human-readable message", "code": "MACHINE_CODE" }
+```
+
+| Code | Meaning |
+|------|---------|
+| `UNAUTHORIZED` | Missing, invalid, or expired credentials |
+| `FORBIDDEN` | Authenticated but plan does not allow this action |
+| `BAD_REQUEST` | Missing or invalid fields in the request body |
+| `NOT_FOUND` | Resource does not exist |
+| `RATE_LIMITED` | Too many requests — slow down |
+| `LIMIT_REACHED` | Free-tier check quota exhausted for this window |
+| `KEY_LIMIT_REACHED` | Max 5 API keys per account |
+| `LOCKED` | Account temporarily locked after too many failed logins |
+| `CONFLICT` | Resource already exists (e.g. email already registered) |
+| `SERVER_ERROR` | Unexpected server-side failure |
+
+---
+
+## Rate-limit headers
+
+Every `/api/check/run` response includes:
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Max requests allowed in the window (`unlimited` for Pro/Enterprise) |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp (seconds) when the window resets |
+
+---
+
+## Public API (Pro+)
 
 ### `POST /api/v1/check`
 
@@ -72,50 +107,142 @@ Content-Type: application/json
 
 #### Error responses
 
-| Status | Meaning |
-|--------|---------|
-| `400`  | Missing or invalid fields (`"html"` required, `level` must be A/AA/AAA) |
-| `401`  | Missing or invalid API key |
-| `403`  | Plan does not include API access |
-| `429`  | Rate limit exceeded |
+| Status | Code | Meaning |
+|--------|------|---------|
+| `400`  | `BAD_REQUEST` | Missing or invalid fields |
+| `401`  | `UNAUTHORIZED` | Missing or invalid API key |
+| `403`  | `FORBIDDEN` | Plan does not include API access |
+| `429`  | `RATE_LIMITED` | Rate limit exceeded |
 
 ---
 
 ### `GET /api/v1/keys`
 
-List your API keys (prefix, name, last used).
+List your API keys (prefix, name, last used). Requires session cookie.
 
 ```http
 GET /api/v1/keys
-Authorization: Bearer <session-cookie-or-jwt>
+Cookie: ada-token=<jwt>
 ```
+
+#### Response `200 OK`
+
+```json
+{
+  "keys": [
+    { "id": "uuid", "key_prefix": "ada_sk_abc123", "name": "CI pipeline", "created_at": "…", "last_used_at": "…" }
+  ]
+}
+```
+
+---
 
 ### `POST /api/v1/keys`
 
-Generate a new API key.
+Generate a new API key. The full key is returned **once** — store it securely.
 
 ```http
 POST /api/v1/keys
 Content-Type: application/json
+Cookie: ada-token=<jwt>
 
 { "name": "CI pipeline" }
 ```
 
-The full key is returned **once** — store it securely. Maximum 5 keys per account.
+#### Response `201 Created`
+
+```json
+{ "id": "uuid", "key_prefix": "ada_sk_abc123", "name": "CI pipeline", "created_at": "…", "key": "ada_sk_<full-key>" }
+```
+
+Maximum 5 keys per account. Returns `KEY_LIMIT_REACHED` if exceeded.
+
+---
 
 ### `DELETE /api/v1/keys/:id`
 
 Revoke a key. The key stops working immediately.
 
+```http
+DELETE /api/v1/keys/uuid
+Cookie: ada-token=<jwt>
+```
+
+Response `200 OK`: `{ "ok": true }`
+
+---
+
+## Auth routes (internal)
+
+### `POST /api/auth/login`
+
+```json
+{ "email": "user@example.com", "password": "…" }
+```
+
+Response sets an `httpOnly` cookie. Body: `{ "user": { "id", "email" }, "plan": "free" }`
+
+Rate limited to 10 attempts/minute per IP. Account locks after 10 consecutive failures (`LOCKED`, 15-minute cooldown).
+
+### `GET /api/auth/me`
+
+Returns current user and plan. Requires session cookie. Used by the client to sync plan on page load.
+
+### `POST /api/auth/logout`
+
+Clears the session cookie. Response: `{ "ok": true }`
+
+### `POST /api/auth/signup`
+
+Same shape as login. Creates user + free subscription row.
+
+### `POST /api/auth/change-password`
+
+```json
+{ "currentPassword": "…", "newPassword": "…" }
+```
+
+Increments `token_version` — invalidates all existing sessions on other devices.
+
+---
+
+## Billing routes (internal)
+
+### `POST /api/stripe/checkout`
+
+```json
+{ "plan": "pro" }
+```
+
+Returns `{ "url": "https://checkout.stripe.com/…" }`. Redirect the user there to complete payment.
+
+### `POST /api/stripe/webhook`
+
+Stripe webhook receiver. Handles:
+- `invoice.payment_succeeded` → upgrade plan
+- `invoice.payment_failed` → set `past_due`
+- `customer.subscription.deleted` → downgrade to free
+- `customer.subscription.updated` → plan change / renewal
+
+### `GET /api/billing/invoices`
+
+Returns up to 24 past invoices from Stripe.
+
 ---
 
 ## Rate limits
 
-| Plan       | Requests/hour |
-|------------|---------------|
-| Free       | Not available |
-| Pro        | 60            |
-| Enterprise | 1 000         |
+| Plan       | UI checks | API requests/hour |
+|------------|-----------|-------------------|
+| Free       | 10 / 4 hr | Not available     |
+| Pro        | Unlimited | 60                |
+| Enterprise | Unlimited | 1 000             |
+
+---
+
+## Versioning
+
+The public API lives under `/api/v1/`. Breaking changes will be introduced under a new version prefix (`/api/v2/`) — `/api/v1/` will not silently change shape after v1.0 stable.
 
 ---
 

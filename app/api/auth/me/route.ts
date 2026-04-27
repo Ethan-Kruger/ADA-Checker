@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     payload = requireAuth(req);
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   // Fetch user and verify token_version to reject sessions from before a
@@ -18,13 +18,13 @@ export async function GET(req: NextRequest) {
     .eq('id', payload.sub)
     .single();
 
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  if (!user) return NextResponse.json({ error: 'User not found', code: 'NOT_FOUND' }, { status: 404 });
 
   if ((payload.ver ?? 0) !== (user.token_version ?? 0)) {
     // Token is from before a password change — clear the stale cookie so the
     // browser doesn't keep sending it on every request.
     const res = NextResponse.json(
-      { error: 'Session expired. Please log in again.' },
+      { error: 'Session expired. Please log in again.', code: 'UNAUTHORIZED' },
       { status: 401 }
     );
     res.headers.set('Set-Cookie', buildClearCookie());

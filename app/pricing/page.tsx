@@ -57,11 +57,11 @@ export default function PricingPage() {
             </div>
             <ul className="feature-list" aria-label="Pro tier features">
               <li>Unlimited page checks</li>
-              <li>All 13 accessibility checks</li>
-              <li>URL checking enabled</li>
-              <li>Batch checking (multiple pages)</li>
-              <li>Priority email support</li>
+              <li>All 30 accessibility checks (A, AA, AAA)</li>
+              <li>URL and batch checking</li>
+              <li>REST API — 60 requests/hour</li>
               <li>Downloadable PDF reports</li>
+              <li>Priority email support</li>
             </ul>
             <button type="button" className="pricing-btn btn-primary" data-checkout="pro" aria-label="Get started with the Pro plan">
               Get Started
@@ -82,9 +82,9 @@ export default function PricingPage() {
             </div>
             <ul className="feature-list" aria-label="Enterprise tier features">
               <li>Everything in Pro</li>
-              <li>API access</li>
+              <li>REST API — 1,000 requests/hour</li>
+              <li>Jira and Linear integration</li>
               <li>Team collaboration</li>
-              <li>Custom rules</li>
               <li>Dedicated account manager</li>
               <li>SLA guarantee</li>
             </ul>

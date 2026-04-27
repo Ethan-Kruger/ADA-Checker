@@ -75,6 +75,28 @@ function planAtLeast(tier) {
   return true;
 }
 
+// ─── WCAG label updater ───────────────────────────────────────────────────────
+// Called immediately on load (from localStorage) and again on every ada:plan-updated
+// event so labels are never stale.
+function applyWcagLabels(plan) {
+  var p    = plan || getUserPlan();
+  var sel  = document.getElementById('main-wcag-level');
+  if (!sel) return;
+  var aaOpt  = sel.querySelector('option[value="AA"]');
+  var aaaOpt = sel.querySelector('option[value="AAA"]');
+  if (aaOpt)  aaOpt.textContent  = (p === 'pro' || p === 'enterprise') ? 'AA \u2014 Pro' : 'AA \u2014 Pro (locked)';
+  if (aaaOpt) aaaOpt.textContent = p === 'enterprise' ? 'AAA \u2014 Enterprise' : 'AAA \u2014 Enterprise (locked)';
+}
+
+// Apply immediately from whatever localStorage holds right now (fast path —
+// happens synchronously as checker.js executes, before any async fetch).
+applyWcagLabels();
+
+// Reapply whenever auth.js confirms the real plan from the server.
+window.addEventListener('ada:plan-updated', function (e) {
+  applyWcagLabels(e && e.detail && e.detail.plan);
+});
+
 // ─── Rate limiting (Free: 10 checks per 4-hour window) ────────────────────
 var RATE_KEY = 'ada-rate-usage';
 var FREE_CHECK_LIMIT = 10;

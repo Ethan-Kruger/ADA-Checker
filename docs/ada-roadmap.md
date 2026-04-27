@@ -59,11 +59,14 @@ The core product is live. All WCAG 2.1 rules are implemented across Level A, AA,
 
 ---
 
+- **Pricing tiers finalized** — single source of truth in `lib/plans.ts`; Free: 10 checks/4hr, Pro: unlimited UI + 60 API req/hr, Enterprise: unlimited UI + 1000 API req/hr (#83)
+- **Public API stabilized** — consistent `{ error, code }` envelope on all routes, `X-RateLimit-*` headers on every `/api/check` response, full route reference in `docs/api.md`, versioning policy documented (#79)
+
+---
+
 ## Up next — v1.0 Stable
 
 - Remove BETA label (#81)
-- Stabilize public API surface (#79)
-- Finalize pricing and plan limits
 
 ---
 

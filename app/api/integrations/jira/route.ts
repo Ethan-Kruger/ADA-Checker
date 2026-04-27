@@ -68,7 +68,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 
-  const data = await res.json() as { id: string; key: string; self: string };
+  const data = await res.json() as { id?: string; key?: string; self?: string };
+  if (!data.key) {
+    return NextResponse.json({ error: 'Jira did not return an issue key' }, { status: 502 });
+  }
   const url = `https://${host}/browse/${data.key}`;
 
   return NextResponse.json({ url, key: data.key });

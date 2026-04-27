@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     payload = requireAuth(req);
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
   }
 
   const { data: sub } = await supabase

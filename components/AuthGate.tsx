@@ -28,7 +28,10 @@ export default function AuthGate({
     try {
       const raw = localStorage.getItem('ada-user');
       if (raw) setUser(JSON.parse(raw));
-    } catch {}
+    } catch {
+      // Corrupted data — clear it so the user can re-authenticate
+      localStorage.removeItem('ada-user');
+    }
 
     // Suppress banner on the first load after sign-in / sign-up
     if (sessionStorage.getItem('ada-just-authed')) {

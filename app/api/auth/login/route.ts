@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const { limited } = await rateLimit(req, 'rl:login', 10, 60 * 1000);
   if (limited) {
     return NextResponse.json(
-      { error: 'Too many login attempts. Please wait a minute and try again.' },
+      { error: 'Too many login attempts. Please wait a minute and try again.', code: 'RATE_LIMITED' },
       { status: 429 }
     );
   }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const { email, password } = body as { email?: string; password?: string };
 
   if (!email || !password) {
-    return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    return NextResponse.json({ error: 'Email and password are required', code: 'BAD_REQUEST' }, { status: 400 });
   }
 
   const { data: user } = await supabase
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     .eq('email', email.toLowerCase().trim())
     .single();
 
-  const invalid = () => NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+  const invalid = () => NextResponse.json({ error: 'Invalid email or password', code: 'UNAUTHORIZED' }, { status: 401 });
 
   // Check lockout BEFORE bcrypt so locked accounts are rejected cheaply.
   // Only possible when user exists; non-existent emails can't be locked out.
@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: `Account temporarily locked due to too many failed attempts. Try again in ${mins} minute${mins !== 1 ? 's' : ''}.`,
+          code: 'LOCKED',
         },
         { status: 423 }
       );

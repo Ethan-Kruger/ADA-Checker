@@ -41,7 +41,12 @@ function memRateLimit(key: string, maxRequests: number, windowMs: number) {
       if (now > v.resetAt) memStore.delete(k);
     }
   }
-  return { limited: entry.count > maxRequests, remaining: Math.max(0, maxRequests - entry.count) };
+  return {
+    limited: entry.count > maxRequests,
+    remaining: Math.max(0, maxRequests - entry.count),
+    limit: maxRequests,
+    resetAt: entry.resetAt,
+  };
 }
 
 // ─── In-memory lockout store (used when KV is unavailable) ─────────────────
@@ -72,6 +77,8 @@ export async function rateLimit(
   return {
     limited: count > maxRequests,
     remaining: Math.max(0, maxRequests - count),
+    limit: maxRequests,
+    resetAt: Date.now() + windowMs, // approximate — within one window
   };
 }
 

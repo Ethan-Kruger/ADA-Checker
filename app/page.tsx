@@ -347,12 +347,14 @@ export default function CheckerPage() {
       <Script id="load-checker" strategy="afterInteractive">{`
         (function () {
           var s1 = document.createElement('script');
-          s1.src = '/js/checker.js?v=5';
+          s1.src = '/js/checker.js?v=6';
           s1.onload = function () {
             var s2 = document.createElement('script');
-            s2.src = '/js/app.js?v=13';
+            s2.src = '/js/app.js?v=15';
+            s2.onerror = function () { console.error('Failed to load app.js'); };
             document.head.appendChild(s2);
           };
+          s1.onerror = function () { console.error('Failed to load checker.js'); };
           document.head.appendChild(s1);
         }());
       `}</Script>

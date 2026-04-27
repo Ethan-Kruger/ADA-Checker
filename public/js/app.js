@@ -208,16 +208,10 @@
     if (urlInputEl)      urlInputEl.disabled      = locked;
     if (batchCheckBtnEl) batchCheckBtnEl.disabled = locked;
 
-    // Update WCAG dropdown option labels to drop "(locked)" for users whose
-    // plan actually allows those levels.
+    // WCAG option labels are maintained by applyWcagLabels() in checker.js,
+    // which fires both on load and on every ada:plan-updated event.
+    // Update only the hint text here.
     var plan = getUserPlan();
-    var wcagSel = document.getElementById('main-wcag-level');
-    if (wcagSel) {
-      var aaOpt  = wcagSel.querySelector('option[value="AA"]');
-      var aaaOpt = wcagSel.querySelector('option[value="AAA"]');
-      if (aaOpt)  aaOpt.textContent  = plan === 'pro' || plan === 'enterprise' ? 'AA \u2014 Pro' : 'AA \u2014 Pro (locked)';
-      if (aaaOpt) aaaOpt.textContent = plan === 'enterprise' ? 'AAA \u2014 Enterprise' : 'AAA \u2014 Enterprise (locked)';
-    }
     var wcagHint = document.getElementById('main-wcag-hint');
     if (wcagHint) {
       if (plan === 'enterprise') {
@@ -240,8 +234,11 @@
   applyTabLocks();
 
   // Re-apply locks when auth.js syncs a new plan from the API.
-  // auth.js now always dispatches this after every syncPlan fetch.
-  window.addEventListener('ada:plan-updated', function () { applyTabLocks(); });
+  // Pass e.detail.plan directly so we don't re-read localStorage (avoids stale read).
+  window.addEventListener('ada:plan-updated', function (e) {
+    // applyWcagLabels (in checker.js) handles the select options via its own listener.
+    applyTabLocks();
+  });
 
   // Fallback: if the event fired before this listener registered (race condition
   // where syncPlan resolved before app.js finished loading), re-read localStorage
@@ -281,12 +278,18 @@
   });
 
   // ─── Score counter animation ──────────────────────────────────────────────────
+  var _scoreInterval = null; // stored outside so rapid re-checks cancel the previous animation
   function animateScore(finalScore) {
+    if (_scoreInterval !== null) { clearInterval(_scoreInterval); _scoreInterval = null; }
     var current   = 0;
     var increment = finalScore / 50;
-    var interval  = setInterval(function () {
+    _scoreInterval = setInterval(function () {
       current += increment;
-      if (current >= finalScore) { current = finalScore; clearInterval(interval); }
+      if (current >= finalScore) {
+        current = finalScore;
+        clearInterval(_scoreInterval);
+        _scoreInterval = null;
+      }
       scoreNumber.textContent = Math.round(current);
     }, 20);
   }
@@ -460,15 +463,20 @@
 
   // ─── Save result to history ───────────────────────────────────────────────────
   function saveToHistory(result) {
-    var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
-    history.push({
-      score:      result.score,
-      violations: result.summary.total,
-      date:       new Date().toLocaleString(),
-      details:    result.violations
-    });
-    if (history.length > 20) history = history.slice(-20);
-    localStorage.setItem('ada-history', JSON.stringify(history));
+    try {
+      var history = JSON.parse(localStorage.getItem('ada-history') || '[]');
+      history.push({
+        score:      result.score,
+        violations: result.summary.total,
+        date:       new Date().toLocaleString(),
+        details:    result.violations
+      });
+      if (history.length > 20) history = history.slice(-20);
+      localStorage.setItem('ada-history', JSON.stringify(history));
+    } catch (e) {
+      // QuotaExceededError or parse error — history is non-critical, ignore
+      console.warn('Could not save to history:', e);
+    }
   }
 
   // ─── Last result (for export) ─────────────────────────────────────────────────
@@ -557,16 +565,20 @@
   checkBtn.addEventListener('click', handleCheck);
 
   async function handleCheck() {
-    // Server is authoritative — always gate through the API before running.
-    // canRunCheck() is a fast-path UX check only (avoids a fetch when we
-    // already know from the last server response that the limit is reached).
+    // Prevent double-submission — disable immediately so rapid clicks don't
+    // each fire a full check + server gate round-trip.
+    if (checkBtn.disabled) return;
+    checkBtn.disabled = true;
+
+    // Fast-path: skip fetch if we already know the limit is reached.
     if (serverRemaining === 0) {
       updateUsageCounter();
+      checkBtn.disabled = false;
       return;
     }
 
     var allowed = await requestServerGate();
-    if (!allowed) return;
+    if (!allowed) { checkBtn.disabled = false; return; }
 
     var activeTab = tabs.find(function (t) {
       return t.getAttribute('aria-selected') === 'true';
@@ -987,6 +999,9 @@
         window.checkAccessibilityAsync(pages[idx], level).then(function (result) {
           results.push(result);
           runNext(idx + 1);
+        }).catch(function (err) {
+          console.error('Batch check failed on page ' + (idx + 1) + ':', err);
+          runNext(idx + 1); // skip failed page and continue
         });
       }(0));
     });
