@@ -90,6 +90,20 @@ The core product is live. All WCAG 2.1 rules are implemented across Level A, AA,
 ### Integrations
 - **Slack / email alerts** — notify when a scheduled scan finds regressions (#94)
 - ~~**CLI tool** — `npx ada-checker <url>` for local development~~ ✅ Done (#85)
+- **VS Code extension** — check accessibility inline while coding (#113)
+- **Browser extension** — scan the current tab from the browser toolbar (#114)
+- **GitHub App** — auto-comment on PRs with accessibility score (#115)
+- **Webhook notifications** *(Enterprise)* — POST scan results to a URL when a scan completes (#116)
+
+### Auth and account
+- **Forgot password / password reset** — email-based reset flow (#117)
+- **Email verification on signup** — confirm address before granting access (#118)
+
+### Developer experience
+- **API usage dashboard** — show request count, quota remaining, reset time in Settings (#119)
+- **Accessibility score badge** — embeddable shield for README files (#120)
+- **Violation suppression** — mark false positives or ignore specific rules per-project (#121)
+- **Bulk URL import from CSV** — paste or upload a CSV to populate the batch scan tab (#122)
 
 ---
 
