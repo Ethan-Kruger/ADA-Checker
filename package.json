@@ -2,6 +2,14 @@
   "name": "ada-checker",
   "version": "1.0.0",
   "private": true,
+  "bin": {
+    "ada-checker": "./bin/ada-checker.mjs"
+  },
+  "files": [
+    "bin/",
+    "scripts/load-checker.mjs",
+    "public/js/checker.js"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -17,9 +17,9 @@
  *   1  One or more files are below the threshold
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync } from 'fs'
 import { resolve, join, relative } from 'path'
-import { Window } from 'happy-dom'
+import { loadChecker } from './load-checker.mjs'
 
 // ── HTML file discovery ───────────────────────────────────────────────────────
 
@@ -70,35 +70,9 @@ if (!files.length) {
   process.exit(1)
 }
 
-// ── Load checker.js into a happy-dom window ───────────────────────────────────
+// ── Load checker.js ───────────────────────────────────────────────────────────
 
-const win = new Window({ url: 'https://localhost' })
-
-// Patch globals so checker.js can run in Node's global scope
-const _store = {}
-globalThis.window      = {}           // checker assigns window.checkAccessibility
-globalThis.document    = win.document // UI init code uses getElementById (returns null — ok)
-globalThis.DOMParser   = win.DOMParser
-globalThis.CSS         = win.CSS      // CSS.escape used in form-label check
-globalThis.CustomEvent = class CustomEvent { constructor() {} }
-globalThis.localStorage = {
-  getItem:    (k)    => Object.prototype.hasOwnProperty.call(_store, k) ? _store[k] : null,
-  setItem:    (k, v) => { _store[k] = String(v) },
-  removeItem: (k)    => { delete _store[k] },
-}
-
-// Silence checker.js UI-setup noise during eval (getElementById returns null).
-// Indirect eval resolves `console` from globalThis; module-level console is unaffected.
-globalThis.console = { log: () => {}, warn: () => {}, error: () => {}, info: () => {} }
-const checkerSrc = readFileSync(resolve(process.cwd(), 'public/js/checker.js'), 'utf-8')
-;(0, eval)(checkerSrc)   // sets globalThis.window.checkAccessibility
-globalThis.console = { log: () => {}, warn: () => {}, error: () => {}, info: () => {} }  // keep silenced at runtime too
-
-const checkAccessibility = globalThis.window.checkAccessibility
-if (typeof checkAccessibility !== 'function') {
-  out.error('ERROR: checkAccessibility not found after loading checker.js')
-  process.exit(1)
-}
+const checkAccessibility = loadChecker(resolve(process.cwd(), 'public/js/checker.js'))
 
 // ── Scan files ────────────────────────────────────────────────────────────────
 
