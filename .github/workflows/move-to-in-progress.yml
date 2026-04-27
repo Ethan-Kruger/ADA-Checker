@@ -1,6 +1,8 @@
 name: Move referenced issues to In Progress
 
 on:
+  push:
+    branches: ['**']
   pull_request:
     types: [opened, reopened, edited]
   issues:
@@ -31,8 +33,7 @@ jobs:
             const inProgressOption = '47fc9ee4';
 
             async function moveToInProgress(issueNumber) {
-              console.log(`Moving issue #${issueNumber} to In Progress...`);
-
+              // Verify the issue actually exists and is open
               let issueNodeId;
               try {
                 const issue = await github.rest.issues.get({
@@ -40,13 +41,17 @@ jobs:
                   repo:  context.repo.repo,
                   issue_number: issueNumber,
                 });
+                if (issue.data.state !== 'open') {
+                  console.log(`Issue #${issueNumber} is ${issue.data.state} — skipping.`);
+                  return;
+                }
                 issueNodeId = issue.data.node_id;
               } catch (e) {
-                console.error(`Could not fetch issue #${issueNumber}:`, e.message);
+                console.log(`Issue #${issueNumber} not found — skipping.`);
                 return;
               }
 
-              // Add to project (idempotent — returns existing item if already added)
+              // Add to project (idempotent)
               const addResult = await github.graphql(`
                 mutation($projectId: ID!, $contentId: ID!) {
                   addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
@@ -57,7 +62,7 @@ jobs:
 
               const itemId = addResult.addProjectV2ItemById.item.id;
 
-              // Set status field to In Progress
+              // Set status to In Progress
               await github.graphql(`
                 mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
                   updateProjectV2ItemFieldValue(input: {
@@ -74,30 +79,45 @@ jobs:
               console.log(`✓ Issue #${issueNumber} moved to In Progress.`);
             }
 
-            // ── Manual trigger ────────────────────────────────────────────────
+            function extractIssueNumbers(text) {
+              // Match #123 anywhere in the text
+              const matches = [...text.matchAll(/#(\d+)/g)];
+              return [...new Set(matches.map(m => parseInt(m[1])))];
+            }
+
+            // ── Manual trigger ──────────────────────────────────────────────
             if (context.eventName === 'workflow_dispatch') {
               await moveToInProgress(Number(context.payload.inputs.issue_number));
               return;
             }
 
-            // ── Issue assigned ────────────────────────────────────────────────
+            // ── Issue assigned ──────────────────────────────────────────────
             if (context.eventName === 'issues') {
               await moveToInProgress(context.payload.issue.number);
               return;
             }
 
-            // ── Pull request opened / reopened / edited ───────────────────────
-            const pr = context.payload.pull_request;
-            const text = `${pr.title}\n${pr.body || ''}`;
-
-            // Match: fixes #50, closes #50, resolves #50 (and past/present tense)
-            const pattern = /(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\s+#(\d+)/gi;
-            const numbers = [...new Set([...text.matchAll(pattern)].map(m => parseInt(m[1])))];
-
-            if (numbers.length === 0) {
-              console.log('No referenced issues found in PR title or body.');
+            // ── Pull request ────────────────────────────────────────────────
+            if (context.eventName === 'pull_request') {
+              const pr = context.payload.pull_request;
+              const numbers = extractIssueNumbers(`${pr.title}\n${pr.body || ''}`);
+              if (numbers.length === 0) {
+                console.log('No issue references found in PR.');
+                return;
+              }
+              for (const n of numbers) await moveToInProgress(n);
               return;
             }
 
-            console.log('Found referenced issues:', numbers);
-            for (const n of numbers) await moveToInProgress(n);
+            // ── Push — scan all commit messages in the push ─────────────────
+            if (context.eventName === 'push') {
+              const commits = context.payload.commits || [];
+              const allText = commits.map(c => c.message).join('\n');
+              const numbers = extractIssueNumbers(allText);
+              if (numbers.length === 0) {
+                console.log('No issue references found in commit messages.');
+                return;
+              }
+              console.log('Found issue references in commits:', numbers);
+              for (const n of numbers) await moveToInProgress(n);
+            }
