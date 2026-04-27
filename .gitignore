@@ -27,5 +27,9 @@ Thumbs.db
 ada-checker/
 .mcp.json
 
+# Playwright
+/playwright-report/
+/test-results/
+
 # Claude Code local settings (contains personal paths)
 .claude/settings.local.json
