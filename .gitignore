@@ -26,3 +26,6 @@ Thumbs.db
 # Misc
 ada-checker/
 .mcp.json
+
+# Claude Code local settings (contains personal paths)
+.claude/settings.local.json
